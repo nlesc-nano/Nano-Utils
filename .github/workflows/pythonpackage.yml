@@ -11,21 +11,21 @@ on:
 
 jobs:
     build:
-        name: Python ${{ matrix.python-version }} on ${{ matrix.architecture }}
-        runs-on: ${{ matrix.architecture }}
+        name: Python ${{ matrix.python-version }} on ${{ matrix.os }}
+        runs-on: ${{ matrix.os }}
         strategy:
             matrix:
-                architecture: [ubuntu-latest, macos-latest, windows-latest]
+                os: [ubuntu-latest, macos-latest, windows-latest]
                 python-version: [3.6, 3.7, 3.8]
 
         steps:
             - uses: actions/checkout@v2
 
-            - name: Set up Python ${{ matrix.python-version }} on ${{ matrix.architecture }}
+            - name: Set up Python ${{ matrix.python-version }} on ${{ matrix.os }}
               uses: actions/setup-python@v1
               with:
-                  os: ${{ matrix.os }}
-                  python-version: ${{ matrix.python-version }}
+                os: ${{ matrix.os }}
+                python-version: ${{ matrix.python-version }}
 
             - name: Python info
               run: |
@@ -33,8 +33,7 @@ jobs:
                 python --version
 
             - name: Install dependencies
-              run: |
-                pip install -e .[test]
+              run: pip install -e .[test]
 
             - name: Test with pytest
               run: pytest
@@ -42,5 +41,5 @@ jobs:
             - name: Run codecov
               uses: codecov/codecov-action@v1
               with:
-                  file: ./coverage.xml
-                  name: codecov-umbrella
+                file: ./coverage.xml
+                name: codecov-umbrella
