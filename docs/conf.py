@@ -25,7 +25,7 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
-needs_sphinx = '2.1'  # 2.1 or higher
+needs_sphinx = '2.4'
 
 
 # This value controls how to represents typehints. The setting takes the following values:
@@ -228,3 +228,14 @@ napoleon_use_admonition_for_references = True
 # This is a possible place to add substitutions that should be available
 # in every file (another being rst_prolog).
 rst_epilog = ''
+
+
+# The default options for autodoc directives. They are applied to all autodoc directives automatically.
+# It must be a dictionary which maps option names to the values.
+# Setting None or True to the value is equivalent to giving only the option name to the directives.
+# The supported options are 'members', 'member-order', 'undoc-members', 'private-members', 'special-members',
+# 'inherited-members', 'show-inheritance', 'ignore-module-all', 'imported-members' and 'exclude-members'.
+autodoc_default_options = {
+    'members': True,
+    'ignore-module-all': True
+}

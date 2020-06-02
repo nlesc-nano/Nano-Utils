@@ -18,7 +18,7 @@ with open('README.rst') as readme_file:
 
 # Requirements for building the documentation
 docs_require = [
-    'sphinx>=2.1',
+    'sphinx>=2.4',
     'sphinx_rtd_theme'
 ]
 
@@ -69,6 +69,9 @@ setup(
         'Typing :: Typed'
     ],
     python_requires='>=3.6',
+    install_requires=[
+        'typing_extensions>=3.7.4; python_version<"3.8"'
+    ],
     setup_requires=['pytest-runner'],
     tests_require=tests_require,
     extras_require={'doc': docs_require, 'test': tests_require}
