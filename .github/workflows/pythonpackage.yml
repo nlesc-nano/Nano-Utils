@@ -24,16 +24,18 @@ jobs:
             - name: Set up Python ${{ matrix.python-version }} on ${{ matrix.os }}
               uses: actions/setup-python@v1
               with:
-                os: ${{ matrix.os }}
                 python-version: ${{ matrix.python-version }}
+
+            - name: Install dependencies
+              run: pip install -e .[test]
 
             - name: Python info
               run: |
                 which python
                 python --version
 
-            - name: Install dependencies
-              run: pip install -e .[test]
+            - name: Installed packages
+              run: pip list
 
             - name: Test with pytest
               run: pytest
