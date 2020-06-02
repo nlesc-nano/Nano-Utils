@@ -25,7 +25,7 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
-needs_sphinx = '2.1'  # 2.1 or higher
+needs_sphinx = '2.4'
 
 
 # This value controls how to represents typehints. The setting takes the following values:
@@ -181,9 +181,7 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/3/', None),
-    'pandas': ('https://pandas.pydata.org/pandas-docs/stable/', None),
-    'numpy': ('https://docs.scipy.org/doc/numpy/', None)
+    'python': ('https://docs.python.org/3/', None)
 }
 
 
@@ -222,9 +220,3 @@ napoleon_use_admonition_for_notes = True
 # False to use the .. rubric:: directive instead.
 # Defaults to False.
 napoleon_use_admonition_for_references = True
-
-
-# A string of reStructuredText that will be included at the end of every source file that is read.
-# This is a possible place to add substitutions that should be available
-# in every file (another being rst_prolog).
-rst_epilog = ''
