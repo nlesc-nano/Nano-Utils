@@ -38,28 +38,95 @@ T = TypeVar('T')
 
 
 @overload
-def supports_float(value: SupportsFloat) -> Literal[True]: ...
-@overload
-def supports_float(value: object) -> bool: ...
-def supports_float(value):  # noqa: E302
-    """Check if a float-like object has been passed (:class:`~typing.SupportsFloat`)."""
+def supports_float(value: SupportsFloat) -> Literal[True]:
+    ...
+@overload  # noqa: E302
+def supports_float(value: object) -> bool:
+    ...
+def supports_float(value: object) -> bool:  # noqa: E302
+    """Check if a float-like object has been passed (:class:`~typing.SupportsFloat`).
+
+    Examples
+    --------
+    .. code:: python
+
+        >>> from nanoutils import supports_float
+
+        >>> supports_float(1.0)
+        True
+
+        >>> supports_float(1)
+        True
+
+        >>> supports_float('1.0')
+        True
+
+        >>> supports_float('not a float')
+        False
+
+    Parameters
+    ----------
+    value : :class:`object`
+        The to-be evaluated object.
+
+    Returns
+    -------
+    :class:`bool`
+        Whether or not the passed **value** is float-like or not.
+
+    """
     try:
-        float(value)
+        float(value)  # type: ignore
         return True
     except Exception:
         return False
 
 
 @overload
-def supports_int(value: Union[int, Integral]) -> Literal[True]: ...
-@overload
-def supports_int(value: object) -> bool: ...
-def supports_int(value):  # noqa: E302
-    """Check if an int-like object has been passed (:class:`~typing.SupportsInt`)."""
+def supports_int(value: Union[int, Integral]) -> Literal[True]:
+    ...
+@overload  # noqa: E302
+def supports_int(value: object) -> bool:
+    ...
+def supports_int(value: object) -> bool:  # noqa: E302
+    """Check if an int-like object has been passed (:class:`~typing.SupportsInt`).
+
+    Examples
+    --------
+    .. code:: python
+
+        >>> from nanoutils import supports_int
+
+        >>> supports_int(1.0)
+        True
+
+        >>> supports_int(1.5)
+        False
+
+        >>> supports_int(1)
+        True
+
+        >>> supports_int('1')
+        True
+
+        >>> supports_int('not a int')
+        False
+
+    Parameters
+    ----------
+    value : :class:`object`
+        The to-be evaluated object.
+
+    Returns
+    -------
+    :class:`bool`
+        Whether or not the passed **value** is int-like or not.
+
+    """
     # floats that can be exactly represented by an integer are also fine
     try:
-        int(value)
-        return float(value).is_integer()
+        int(value)  # type: ignore
+        return float(value).is_integer()  # type: ignore
     except Exception:
         return False
 
@@ -68,24 +135,25 @@ class Default(Generic[T]):
     """A validation class akin to the likes of :class:`schemas.Use`.
 
     Upon executing :meth:`Default.validate` returns the stored :attr:`~Default.value`.
-    If :attr:`~Default.call` is ``True`` and the value is a callable,
+    If :attr:`~.Default.call` is ``True`` and the value is a callable,
     then it is called before its return.
 
     Examples
     --------
     .. code:: python
 
-        >>> from schema import Schema
+        >>> from schema import Schema, And
+        >>> from nanoutils import Default
 
-        >>> schema1 = Schema(int, Default(True))
+        >>> schema1 = Schema(And(int, Default(True)))
         >>> schema1.validate(1)
         True
 
-        >>> schema2 = Schema(int, Default(dict))
+        >>> schema2 = Schema(And(int, Default(dict)))
         >>> schema2.validate(1)
         {}
 
-        >>> schema3 = Schema(int, Default(dict, call=False))
+        >>> schema3 = Schema(And(int, Default(dict, call=False)))
         >>> schema3.validate(1)
         <class 'dict'>
 
@@ -123,7 +191,19 @@ class Default(Generic[T]):
 
 
 class Formatter(str):
-    """A :class:`str` subclass used for creating :mod:`schema` error messages."""
+    r"""A :class:`str` subclass used for creating :mod:`schema` error messages.
+
+    Examples
+    --------
+    .. code:: python
+
+        >>> from nanoutils import Formatter
+
+        >>> string = Formatter("{name}: {type} = {value}")
+        >>> string.format(1)
+        'value: int = 1'
+
+    """
 
     def __init__(self, msg: str):
         """Initialize an instance."""
@@ -135,8 +215,12 @@ class Formatter(str):
 
     def format(self, obj: object) -> str:  # type: ignore
         """Return a formatted version of :attr:`Formatter._msg`."""
-        name = self._msg.split("'", maxsplit=2)[1]
+        try:
+            name = self._msg.split("'", maxsplit=2)[1]
+        except IndexError:
+            name = ''
         name_ = name or 'value'
+
         try:
             return self._msg.format(name=name_, value=obj, type=obj.__class__.__name__)
         except Exception as ex:
@@ -160,9 +244,23 @@ POK = inspect.Parameter.POSITIONAL_OR_KEYWORD
 def isinstance_factory(class_or_tuple: ClassOrTuple) -> Callable[[object], bool]:
     """Return a function which checks if the passed object is an instance of **class_or_tuple**.
 
+    Examples
+    --------
+    .. code:: python
+
+        >>> from nanoutils import isinstance_factory
+
+        >>> func = isinstance_factory(int)
+
+        >>> func(1)  # isinstance(1, int)
+        True
+
+        >>> func(1.0)  # isinstance(1, float)
+        False
+
     Parameters
     ----------
-    class_or_tuple : :class:`type` or :class:`Tuple[type, ...]<typing.Tuple>`
+    class_or_tuple : :class:`type` or :data:`Tuple[type, ...]<typing.Tuple>`
         A type object or tuple of type objects.
 
     Returns
@@ -202,10 +300,23 @@ def isinstance_factory(class_or_tuple: ClassOrTuple) -> Callable[[object], bool]
 def issubclass_factory(class_or_tuple: ClassOrTuple) -> Callable[[type], bool]:
     """Return a function which checks if the passed class is a subclass of **class_or_tuple**.
 
+    Examples
+    --------
+    .. code:: python
+
+        >>> from nanoutils import issubclass_factory
+
+        >>> func = issubclass_factory(int)
+
+        >>> func(bool)  # issubclass(bool, int)
+        True
+
+        >>> func(float)  # issubclass(float, int)
+        False
 
     Parameters
     ----------
-    class_or_tuple : :class:`type` or :class:`Tuple[type, ...]<typing.Tuple>`
+    class_or_tuple : :class:`type` or :data:`Tuple[type, ...]<typing.Tuple>`
         A type object or tuple of type objects.
 
     Returns
@@ -244,6 +355,22 @@ def issubclass_factory(class_or_tuple: ClassOrTuple) -> Callable[[type], bool]:
 
 def import_factory(validate: Callable[[T], bool]) -> Callable[[str], T]:
     """Return a function which calls :func:`nanoutils.get_importable` with the **validate** argument.
+
+    Examples
+    --------
+    .. code:: python
+
+        >>> from inspect import isclass
+        >>> from nanoutils import import_factory
+
+        >>> func = import_factory(isclass)
+        >>> func('builtins.dict')
+        <class 'dict'>
+
+        >>> func('builtins.len')
+        Traceback (most recent call last):
+          ...
+        RuntimeError: Passing <built-in function len> to isclass() failed to return True
 
     Parameters
     ----------

@@ -4,12 +4,12 @@ can be used as default arguments for functions.
 
 Index
 -----
-=========================== =================================================
-:data:`EMPTY_SEQUENCE`      An empty :class:`~collections.abc.Sequence`.
-:data:`EMPTY_MAPPING`       An empty :class:`~collections.abc.Mapping`.
-:data:`EMPTY_COLLECTION`    An empty :class:`~collections.abc.Collection`.
-:data:`EMPTY_SET`           An empty :class:`~collections.abc.Set`.
-=========================== =================================================
+===================================== =================================================
+:data:`~nanoutils.EMPTY_SEQUENCE`      An empty :class:`~collections.abc.Sequence`.
+:data:`~nanoutils.EMPTY_MAPPING`       An empty :class:`~collections.abc.Mapping`.
+:data:`~nanoutils.EMPTY_COLLECTION`    An empty :class:`~collections.abc.Collection`.
+:data:`~nanoutils.EMPTY_SET`           An empty :class:`~collections.abc.Set`.
+===================================== =================================================
 
 API
 ---
