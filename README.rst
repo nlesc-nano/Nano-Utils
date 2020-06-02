@@ -27,4 +27,5 @@ Utility functions used throughout the various nlesc-nano repositories.
 
 Installation
 ************
+* PyPi: ``pip install Nano-Utils``
 * GitHub: ``pip install git+https://github.com/nlesc-nano/Nano-Utils@master``
