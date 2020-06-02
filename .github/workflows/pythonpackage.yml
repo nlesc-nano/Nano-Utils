@@ -11,17 +11,17 @@ on:
 
 jobs:
     build:
-        name: Python ${{ matrix.python-version }} on ${{ matrix.os }}
-        runs-on: ubuntu-latest
+        name: Python ${{ matrix.python-version }} on ${{ matrix.architecture }}
+        runs-on: ${{ matrix.architecture }}
         strategy:
             matrix:
-                os: [ubuntu-latest, macos-latest, windows-latest]
+                architecture: [ubuntu-latest, macos-latest, windows-latest]
                 python-version: [3.6, 3.7, 3.8]
 
         steps:
             - uses: actions/checkout@v2
 
-            - name: Set up Python ${{ matrix.python-version }} on ${{ matrix.os }}
+            - name: Set up Python ${{ matrix.python-version }} on ${{ matrix.architecture }}
               uses: actions/setup-python@v1
               with:
                   os: ${{ matrix.os }}
