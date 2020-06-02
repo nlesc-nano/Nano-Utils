@@ -1,7 +1,7 @@
 .. image:: https://readthedocs.org/projects/Nano-Utils/badge/?version=latest
     :target: https://Nano-Utils.readthedocs.io/en/latest/
-.. image:: https://github.com/nlesc-nano/Nano-Utils/workflows/Python%20package/badge.svg
-    :target: https://github.com/nlesc-nano/Nano-Utils/actions
+.. image:: https://github.com/nlesc-nano/Nano-Utils/workflows/Build/badge.svg
+    :target: https://github.com/nlesc-nano/Nano-Utils/actions?query=workflow%3ABuild
 .. image:: https://codecov.io/gh/nlesc-nano/Nano-Utils/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/nlesc-nano/Nano-Utils
 
