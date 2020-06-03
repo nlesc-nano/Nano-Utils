@@ -1,4 +1,4 @@
-"""Nano-Utils."""
+"""The **Nano-Utils** package."""
 
 # flake8: noqa: F403,F401
 

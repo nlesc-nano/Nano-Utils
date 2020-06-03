@@ -123,7 +123,7 @@ class SetAttr(Generic[T1, T2]):
 
         Warnings
         --------
-        Unsupported operation, raise a :exc:`TypeError`.
+        Unsupported operation, raises a :exc:`TypeError`.
 
         """
         raise TypeError(f"can't pickle {self.__class__.__name__} objects")

@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+0.3.0
+*****
+* Added the ``SetAttr`` context manager.
+* Updated the development status from alpha to beta.
+
+
 0.2.0
 *****
 * Added new NumPy-specific functions: ``as_nd_array()``, ``array_combinations()`` & ``fill_diagonal_blocks()``.
