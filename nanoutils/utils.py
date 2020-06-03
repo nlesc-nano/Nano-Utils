@@ -233,14 +233,11 @@ def construct_api_doc(glob_dict: Mapping[str, object],
 
         >>> obj = ...
 
-
         >>> def func(obj: object) -> None:
         ...     pass
 
-
         >>> class Class(object):
         ...     pass
-
 
         >>> doc = construct_api_doc(locals())
         >>> print(doc)
