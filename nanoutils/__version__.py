@@ -1,3 +1,3 @@
-"""The Nano-Utils version."""
+"""The **Nano-Utils** version."""
 
-__version__ = '0.2.0'
+__version__ = '0.3.0'

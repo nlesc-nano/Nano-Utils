@@ -241,7 +241,10 @@ def split_dict(dct: MutableMapping[KT, VT], keep_keys: Iterable[KT],
     if keep_order:
         difference: Iterable[KT] = [k for k in dct if k not in keep_keys]
     else:
-        difference = set(dct.keys()).difference(keep_keys)
+        try:
+            difference = dct.keys() - keep_keys  # type: ignore
+        except (TypeError, AttributeError):
+            difference = set(dct.keys()).difference(keep_keys)
 
     return {k: dct.pop(k) for k in difference}
 
