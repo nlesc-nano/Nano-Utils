@@ -28,6 +28,7 @@ from typing import (
     NamedTuple,
     NoReturn,
     MutableMapping,
+    Collection,
     cast,
     overload,
     TYPE_CHECKING
@@ -199,9 +200,16 @@ class PartialPrepend(partial):
         return self.func(*args, *self.args, **keywords)
 
 
-def split_dict(dct: MutableMapping[KT, VT], keep_keys: Iterable[KT],
-               keep_order: bool = True) -> Dict[KT, VT]:
-    """Pop all items from **dct** which are not in **keep_keys** and use them to construct a new dictionary.
+@overload
+def split_dict(dct: MutableMapping[KT, VT], *, keep_keys: Iterable[KT],
+               preserve_order: bool = ...) -> Dict[KT, VT]:
+    ...
+@overload  # noqa: E302
+def split_dict(dct: MutableMapping[KT, VT], *, disgard_keys: Iterable[KT],
+               preserve_order: bool = ...) -> Dict[KT, VT]:
+    ...
+def split_dict(dct: MutableMapping[KT, VT], *, keep_keys: Iterable[KT] = None, disgard_keys: Iterable[KT] = None, preserve_order: bool = False) -> Dict[KT, VT]:  # noqa: E302,E501
+    r"""Pop all items from **dct** which are in not in **keep_keys** and use them to construct a new dictionary.
 
     Note that, by popping its keys, the passed **dct** will also be modified inplace.
 
@@ -214,11 +222,14 @@ def split_dict(dct: MutableMapping[KT, VT], keep_keys: Iterable[KT],
         >>> dict1 = {1: 'a', 2: 'b', 3: 'c', 4: 'd'}
         >>> dict2 = split_dict(dict1, keep_keys={1, 2})
 
-        >>> print(dict1)
+        >>> print(dict1, dict2, sep='\n')
         {1: 'a', 2: 'b'}
-
-        >>> print(dict2)
         {3: 'c', 4: 'd'}
+
+        >>> dict3 = split_dict(dict1, disgard_keys={1, 2})
+        >>> print(dict1, dict3, sep='\n')
+        {}
+        {1: 'a', 2: 'b'}
 
     Parameters
     ----------
@@ -226,9 +237,13 @@ def split_dict(dct: MutableMapping[KT, VT], keep_keys: Iterable[KT],
         A mutable mapping.
     keep_keys : :class:`Iterable[KT]<typing.Iterable>`
         An iterable with keys that should remain in **dct**.
-    keep_order : :class:`bool`
+        Note that **keep_keys** and **disgard_keys** are mutually exclusive.
+    disgard_keys : :class:`Iterable[KT]<typing.Iterable>`
+        An iterable with keys that should be removed from **dct**.
+        Note that **disgard_keys** and **keep_keys** are mutually exclusive.
+    preserve_order : :class:`bool`
         If :data:`True`, preserve the order of the items in **dct**.
-        Note that :code:`keep_order = False` is generally faster.
+        Note that :code:`preserve_order = False` is generally faster.
 
     Returns
     -------
@@ -236,26 +251,49 @@ def split_dict(dct: MutableMapping[KT, VT], keep_keys: Iterable[KT],
         A new dictionaries with all key/value pairs from **dct** not specified in **keep_keys**.
 
     """  # noqa: E501
-    # The ordering of dict elements is preserved in this manner,
-    # as opposed to the use of set.difference()
-    if keep_order:
-        difference: Iterable[KT] = [k for k in dct if k not in keep_keys]
+    if keep_keys is disgard_keys is None:
+        raise TypeError("'keep_keys' and 'disgard_keys' cannot both be unspecified")
+    elif keep_keys is not None:
+        iterable = _keep_keys(dct, keep_keys, preserve_order)
+    elif disgard_keys is not None:
+        iterable = _disgard_keys(dct, disgard_keys, preserve_order)
+    else:
+        raise TypeError("'keep_keys' and 'disgard_keys' cannot both be specified")
+
+    return {k: dct.pop(k) for k in iterable}
+
+
+def _keep_keys(dct: Mapping[KT, VT], keep_keys: Iterable[KT],
+               preserve_order: bool = False) -> Collection[KT]:
+    """A helper function for :func:`split_dict`; used when :code:`keep_keys is not None`."""
+    if preserve_order:
+        return [k for k in dct if k not in keep_keys]
     else:
         try:
-            difference = dct.keys() - keep_keys  # type: ignore
+            return dct.keys() - keep_keys  # type: ignore
         except (TypeError, AttributeError):
-            difference = set(dct.keys()).difference(keep_keys)
+            return set(dct.keys()).difference(keep_keys)
 
-    return {k: dct.pop(k) for k in difference}
+
+def _disgard_keys(dct: Mapping[KT, VT], keep_keys: Iterable[KT],
+                  preserve_order: bool = False) -> Collection[KT]:
+    """A helper function for :func:`split_dict`; used when :code:`disgard_keys is not None`."""
+    if preserve_order:
+        return [k for k in dct if k in keep_keys]
+    else:
+        try:
+            return dct.keys() + keep_keys  # type: ignore
+        except TypeError:
+            return set(dct.keys()).union(keep_keys)
 
 
 @overload
-def raise_if(ex: None) -> Callable[[FT], FT]:
+def raise_if(exception: None) -> Callable[[FT], FT]:
     ...
 @overload  # noqa: E302
-def raise_if(ex: BaseException) -> Callable[[Callable], Callable[..., NoReturn]]:
+def raise_if(exception: BaseException) -> Callable[[Callable], Callable[..., NoReturn]]:
     ...
-def raise_if(ex: Optional[BaseException]) -> Callable:  # noqa: E302
+def raise_if(exception: Optional[BaseException]) -> Callable:  # noqa: E302
     """A decorator which raises the passed exception whenever calling the decorated function.
 
     Examples
@@ -286,24 +324,24 @@ def raise_if(ex: Optional[BaseException]) -> Callable:  # noqa: E302
 
     Parameters
     ----------
-    ex : :exc:`BaseException`, optional
+    exception : :exc:`BaseException`, optional
         An exception.
         If :data:`None` is passed then the decorated function will be called as usual.
 
     """
-    if ex is None:
+    if exception is None:
         def decorator(func: FT):
             return func
 
-    elif isinstance(ex, BaseException):
+    elif isinstance(exception, BaseException):
         def decorator(func: FT):
             @wraps(func)
             def wrapper(*args, **kwargs):
-                raise ex
+                raise exception
             return wrapper
 
     else:
-        raise TypeError(f"{ex.__class__.__name__!r}")
+        raise TypeError(f"{exception.__class__.__name__!r}")
     return decorator
 
 
