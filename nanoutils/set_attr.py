@@ -119,7 +119,13 @@ class SetAttr(Generic[T1, T2]):
         return self.obj is value.obj and self.name == value.name and self.value == value.value  # type: ignore  # noqa: E501
 
     def __reduce__(self) -> NoReturn:
-        """Unsupported operation, raise a :exc:`TypeError`."""
+        """A Helper function for :mod:`pickle`.
+
+        Warnings
+        --------
+        Unsupported operation, raise a :exc:`TypeError`.
+
+        """
         raise TypeError(f"can't pickle {self.__class__.__name__} objects")
 
     def __copy__(self: ST) -> ST:
