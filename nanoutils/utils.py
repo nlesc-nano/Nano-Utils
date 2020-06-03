@@ -271,7 +271,7 @@ def _keep_keys(dct: Mapping[KT, VT], keep_keys: Iterable[KT],
     else:
         try:
             return dct.keys() - keep_keys  # type: ignore
-        except (TypeError, AttributeError):
+        except TypeError:
             return set(dct.keys()).difference(keep_keys)
 
 
@@ -282,7 +282,7 @@ def _disgard_keys(dct: Mapping[KT, VT], keep_keys: Iterable[KT],
         return [k for k in dct if k in keep_keys]
     else:
         try:
-            return dct.keys() + keep_keys  # type: ignore
+            return dct.keys() & keep_keys  # type: ignore
         except TypeError:
             return set(dct.keys()).union(keep_keys)
 

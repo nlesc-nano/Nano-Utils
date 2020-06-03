@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+0.3.2
+*****
+* Fixed a bug with ``split_dict()``.
+
+
 0.3.1
 *****
 * Added the ``disgard_keys`` argument to ``split_dict()``.
