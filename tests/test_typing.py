@@ -23,5 +23,5 @@ def test_typing() -> None:
     if sys.version_info >= (3, 8):
         assertion.is_(SupportsIndex, t.SupportsIndex)
     else:
-        assertion.issubclass(SupportsIndex, Protocol)  # type: ignore
+        assertion.contains(SupportsIndex.__bases__, Protocol)
         assertion.hasattr(SupportsIndex, '__index__')
