@@ -321,7 +321,7 @@ def issubclass_factory(class_or_tuple: ClassOrTuple) -> Callable[[type], bool]:
 
     Returns
     -------
-    :data:`Callable[[object], bool]<typing.Callable>`
+    :data:`Callable[[type], bool]<typing.Callable>`
         A function which asserts the passed type is a subclass of **class_or_tuple**.
 
     See Also
