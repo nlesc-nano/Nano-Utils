@@ -21,13 +21,14 @@ from typing import (
     Optional,
     Callable,
     TypeVar,
-    Any,
     Iterable,
     Dict,
-    Container
+    Container,
+    Mapping,
+    cast
 )
 
-from .empty import EMPTY_COLLECTION
+from .empty import EMPTY_CONTAINER
 
 __all__ = [
     'PartialPrepend', 'group_by_values', 'get_importable', 'set_docstring', 'construct_api_doc'
@@ -160,7 +161,25 @@ def get_importable(string: str, validate: Optional[Callable[[T], bool]] = None) 
 
 
 class PartialPrepend(partial):
-    """A :func:`~functools.partial` subclass where the ``*args`` are appended rather than prepended."""  # noqa: E501
+    """A :func:`~functools.partial` subclass where the ``*args`` are appended rather than prepended.
+
+    Examples
+    --------
+    .. code:: python
+
+        >>> from functools import partial
+        >>> from nanoutils import PartialPrepend
+
+        >>> func1 = partial(isinstance, 1)  # isinstance(1, ...)
+        >>> func2 = PartialPrepend(isinstance, float)  # isinstance(..., float)
+
+        >>> func1(int)  # isinstance(1, int)
+        True
+
+        >>> func2(1.0)  # isinstance(1.0, float)
+        True
+
+    """  # noqa: E501
 
     def __call__(self, *args, **keywords):
         """Call and return :attr:`~PartialReversed.func`."""
@@ -169,7 +188,8 @@ class PartialPrepend(partial):
 
 
 def _get_directive(obj: object, name: str,
-                   decorators: Container[str] = EMPTY_COLLECTION) -> str:
+                   decorators: Container[str] = EMPTY_CONTAINER) -> str:
+    """A helper function for :func:`~nanoutils.construct_api_doc`."""
     if isinstance(obj, type):
         if issubclass(obj, BaseException):
             return f'.. autoexception:: {name}'
@@ -187,11 +207,78 @@ def _get_directive(obj: object, name: str,
         return f'.. autodata:: {name}'
 
 
-def construct_api_doc(glob_dict: Dict[str, Any],
-                      decorators: Container[str] = EMPTY_COLLECTION) -> str:
-    """A helper function for updating **Nano-Utils** docstrings."""
-    __doc__ = glob_dict['__doc__']
-    __all__ = glob_dict['__all__']
+def construct_api_doc(glob_dict: Mapping[str, object],
+                      decorators: Container[str] = EMPTY_CONTAINER) -> str:
+    '''Format a **Nano-Utils** module-level docstring.
+
+    Examples
+    --------
+    .. code:: python
+
+        >>> __doc__ = """
+        ... Index
+        ... -----
+        ... .. autosummary::
+        ... {autosummary}
+        ...
+        ... API
+        ... ---
+        ... {autofunction}
+        ...
+        ... """
+
+        >>> from nanoutils import construct_api_doc
+
+        >>> __all__ = ['obj', 'func', 'Class']
+
+        >>> obj = ...
+
+
+        >>> def func(obj: object) -> None:
+        ...     pass
+
+
+        >>> class Class(object):
+        ...     pass
+
+
+        >>> doc = construct_api_doc(locals())
+        >>> print(doc)
+        <BLANKLINE>
+        Index
+        -----
+        .. autosummary::
+            obj
+            func
+            Class
+        <BLANKLINE>
+        API
+        ---
+        .. autodata:: obj
+        .. autofunction:: func
+        .. autoclass:: Class
+            :members:
+        <BLANKLINE>
+        <BLANKLINE>
+
+    Parameters
+    ----------
+    glob_dict : :class:`Mapping[str, object]<typing.Mapping>`
+        A mapping containg a module-level namespace.
+        Note that the mapping *must* contain the ``"__doc__"`` and ``"__all__"`` keys.
+
+    decorators : :class:`Container[str]<typing.Container>`
+        A container with the names of all decorators.
+        If not specified, all functions will use the Sphinx ``autofunction`` domain.
+
+    Returns
+    -------
+    :class:`str`
+        The formatted string.
+
+    '''
+    __doc__ = cast(str, glob_dict['__doc__'])
+    __all__ = cast(List[str], glob_dict['__all__'])
 
     return __doc__.format(
         autosummary='\n'.join(f'    {i}' for i in __all__),
