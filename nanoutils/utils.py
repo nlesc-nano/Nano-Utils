@@ -238,10 +238,10 @@ def split_dict(dct: MutableMapping[KT, VT], preserve_order: bool = False, *, kee
     preserve_order : :class:`bool`
         If :data:`True`, preserve the order of the items in **dct**.
         Note that :code:`preserve_order = False` is generally faster.
-    keep_keys : :class:`Iterable[KT]<typing.Iterable>`
+    keep_keys : :class:`Iterable[KT]<typing.Iterable>`, keyword-only
         An iterable with keys that should remain in **dct**.
         Note that **keep_keys** and **disgard_keys** are mutually exclusive.
-    disgard_keys : :class:`Iterable[KT]<typing.Iterable>`
+    disgard_keys : :class:`Iterable[KT]<typing.Iterable>`, keyword-only
         An iterable with keys that should be removed from **dct**.
         Note that **disgard_keys** and **keep_keys** are mutually exclusive.
 
