@@ -26,10 +26,16 @@ from typing import (
     Container,
     Mapping,
     NamedTuple,
-    cast
+    cast,
+    TYPE_CHECKING
 )
 
 from .empty import EMPTY_CONTAINER
+
+if TYPE_CHECKING:
+    from .utils import VersionInfo as VersionInfoType
+else:
+    VersionInfoType = 'nanoutils.VersionInfo'
 
 __all__ = [
     'PartialPrepend', 'VersionInfo',
@@ -204,23 +210,23 @@ class VersionInfo(NamedTuple):
 
     """
 
-    #: int: The semantic_ major version.
+    #: :class:`int`: The semantic_ major version.
     major: int
 
-    #: int: The semantic_ minor version.
+    #: :class:`int`: The semantic_ minor version.
     minor: int
 
-    #: int: The semantic_ micro version (a.k.a. :attr:`~VersionInfo.patch`).
+    #: :class:`int`: The semantic_ micro version (a.k.a. :attr:`VersionInfo.patch`).
     micro: int
 
     @property
     def patch(self) -> int:
-        """An alias for :attr:`~VersionInfo.micro`."""
+        """An alias for :attr:`VersionInfo.micro`."""
         return self.micro
 
     @classmethod
-    def from_str(cls, version: str) -> 'VersionInfo':
-        """Construct a :class:`VersionInfo` from a string; *e.g.*: :code:`version = "0.8.2"`."""
+    def from_str(cls, version: str) -> VersionInfoType:
+        """Construct a :class:`VersionInfo` from a string; *e.g.* :code:`version = "0.8.2"`."""
         if not isinstance(version, str):
             cls_name = version.__class__.__name__
             raise TypeError(f"'version' expected a string; observed type: {cls_name!r}")

@@ -15,7 +15,7 @@ from .schema import (
 
 __author__ = 'B. F. van Beek'
 __email__ = 'b.f.van.beek@vu.nl'
-__version__ = __version__
+version_info = VersionInfo.from_str(__version__)
 
 __all__ = []
 __all__ += typing_utils.__all__
