@@ -25,13 +25,15 @@ from typing import (
     Dict,
     Container,
     Mapping,
+    NamedTuple,
     cast
 )
 
 from .empty import EMPTY_CONTAINER
 
 __all__ = [
-    'PartialPrepend', 'group_by_values', 'get_importable', 'set_docstring', 'construct_api_doc'
+    'PartialPrepend', 'VersionInfo',
+    'group_by_values', 'get_importable', 'set_docstring', 'construct_api_doc'
 ]
 
 T = TypeVar('T')
@@ -185,6 +187,50 @@ class PartialPrepend(partial):
         """Call and return :attr:`~PartialReversed.func`."""
         keywords = {**self.keywords, **keywords}
         return self.func(*args, *self.args, **keywords)
+
+
+class VersionInfo(NamedTuple):
+    """A :func:`~collections.namedtuple` representing the version of a package.
+
+    Examples
+    --------
+    .. code:: python
+
+        >>> from nanoutils import VersionInfo
+
+        >>> version = '0.8.2'
+        >>> VersionInfo.from_str(version)
+        VersionInfo(major=0, minor=8, micro=2)
+
+    """
+
+    #: int: The semantic_ major version.
+    major: int
+
+    #: int: The semantic_ minor version.
+    minor: int
+
+    #: int: The semantic_ micro version (a.k.a. :attr:`~VersionInfo.patch`).
+    micro: int
+
+    @property
+    def patch(self) -> int:
+        """An alias for :attr:`~VersionInfo.micro`."""
+        return self.micro
+
+    @classmethod
+    def from_str(cls, version: str) -> 'VersionInfo':
+        """Construct a :class:`VersionInfo` from a string; *e.g.*: :code:`version = "0.8.2"`."""
+        if not isinstance(version, str):
+            cls_name = version.__class__.__name__
+            raise TypeError(f"'version' expected a string; observed type: {cls_name!r}")
+
+        try:
+            major, minor, micro = (int(i) for i in version.split('.'))
+        except (ValueError, TypeError) as ex:
+            raise ValueError("'version' expected a string consisting of three '.'-separated "
+                             f"integers (e.g. '0.8.2'); observed value: {version!r}") from ex
+        return cls(major=major, minor=minor, micro=micro)
 
 
 def _get_directive(obj: object, name: str,
