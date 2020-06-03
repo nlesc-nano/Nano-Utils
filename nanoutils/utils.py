@@ -201,14 +201,14 @@ class PartialPrepend(partial):
 
 
 @overload
-def split_dict(dct: MutableMapping[KT, VT], *, keep_keys: Iterable[KT],
-               preserve_order: bool = ...) -> Dict[KT, VT]:
+def split_dict(dct: MutableMapping[KT, VT], preserve_order: bool = ..., *,
+               keep_keys: Iterable[KT]) -> Dict[KT, VT]:
     ...
 @overload  # noqa: E302
-def split_dict(dct: MutableMapping[KT, VT], *, disgard_keys: Iterable[KT],
-               preserve_order: bool = ...) -> Dict[KT, VT]:
+def split_dict(dct: MutableMapping[KT, VT], preserve_order: bool = ..., *,
+               disgard_keys: Iterable[KT]) -> Dict[KT, VT]:
     ...
-def split_dict(dct: MutableMapping[KT, VT], *, keep_keys: Iterable[KT] = None, disgard_keys: Iterable[KT] = None, preserve_order: bool = False) -> Dict[KT, VT]:  # noqa: E302,E501
+def split_dict(dct: MutableMapping[KT, VT], preserve_order: bool = False, *, keep_keys: Iterable[KT] = None, disgard_keys: Iterable[KT] = None) -> Dict[KT, VT]:  # noqa: E302,E501
     r"""Pop all items from **dct** which are in not in **keep_keys** and use them to construct a new dictionary.
 
     Note that, by popping its keys, the passed **dct** will also be modified inplace.
@@ -235,15 +235,15 @@ def split_dict(dct: MutableMapping[KT, VT], *, keep_keys: Iterable[KT] = None, d
     ----------
     dct : :class:`MutableMapping[KT, VT]<typing.MutableMapping>`
         A mutable mapping.
+    preserve_order : :class:`bool`
+        If :data:`True`, preserve the order of the items in **dct**.
+        Note that :code:`preserve_order = False` is generally faster.
     keep_keys : :class:`Iterable[KT]<typing.Iterable>`
         An iterable with keys that should remain in **dct**.
         Note that **keep_keys** and **disgard_keys** are mutually exclusive.
     disgard_keys : :class:`Iterable[KT]<typing.Iterable>`
         An iterable with keys that should be removed from **dct**.
         Note that **disgard_keys** and **keep_keys** are mutually exclusive.
-    preserve_order : :class:`bool`
-        If :data:`True`, preserve the order of the items in **dct**.
-        Note that :code:`preserve_order = False` is generally faster.
 
     Returns
     -------
