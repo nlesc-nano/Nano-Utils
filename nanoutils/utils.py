@@ -14,7 +14,7 @@ API
 
 import importlib
 from types import ModuleType
-from functools import partial
+from functools import partial, wraps
 from typing import (
     List,
     Tuple,
@@ -26,7 +26,9 @@ from typing import (
     Container,
     Mapping,
     NamedTuple,
+    NoReturn,
     cast,
+    overload,
     TYPE_CHECKING
 )
 
@@ -39,7 +41,7 @@ else:
 
 __all__ = [
     'PartialPrepend', 'VersionInfo',
-    'group_by_values', 'get_importable', 'set_docstring', 'construct_api_doc'
+    'group_by_values', 'get_importable', 'set_docstring', 'construct_api_doc', 'raise_if'
 ]
 
 T = TypeVar('T')
@@ -195,6 +197,64 @@ class PartialPrepend(partial):
         return self.func(*args, *self.args, **keywords)
 
 
+@overload
+def raise_if(ex: None) -> Callable[[FT], FT]:
+    ...
+@overload  # noqa: E302
+def raise_if(ex: BaseException) -> Callable[[Callable], Callable[..., NoReturn]]:
+    ...
+def raise_if(ex: Optional[BaseException]) -> Callable:  # noqa: E302
+    """A decorator which raises the passed exception whenever calling the decorated function.
+
+    Examples
+    --------
+    .. code:: python
+
+        >>> from nanoutils import raise_if
+
+        >>> ex1 = None
+        >>> ex2 = TypeError("This is an exception")
+
+        >>> @raise_if(ex1)
+        ... def func1() -> bool:
+        ...     return True
+
+        >>> @raise_if(ex2)
+        ... def func2() -> bool:
+        ...     return True
+
+        >>> func1()
+        True
+
+        >>> func2()
+        Traceback (most recent call last):
+          ...
+        TypeError: This is an exception
+
+
+    Parameters
+    ----------
+    ex : :exc:`BaseException`, optional
+        An exception.
+        If :data:`None` is passed then the decorated function will be called as usual.
+
+    """
+    if ex is None:
+        def decorator(func: FT):
+            return func
+
+    elif isinstance(ex, BaseException):
+        def decorator(func: FT):
+            @wraps(func)
+            def wrapper(*args, **kwargs):
+                raise ex
+            return wrapper
+
+    else:
+        raise TypeError(f"{ex.__class__.__name__!r}")
+    return decorator
+
+
 class VersionInfo(NamedTuple):
     """A :func:`~collections.namedtuple` representing the version of a package.
 
@@ -335,4 +395,4 @@ def construct_api_doc(glob_dict: Mapping[str, object],
     )
 
 
-__doc__ = construct_api_doc(globals(), decorators={'set_docstring'})
+__doc__ = construct_api_doc(globals(), decorators={'set_docstring', 'raise_if'})

@@ -5,3 +5,4 @@ API
     2_empty.rst
     3_schema.rst
     4_typing.rst
+    5_numpy.rst

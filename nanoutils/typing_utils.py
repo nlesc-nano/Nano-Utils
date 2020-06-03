@@ -18,6 +18,7 @@ Index
 
 import sys
 from abc import abstractmethod
+from typing import Union, Iterable
 
 if sys.version_info < (3, 8):
     from typing_extensions import Literal, Final, final, Protocol, TypedDict, runtime_checkable
@@ -26,10 +27,11 @@ if sys.version_info < (3, 8):
     class SupportsIndex(Protocol):
         """An ABC with one abstract method :meth:`__index__`."""
 
-        __slots__ = ()  # type: ignore
+        __slots__: Union[str, Iterable[str]] = ()
 
         @abstractmethod
         def __index__(self) -> int:
+            """Return **self** converted to an :class:`int`, if **self** is suitable for use as an index into a :class:`list`."""  # noqa: E501
             pass
 
 else:
