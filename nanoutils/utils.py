@@ -14,23 +14,36 @@ API
 
 import importlib
 from types import ModuleType
-from functools import partial
+from functools import partial, wraps
 from typing import (
     List,
     Tuple,
     Optional,
     Callable,
     TypeVar,
-    Any,
     Iterable,
     Dict,
-    Container
+    Container,
+    Mapping,
+    NamedTuple,
+    NoReturn,
+    MutableMapping,
+    cast,
+    overload,
+    TYPE_CHECKING
 )
 
-from .empty import EMPTY_COLLECTION
+from .empty import EMPTY_CONTAINER
+
+if TYPE_CHECKING:
+    from .utils import VersionInfo as VersionInfoType
+else:
+    VersionInfoType = 'nanoutils.VersionInfo'
 
 __all__ = [
-    'PartialPrepend', 'group_by_values', 'get_importable', 'set_docstring', 'construct_api_doc'
+    'PartialPrepend', 'VersionInfo',
+    'group_by_values', 'get_importable', 'set_docstring', 'construct_api_doc', 'raise_if',
+    'split_dict'
 ]
 
 T = TypeVar('T')
@@ -160,7 +173,25 @@ def get_importable(string: str, validate: Optional[Callable[[T], bool]] = None) 
 
 
 class PartialPrepend(partial):
-    """A :func:`~functools.partial` subclass where the ``*args`` are appended rather than prepended."""  # noqa: E501
+    """A :func:`~functools.partial` subclass where the ``*args`` are appended rather than prepended.
+
+    Examples
+    --------
+    .. code:: python
+
+        >>> from functools import partial
+        >>> from nanoutils import PartialPrepend
+
+        >>> func1 = partial(isinstance, 1)  # isinstance(1, ...)
+        >>> func2 = PartialPrepend(isinstance, float)  # isinstance(..., float)
+
+        >>> func1(int)  # isinstance(1, int)
+        True
+
+        >>> func2(1.0)  # isinstance(1.0, float)
+        True
+
+    """  # noqa: E501
 
     def __call__(self, *args, **keywords):
         """Call and return :attr:`~PartialReversed.func`."""
@@ -168,8 +199,158 @@ class PartialPrepend(partial):
         return self.func(*args, *self.args, **keywords)
 
 
+def split_dict(dct: MutableMapping[KT, VT], keep_keys: Iterable[KT],
+               keep_order: bool = True) -> Dict[KT, VT]:
+    """Pop all items from **dct** which are not in **keep_keys** and use them to construct a new dictionary.
+
+    Note that, by popping its keys, the passed **dct** will also be modified inplace.
+
+    Examples
+    --------
+    .. code:: python
+
+        >>> from nanoutils import split_dict
+
+        >>> dict1 = {1: 'a', 2: 'b', 3: 'c', 4: 'd'}
+        >>> dict2 = split_dict(dict1, keep_keys={1, 2})
+
+        >>> print(dict1)
+        {1: 'a', 2: 'b'}
+
+        >>> print(dict2)
+        {3: 'c', 4: 'd'}
+
+    Parameters
+    ----------
+    dct : :class:`MutableMapping[KT, VT]<typing.MutableMapping>`
+        A mutable mapping.
+    keep_keys : :class:`Iterable[KT]<typing.Iterable>`
+        An iterable with keys that should remain in **dct**.
+    keep_order : :class:`bool`
+        If :data:`True`, preserve the order of the items in **dct**.
+        Note that :code:`keep_order = False` is generally faster.
+
+    Returns
+    -------
+    :class:`Dict[KT, VT]<typing.Dict>`
+        A new dictionaries with all key/value pairs from **dct** not specified in **keep_keys**.
+
+    """  # noqa: E501
+    # The ordering of dict elements is preserved in this manner,
+    # as opposed to the use of set.difference()
+    if keep_order:
+        difference: Iterable[KT] = [k for k in dct if k not in keep_keys]
+    else:
+        difference = set(dct.keys()).difference(keep_keys)
+
+    return {k: dct.pop(k) for k in difference}
+
+
+@overload
+def raise_if(ex: None) -> Callable[[FT], FT]:
+    ...
+@overload  # noqa: E302
+def raise_if(ex: BaseException) -> Callable[[Callable], Callable[..., NoReturn]]:
+    ...
+def raise_if(ex: Optional[BaseException]) -> Callable:  # noqa: E302
+    """A decorator which raises the passed exception whenever calling the decorated function.
+
+    Examples
+    --------
+    .. code:: python
+
+        >>> from nanoutils import raise_if
+
+        >>> ex1 = None
+        >>> ex2 = TypeError("This is an exception")
+
+        >>> @raise_if(ex1)
+        ... def func1() -> bool:
+        ...     return True
+
+        >>> @raise_if(ex2)
+        ... def func2() -> bool:
+        ...     return True
+
+        >>> func1()
+        True
+
+        >>> func2()
+        Traceback (most recent call last):
+          ...
+        TypeError: This is an exception
+
+
+    Parameters
+    ----------
+    ex : :exc:`BaseException`, optional
+        An exception.
+        If :data:`None` is passed then the decorated function will be called as usual.
+
+    """
+    if ex is None:
+        def decorator(func: FT):
+            return func
+
+    elif isinstance(ex, BaseException):
+        def decorator(func: FT):
+            @wraps(func)
+            def wrapper(*args, **kwargs):
+                raise ex
+            return wrapper
+
+    else:
+        raise TypeError(f"{ex.__class__.__name__!r}")
+    return decorator
+
+
+class VersionInfo(NamedTuple):
+    """A :func:`~collections.namedtuple` representing the version of a package.
+
+    Examples
+    --------
+    .. code:: python
+
+        >>> from nanoutils import VersionInfo
+
+        >>> version = '0.8.2'
+        >>> VersionInfo.from_str(version)
+        VersionInfo(major=0, minor=8, micro=2)
+
+    """
+
+    #: :class:`int`: The semantic_ major version.
+    major: int
+
+    #: :class:`int`: The semantic_ minor version.
+    minor: int
+
+    #: :class:`int`: The semantic_ micro version (a.k.a. :attr:`VersionInfo.patch`).
+    micro: int
+
+    @property
+    def patch(self) -> int:
+        """An alias for :attr:`VersionInfo.micro`."""
+        return self.micro
+
+    @classmethod
+    def from_str(cls, version: str) -> VersionInfoType:
+        """Construct a :class:`VersionInfo` from a string; *e.g.* :code:`version = "0.8.2"`."""
+        if not isinstance(version, str):
+            cls_name = version.__class__.__name__
+            raise TypeError(f"'version' expected a string; observed type: {cls_name!r}")
+
+        try:
+            major, minor, micro = (int(i) for i in version.split('.'))
+        except (ValueError, TypeError) as ex:
+            raise ValueError("'version' expected a string consisting of three '.'-separated "
+                             f"integers (e.g. '0.8.2'); observed value: {version!r}") from ex
+        return cls(major=major, minor=minor, micro=micro)
+
+
 def _get_directive(obj: object, name: str,
-                   decorators: Container[str] = EMPTY_COLLECTION) -> str:
+                   decorators: Container[str] = EMPTY_CONTAINER) -> str:
+    """A helper function for :func:`~nanoutils.construct_api_doc`."""
     if isinstance(obj, type):
         if issubclass(obj, BaseException):
             return f'.. autoexception:: {name}'
@@ -187,11 +368,75 @@ def _get_directive(obj: object, name: str,
         return f'.. autodata:: {name}'
 
 
-def construct_api_doc(glob_dict: Dict[str, Any],
-                      decorators: Container[str] = EMPTY_COLLECTION) -> str:
-    """A helper function for updating **Nano-Utils** docstrings."""
-    __doc__ = glob_dict['__doc__']
-    __all__ = glob_dict['__all__']
+def construct_api_doc(glob_dict: Mapping[str, object],
+                      decorators: Container[str] = EMPTY_CONTAINER) -> str:
+    '''Format a **Nano-Utils** module-level docstring.
+
+    Examples
+    --------
+    .. code:: python
+
+        >>> __doc__ = """
+        ... Index
+        ... -----
+        ... .. autosummary::
+        ... {autosummary}
+        ...
+        ... API
+        ... ---
+        ... {autofunction}
+        ...
+        ... """
+
+        >>> from nanoutils import construct_api_doc
+
+        >>> __all__ = ['obj', 'func', 'Class']
+
+        >>> obj = ...
+
+        >>> def func(obj: object) -> None:
+        ...     pass
+
+        >>> class Class(object):
+        ...     pass
+
+        >>> doc = construct_api_doc(locals())
+        >>> print(doc)
+        <BLANKLINE>
+        Index
+        -----
+        .. autosummary::
+            obj
+            func
+            Class
+        <BLANKLINE>
+        API
+        ---
+        .. autodata:: obj
+        .. autofunction:: func
+        .. autoclass:: Class
+            :members:
+        <BLANKLINE>
+        <BLANKLINE>
+
+    Parameters
+    ----------
+    glob_dict : :class:`Mapping[str, object]<typing.Mapping>`
+        A mapping containg a module-level namespace.
+        Note that the mapping *must* contain the ``"__doc__"`` and ``"__all__"`` keys.
+
+    decorators : :class:`Container[str]<typing.Container>`
+        A container with the names of all decorators.
+        If not specified, all functions will use the Sphinx ``autofunction`` domain.
+
+    Returns
+    -------
+    :class:`str`
+        The formatted string.
+
+    '''
+    __doc__ = cast(str, glob_dict['__doc__'])
+    __all__ = cast(List[str], glob_dict['__all__'])
 
     return __doc__.format(
         autosummary='\n'.join(f'    {i}' for i in __all__),
@@ -199,4 +444,4 @@ def construct_api_doc(glob_dict: Dict[str, Any],
     )
 
 
-__doc__ = construct_api_doc(globals(), decorators={'set_docstring'})
+__doc__ = construct_api_doc(globals(), decorators={'set_docstring', 'raise_if'})

@@ -181,7 +181,8 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/3/', None)
+    'python': ('https://docs.python.org/3/', None),
+    'numpy': ('https://numpy.org/doc/stable/', None)
 }
 
 
@@ -220,3 +221,10 @@ napoleon_use_admonition_for_notes = True
 # False to use the .. rubric:: directive instead.
 # Defaults to False.
 napoleon_use_admonition_for_references = True
+
+
+# A string of reStructuredText that will be included at the end of every source file that is read.
+# This is a possible place to add substitutions that should be available in every file (another being rst_prolog).
+rst_epilog = """
+.. _semantic: https://semver.org/
+"""

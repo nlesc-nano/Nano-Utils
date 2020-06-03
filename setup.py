@@ -13,8 +13,8 @@ version_path = os.path.join(here, 'nanoutils', '__version__.py')
 with open(version_path, encoding='utf-8') as f:
     exec(f.read(), version)
 
-with open('README.rst') as readme_file:
-    readme = readme_file.read()
+with open('README.rst', encoding='utf-8') as f:
+    readme = f.read()
 
 # Requirements for building the documentation
 docs_require = [
@@ -26,9 +26,11 @@ docs_require = [
 tests_require = [
     'assertionlib',
     'schema',
+    'numpy',
     'pytest>=4.1.0',
     'pytest-cov',
     'pytest-flake8>=1.0.5',
+    'pydocstyle>=5.0.0',
     'pytest-pydocstyle>=2.1',
     'typing-extensions>=3.7.4; python_version<"3.8"',
     'pytest-mypy>=0.6.2'
@@ -54,7 +56,8 @@ setup(
         'python-3',
         'python-3-6',
         'python-3-7',
-        'python-3-8'
+        'python-3-8',
+        'libraries'
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',

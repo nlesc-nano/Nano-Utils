@@ -6,6 +6,15 @@ All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+0.2.0
+*****
+* Added new NumPy-specific functions: ``as_nd_array()``, ``array_combinations()`` & ``fill_diagonal_blocks()``.
+* Expanded the ``typing_utils`` module with a number of, previously missing, objects.
+* Added the ``EMPTY_CONTAINER`` constaint.
+* Added the  ``VersionInfo`` namedtuple and the ``raise_if()`` & ``split_dict()`` functions.
+* Added the ``version_info`` attribute to the package.
+
+
 0.1.1
 *****
 * Updated the badges.
