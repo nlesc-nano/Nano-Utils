@@ -6,3 +6,4 @@ API
     3_schema.rst
     4_typing.rst
     5_numpy.rst
+    6_set_attr.rst
