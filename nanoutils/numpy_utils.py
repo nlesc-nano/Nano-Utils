@@ -28,7 +28,7 @@ API
 
 """
 
-from math import factorial
+from math import factorial, nan
 from typing import TYPE_CHECKING, Optional, Union, Iterable
 from itertools import combinations
 from collections import abc
@@ -48,27 +48,27 @@ else:
     DtypeLike = 'numpy.dtype'
     ArrayLike = ndarray = 'numpy.ndarray'
 
-__all__ = ['as_1d_array', 'array_combinations']
+__all__ = ['as_nd_array', 'array_combinations', 'fill_diagonal_blocks']
 
 
 @raise_if(NUMPY_EX)
-def as_1d_array(value: Union[Iterable, ArrayLike], dtype: DtypeLike, ndmin: int = 1) -> ndarray:
+def as_nd_array(value: Union[Iterable, ArrayLike], dtype: DtypeLike, ndmin: int = 1) -> ndarray:
     """Construct a numpy array from an iterable or array-like object.
 
     Examples
     --------
     .. code:: python
 
-        >>> from nanoutils import as_1d_array
+        >>> from nanoutils import as_nd_array
 
-        >>> as_1d_array(1, int)
+        >>> as_nd_array(1, int)
         array([1])
 
-        >>> as_1d_array([1, 2, 3, 4], int)
+        >>> as_nd_array([1, 2, 3, 4], int)
         array([1, 2, 3, 4])
 
         >>> iterator = iter([1, 2, 3, 4])
-        >>> as_1d_array(iterator, int)
+        >>> as_nd_array(iterator, int)
         array([1, 2, 3, 4])
 
 
@@ -168,6 +168,65 @@ def array_combinations(array: ArrayLike, r: int = 2, axis: int = -1) -> ndarray:
     for i, idx in enumerate(combinations(range(n), r=r)):
         ret[i] = ar.take(idx, axis=axis)
     return ret
+
+
+@raise_if(NUMPY_EX)
+def fill_diagonal_blocks(array: ndarray, i: int, j: int, val: float = nan) -> None:
+    """Fill diagonal blocks in **array** of size :math:`(i, j)`.
+
+    The blocks are filled along the last 2 axes in **array**.
+    Performs an inplace update of **array**.
+
+    Examples
+    --------
+    .. code:: python
+
+        >>> import numpy as np
+        >>> from nanoutils import fill_diagonal_blocks
+
+        >>> array = np.zeros((10, 15), dtype=int)
+        >>> i = 2
+        >>> j = 3
+
+        >>> fill_diagonal_blocks(array, i, j, val=1)
+        >>> print(array)
+        [[1 1 1 0 0 0 0 0 0 0 0 0 0 0 0]
+         [1 1 1 0 0 0 0 0 0 0 0 0 0 0 0]
+         [0 0 0 1 1 1 0 0 0 0 0 0 0 0 0]
+         [0 0 0 1 1 1 0 0 0 0 0 0 0 0 0]
+         [0 0 0 0 0 0 1 1 1 0 0 0 0 0 0]
+         [0 0 0 0 0 0 1 1 1 0 0 0 0 0 0]
+         [0 0 0 0 0 0 0 0 0 1 1 1 0 0 0]
+         [0 0 0 0 0 0 0 0 0 1 1 1 0 0 0]
+         [0 0 0 0 0 0 0 0 0 0 0 0 1 1 1]
+         [0 0 0 0 0 0 0 0 0 0 0 0 1 1 1]]
+
+    Parameters
+    ----------
+    array : :class:`nump.ndarray`
+        A >= 2D NumPy array whose diagonal blocks are to be filled.
+        Gets modified in-place.
+    i : :class:`int`
+        The size of the diagonal blocks along axis -2.
+    j : :class:`int`
+        The size of the diagonal blocks along axis -1.
+    fill_value : :class:`float`
+        Value to be written on the diagonal.
+        Its type must be compatible with that of the array **a**.
+
+
+    :rtype: :data:`None`
+
+    """
+    if (j <= 0) or (i <= 0):
+        raise ValueError(f"'i' and 'j' should be larger than 0; observed values: {i} & {j}")
+
+    i0 = j0 = 0
+    dim1 = array.shape[-2]
+    while dim1 > i0:
+        array[..., i0:i0+i, j0:j0+j] = val
+        i0 += i
+        j0 += j
 
 
 __doc__ = construct_api_doc(globals())

@@ -26,6 +26,7 @@ docs_require = [
 tests_require = [
     'assertionlib',
     'schema',
+    'numpy',
     'pytest>=4.1.0',
     'pytest-cov',
     'pytest-flake8>=1.0.5',

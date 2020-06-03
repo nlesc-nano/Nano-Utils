@@ -27,6 +27,7 @@ from typing import (
     Mapping,
     NamedTuple,
     NoReturn,
+    MutableMapping,
     cast,
     overload,
     TYPE_CHECKING
@@ -41,7 +42,8 @@ else:
 
 __all__ = [
     'PartialPrepend', 'VersionInfo',
-    'group_by_values', 'get_importable', 'set_docstring', 'construct_api_doc', 'raise_if'
+    'group_by_values', 'get_importable', 'set_docstring', 'construct_api_doc', 'raise_if',
+    'split_dict'
 ]
 
 T = TypeVar('T')
@@ -195,6 +197,53 @@ class PartialPrepend(partial):
         """Call and return :attr:`~PartialReversed.func`."""
         keywords = {**self.keywords, **keywords}
         return self.func(*args, *self.args, **keywords)
+
+
+def split_dict(dct: MutableMapping[KT, VT], keep_keys: Iterable[KT],
+               keep_order: bool = True) -> Dict[KT, VT]:
+    """Pop all items from **dct** which are not in **keep_keys** and use them to construct a new dictionary.
+
+    Note that, by popping its keys, the passed **dct** will also be modified inplace.
+
+    Examples
+    --------
+    .. code:: python
+
+        >>> from nanoutils import split_dict
+
+        >>> dict1 = {1: 'a', 2: 'b', 3: 'c', 4: 'd'}
+        >>> dict2 = split_dict(dict1, keep_keys={1, 2})
+
+        >>> print(dict1)
+        {1: 'a', 2: 'b'}
+
+        >>> print(dict2)
+        {3: 'c', 4: 'd'}
+
+    Parameters
+    ----------
+    dct : :class:`MutableMapping[KT, VT]<typing.MutableMapping>`
+        A mutable mapping.
+    keep_keys : :class:`Iterable[KT]<typing.Iterable>`
+        An iterable with keys that should remain in **dct**.
+    keep_order : :class:`bool`
+        If :data:`True`, preserve the order of the items in **dct**.
+        Note that :code:`keep_order = False` is generally faster.
+
+    Returns
+    -------
+    :class:`Dict[KT, VT]<typing.Dict>`
+        A new dictionaries with all key/value pairs from **dct** not specified in **keep_keys**.
+
+    """  # noqa: E501
+    # The ordering of dict elements is preserved in this manner,
+    # as opposed to the use of set.difference()
+    if keep_order:
+        difference: Iterable[KT] = [k for k in dct if k not in keep_keys]
+    else:
+        difference = set(dct.keys()).difference(keep_keys)
+
+    return {k: dct.pop(k) for k in difference}
 
 
 @overload
