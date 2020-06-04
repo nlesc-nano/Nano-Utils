@@ -12,10 +12,20 @@ Index
 :class:`~typing.SupportsIndex`      An ABC with one abstract method :meth:`~SupportsIndex.__index__`.
 :class:`~typing.TypedDict`          A simple typed name space. At runtime it is equivalent to a plain :class:`dict`.
 :func:`~typing.runtime_checkable`   Mark a protocol class as a runtime protocol, so that it an be used with :func:`isinstance()` and :func:`issubclass()`.
+:data:`~nanoutils.PathType`         An annotation for `path-like <https://docs.python.org/3/glossary.html#term-path-like-object>`_ objects.
 =================================== ======================================================================================================================================
+
+API
+---
+.. currentmodule:: nanoutils
+.. data:: PathType
+    :value: typing.Union[str, bytes, os.PathLike]
+
+    An annotation for `path-like <https://docs.python.org/3/glossary.html#term-path-like-object>`_ objects.
 
 """  # noqa: E501
 
+import os
 import sys
 from abc import abstractmethod
 from typing import Union, Iterable
@@ -38,5 +48,8 @@ else:
     from typing import Literal, Final, final, Protocol, TypedDict, SupportsIndex, runtime_checkable
 
 __all__ = [
-    'Literal', 'Final', 'final', 'Protocol', 'SupportsIndex', 'TypedDict', 'runtime_checkable'
+    'Literal', 'Final', 'final', 'Protocol', 'SupportsIndex', 'TypedDict', 'runtime_checkable',
+    'PathType'
 ]
+
+PathType = Union[str, bytes, os.PathLike]

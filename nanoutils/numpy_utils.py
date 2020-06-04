@@ -52,7 +52,8 @@ __all__ = ['as_nd_array', 'array_combinations', 'fill_diagonal_blocks']
 
 
 @raise_if(NUMPY_EX)
-def as_nd_array(value: Union[Iterable, ArrayLike], dtype: DtypeLike, ndmin: int = 1) -> ndarray:
+def as_nd_array(value: Union[Iterable, ArrayLike], dtype: DtypeLike,
+                ndmin: int = 1, copy: bool = False) -> ndarray:
     """Construct a numpy array from an iterable or array-like object.
 
     Examples
@@ -80,6 +81,8 @@ def as_nd_array(value: Union[Iterable, ArrayLike], dtype: DtypeLike, ndmin: int 
         The data type of the to-be returned array.
     ndmin : :class:`int`
         The minimum dimensionality of the to-be returned array.
+    copy : :class:`bool`
+        If :data:`True`, always return a copy.
 
     Returns
     -------
@@ -88,7 +91,7 @@ def as_nd_array(value: Union[Iterable, ArrayLike], dtype: DtypeLike, ndmin: int 
 
     """
     try:
-        return np.array(value, dtype=dtype, ndmin=ndmin, copy=False)
+        return np.array(value, dtype=dtype, ndmin=ndmin, copy=copy)
 
     except TypeError as ex:
         if not isinstance(value, abc.Iterable):
