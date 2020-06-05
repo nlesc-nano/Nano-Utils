@@ -49,8 +49,7 @@ else:
 
 __all__ = [
     'Literal', 'Final', 'final', 'Protocol', 'SupportsIndex', 'TypedDict', 'runtime_checkable',
-    'PathType', 'OpenTextMode', 'OpenBinaryMode'
+    'PathType'
 ]
 
 PathType = Union[str, bytes, os.PathLike]
-
