@@ -34,7 +34,7 @@ from .utils import PartialPrepend, get_importable, construct_api_doc
 __all__ = ['Default', 'Formatter', 'supports_float', 'supports_int',
            'isinstance_factory', 'issubclass_factory', 'import_factory']
 
-T = TypeVar('T')
+_T = TypeVar('_T')
 
 
 @overload
@@ -131,7 +131,7 @@ def supports_int(value: object) -> bool:  # noqa: E302
         return False
 
 
-class Default(Generic[T]):
+class Default(Generic[_T]):
     """A validation class akin to the likes of :class:`schemas.Use`.
 
     Upon executing :meth:`Default.validate` returns the stored :attr:`~Default.value`.
@@ -170,10 +170,10 @@ class Default(Generic[T]):
 
     """
 
-    value: T
+    value: _T
     call: bool
 
-    def __init__(self, value: T, call: bool = True) -> None:
+    def __init__(self, value: _T, call: bool = True) -> None:
         """Initialize an instance."""
         self.value = value
         self.call = call
@@ -182,7 +182,7 @@ class Default(Generic[T]):
         """Implement :code:`str(self)` and :code:`repr(self)`."""
         return f'{self.__class__.__name__}({self.value!r}, call={self.call!r})'
 
-    def validate(self, data: object) -> T:
+    def validate(self, data: object) -> _T:
         """Validate the passed **data**."""
         if self.call and callable(self.value):
             return self.value()
@@ -235,13 +235,13 @@ class Formatter(str):
         return self.format
 
 
-ClassOrTuple = Union[type, Tuple[type, ...]]
+_ClassOrTuple = Union[type, Tuple[type, ...]]
 
-PO = inspect.Parameter.POSITIONAL_ONLY
-POK = inspect.Parameter.POSITIONAL_OR_KEYWORD
+_PO = inspect.Parameter.POSITIONAL_ONLY
+_POK = inspect.Parameter.POSITIONAL_OR_KEYWORD
 
 
-def isinstance_factory(class_or_tuple: ClassOrTuple) -> Callable[[object], bool]:
+def isinstance_factory(class_or_tuple: _ClassOrTuple) -> Callable[[object], bool]:
     """Return a function which checks if the passed object is an instance of **class_or_tuple**.
 
     Examples
@@ -291,13 +291,13 @@ def isinstance_factory(class_or_tuple: ClassOrTuple) -> Callable[[object], bool]
     ret.__module__ = __name__
     ret.__doc__ = f'Return :code:`isinstance(obj, {cls_str})`.'
     ret.__signature__ = inspect.Signature(  # type: ignore
-        parameters=[inspect.Parameter('obj', PO, annotation=object)],
+        parameters=[inspect.Parameter('obj', _PO, annotation=object)],
         return_annotation=bool
     )
     return ret
 
 
-def issubclass_factory(class_or_tuple: ClassOrTuple) -> Callable[[type], bool]:
+def issubclass_factory(class_or_tuple: _ClassOrTuple) -> Callable[[type], bool]:
     """Return a function which checks if the passed class is a subclass of **class_or_tuple**.
 
     Examples
@@ -347,13 +347,13 @@ def issubclass_factory(class_or_tuple: ClassOrTuple) -> Callable[[type], bool]:
     ret.__module__ = __name__
     ret.__doc__ = f'Return :code:`isinstance(obj, {cls_str})`.'
     ret.__signature__ = inspect.Signature(  # type: ignore
-        parameters=[inspect.Parameter('cls', PO, annotation=type)],
+        parameters=[inspect.Parameter('cls', _PO, annotation=type)],
         return_annotation=bool
     )
     return ret
 
 
-def import_factory(validate: Callable[[T], bool]) -> Callable[[str], T]:
+def import_factory(validate: Callable[[_T], bool]) -> Callable[[str], _T]:
     """Return a function which calls :func:`nanoutils.get_importable` with the **validate** argument.
 
     Examples
@@ -403,7 +403,7 @@ def import_factory(validate: Callable[[T], bool]) -> Callable[[str], T]:
     ret.__module__ = __name__
     ret.__doc__ = f'Return :code:`nanoutils.get_importable(string, validate={val_name})`.'
     ret.__signature__ = inspect.Signature(  # type: ignore
-        parameters=[inspect.Parameter('string', POK, annotation=str)],
+        parameters=[inspect.Parameter('string', _POK, annotation=str)],
         return_annotation=object
     )
     return ret

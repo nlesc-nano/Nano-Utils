@@ -21,12 +21,12 @@ from .utils import construct_api_doc
 
 __all__ = ['SetAttr']
 
-T1 = TypeVar('T1')
-T2 = TypeVar('T2')
-ST = TypeVar('ST', bound='SetAttr')
+_T1 = TypeVar('_T1')
+_T2 = TypeVar('_T2')
+_ST = TypeVar('_ST', bound='SetAttr')
 
 
-class SetAttr(Generic[T1, T2]):
+class SetAttr(Generic[_T1, _T2]):
     """A context manager for temporarily changing an attribute's value.
 
     The :class:`SetAttr` context manager is thread-safe, reusable and reentrant.
@@ -58,8 +58,8 @@ class SetAttr(Generic[T1, T2]):
     __slots__ = ('__weakref__', '_obj', '_name', '_value', '_value_old', '_lock', '_hash')
 
     @property
-    def obj(self) -> T1:
-        """:class:`T1<typing.TypeVar>`: The to-be modified object."""
+    def obj(self) -> _T1:
+        """:class:`object`: The to-be modified object."""
         return self._obj
 
     @property
@@ -68,21 +68,21 @@ class SetAttr(Generic[T1, T2]):
         return self._name
 
     @property
-    def value(self) -> T2:
-        """:class:`T2<typing.TypeVar>`: The value to-be assigned to the :attr:`name` attribute of :attr:`SetAttr.obj`."""  # noqa: E501
+    def value(self) -> _T2:
+        """:class:`object`: The value to-be assigned to the :attr:`name` attribute of :attr:`SetAttr.obj`."""  # noqa: E501
         return self._value
 
     @property
-    def attr(self) -> T2:
-        """:class:`T2<typing.TypeVar>`: Get or set the :attr:`~SetAttr.name` attribute of :attr:`SetAttr.obj`."""  # noqa: E501
+    def attr(self) -> _T2:
+        """:class:`object`: Get or set the :attr:`~SetAttr.name` attribute of :attr:`SetAttr.obj`."""  # noqa: E501
         return getattr(self.obj, self.name)
 
     @attr.setter
-    def attr(self, value: T2) -> None:
+    def attr(self, value: _T2) -> None:
         with self._lock:
             setattr(self.obj, self.name, value)
 
-    def __init__(self, obj: T1, name: str, value: T2) -> None:
+    def __init__(self, obj: _T1, name: str, value: _T2) -> None:
         """Initialize the :class:`SetAttr` context manager.
 
         Parameters
@@ -128,11 +128,11 @@ class SetAttr(Generic[T1, T2]):
         """
         raise TypeError(f"can't pickle {self.__class__.__name__} objects")
 
-    def __copy__(self: ST) -> ST:
+    def __copy__(self: _ST) -> _ST:
         """Implement :func:`copy.copy(self)<copy.copy>`."""
         return self
 
-    def __deepcopy__(self: ST, memo: Optional[Dict[int, Any]] = None) -> ST:
+    def __deepcopy__(self: _ST, memo: Optional[Dict[int, Any]] = None) -> _ST:
         """Implement :func:`copy.deepcopy(self, memo=memo)<copy.deepcopy>`."""
         return self
 
