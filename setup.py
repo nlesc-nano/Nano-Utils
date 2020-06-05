@@ -75,7 +75,8 @@ setup(
     ],
     python_requires='>=3.6',
     install_requires=[
-        'typing_extensions>=3.7.4; python_version<"3.8"'
+        'typing_extensions>=3.7.4; python_version<"3.8"',
+        'contextlib2>=0.6.0; python_version<"3.7"'
     ],
     setup_requires=['pytest-runner'] + docs_require,
     tests_require=tests_require,

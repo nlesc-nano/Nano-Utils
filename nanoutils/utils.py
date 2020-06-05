@@ -47,13 +47,13 @@ __all__ = [
     'split_dict'
 ]
 
-T = TypeVar('T')
-KT = TypeVar('KT')
-VT = TypeVar('VT')
-FT = TypeVar('FT', bound=Callable)
+_T = TypeVar('_T')
+_KT = TypeVar('_KT')
+_VT = TypeVar('_VT')
+_FT = TypeVar('_FT', bound=Callable)
 
 
-def group_by_values(iterable: Iterable[Tuple[VT, KT]]) -> Dict[KT, List[VT]]:
+def group_by_values(iterable: Iterable[Tuple[_VT, _KT]]) -> Dict[_KT, List[_VT]]:
     """Take an iterable, yielding 2-tuples, and group all first elements by the second.
 
     Examples
@@ -82,7 +82,7 @@ def group_by_values(iterable: Iterable[Tuple[VT, KT]]) -> Dict[KT, List[VT]]:
 
     """
     ret = {}
-    list_append: Dict[KT, Callable[[VT], None]] = {}
+    list_append: Dict[_KT, Callable[[_VT], None]] = {}
     for value, key in iterable:
         try:
             list_append[key](value)
@@ -92,7 +92,7 @@ def group_by_values(iterable: Iterable[Tuple[VT, KT]]) -> Dict[KT, List[VT]]:
     return ret
 
 
-def set_docstring(docstring: Optional[str]) -> Callable[[FT], FT]:
+def set_docstring(docstring: Optional[str]) -> Callable[[_FT], _FT]:
     """A decorator for assigning docstrings.
 
     Examples
@@ -116,13 +116,13 @@ def set_docstring(docstring: Optional[str]) -> Callable[[FT], FT]:
         The to-be assigned docstring.
 
     """
-    def wrapper(func: FT) -> FT:
+    def wrapper(func: _FT) -> _FT:
         func.__doc__ = docstring
         return func
     return wrapper
 
 
-def get_importable(string: str, validate: Optional[Callable[[T], bool]] = None) -> T:
+def get_importable(string: str, validate: Optional[Callable[[_T], bool]] = None) -> _T:
     """Get an importable object.
 
     Examples
@@ -157,7 +157,7 @@ def get_importable(string: str, validate: Optional[Callable[[T], bool]] = None) 
         raise TypeError("'string' expected a str; observed type: "
                         f"{string.__class__.__name__!r}") from ex
 
-    ret: T = importlib.import_module(head)  # type: ignore
+    ret: _T = importlib.import_module(head)  # type: ignore
     for name in tail:
         ret = getattr(ret, name)
 
@@ -201,14 +201,14 @@ class PartialPrepend(partial):
 
 
 @overload
-def split_dict(dct: MutableMapping[KT, VT], preserve_order: bool = ..., *,
-               keep_keys: Iterable[KT]) -> Dict[KT, VT]:
+def split_dict(dct: MutableMapping[_KT, _VT], preserve_order: bool = ..., *,
+               keep_keys: Iterable[_KT]) -> Dict[_KT, _VT]:
     ...
 @overload  # noqa: E302
-def split_dict(dct: MutableMapping[KT, VT], preserve_order: bool = ..., *,
-               disgard_keys: Iterable[KT]) -> Dict[KT, VT]:
+def split_dict(dct: MutableMapping[_KT, _VT], preserve_order: bool = ..., *,
+               disgard_keys: Iterable[_KT]) -> Dict[_KT, _VT]:
     ...
-def split_dict(dct: MutableMapping[KT, VT], preserve_order: bool = False, *, keep_keys: Iterable[KT] = None, disgard_keys: Iterable[KT] = None) -> Dict[KT, VT]:  # noqa: E302,E501
+def split_dict(dct: MutableMapping[_KT, _VT], preserve_order: bool = False, *, keep_keys: Iterable[_KT] = None, disgard_keys: Iterable[_KT] = None) -> Dict[_KT, _VT]:  # noqa: E302,E501
     r"""Pop all items from **dct** which are in not in **keep_keys** and use them to construct a new dictionary.
 
     Note that, by popping its keys, the passed **dct** will also be modified inplace.
@@ -263,8 +263,8 @@ def split_dict(dct: MutableMapping[KT, VT], preserve_order: bool = False, *, kee
     return {k: dct.pop(k) for k in iterable}
 
 
-def _keep_keys(dct: Mapping[KT, VT], keep_keys: Iterable[KT],
-               preserve_order: bool = False) -> Collection[KT]:
+def _keep_keys(dct: Mapping[_KT, _VT], keep_keys: Iterable[_KT],
+               preserve_order: bool = False) -> Collection[_KT]:
     """A helper function for :func:`split_dict`; used when :code:`keep_keys is not None`."""
     if preserve_order:
         return [k for k in dct if k not in keep_keys]
@@ -275,8 +275,8 @@ def _keep_keys(dct: Mapping[KT, VT], keep_keys: Iterable[KT],
             return set(dct.keys()).difference(keep_keys)
 
 
-def _disgard_keys(dct: Mapping[KT, VT], keep_keys: Iterable[KT],
-                  preserve_order: bool = False) -> Collection[KT]:
+def _disgard_keys(dct: Mapping[_KT, _VT], keep_keys: Iterable[_KT],
+                  preserve_order: bool = False) -> Collection[_KT]:
     """A helper function for :func:`split_dict`; used when :code:`disgard_keys is not None`."""
     if preserve_order:
         return [k for k in dct if k in keep_keys]
@@ -288,7 +288,7 @@ def _disgard_keys(dct: Mapping[KT, VT], keep_keys: Iterable[KT],
 
 
 @overload
-def raise_if(exception: None) -> Callable[[FT], FT]:
+def raise_if(exception: None) -> Callable[[_FT], _FT]:
     ...
 @overload  # noqa: E302
 def raise_if(exception: BaseException) -> Callable[[Callable], Callable[..., NoReturn]]:
@@ -330,11 +330,11 @@ def raise_if(exception: Optional[BaseException]) -> Callable:  # noqa: E302
 
     """
     if exception is None:
-        def decorator(func: FT):
+        def decorator(func: _FT):
             return func
 
     elif isinstance(exception, BaseException):
-        def decorator(func: FT):
+        def decorator(func: _FT):
             @wraps(func)
             def wrapper(*args, **kwargs):
                 raise exception
@@ -483,6 +483,11 @@ def construct_api_doc(glob_dict: Mapping[str, object],
         autosummary='\n'.join(f'    {i}' for i in __all__),
         autofunction='\n'.join(_get_directive(glob_dict[i], i) for i in __all__)
     )
+
+
+def _null_func(obj: _T) -> _T:
+    """Return the passed object."""
+    return obj
 
 
 __doc__ = construct_api_doc(globals(), decorators={'set_docstring', 'raise_if'})
