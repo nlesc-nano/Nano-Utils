@@ -18,12 +18,6 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 * Added the ``copy`` argument to ``as_nd_array()``.
 
 
-0.3.3
-*****
-* Added ``PathType``, an annotation for `path-like <https://docs.python.org/3/glossary.html#term-path-like-object>`_ objects.
-* Added the ``copy`` argument to ``as_nd_array()``.
-
-
 0.3.2
 *****
 * Fixed a bug with ``split_dict()``.
