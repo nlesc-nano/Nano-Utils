@@ -77,9 +77,8 @@ else:
 
 __all__ = [
     'Literal', 'Final', 'final', 'Protocol', 'SupportsIndex', 'TypedDict', 'runtime_checkable',
-    'PathType', 'OpenTextMode', 'OpenBinaryMode'
+    'PathType'
 ]
 
 # See https://github.com/python/typeshed/blob/master/stdlib/3/os/path.pyi.
 PathType = Union[str, bytes, os.PathLike]
-
