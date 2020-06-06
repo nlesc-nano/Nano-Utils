@@ -76,7 +76,7 @@ def file_to_context(file, **kwargs):  # noqa: E302
     r"""Take a path- or file-like object and return an appropiate context manager.
 
     Passing a path-like object will supply it to :func:`open`,
-    while passing a file-like object will pass it to :class:`contextlib.nullcontext`.
+    while passing a file-like object will pass it to :func:`contextlib.nullcontext`.
 
     Examples
     --------
@@ -107,7 +107,7 @@ def file_to_context(file, **kwargs):  # noqa: E302
 
     Returns
     -------
-    :func:`open` or :func:`~contextlib.nullcontext`
+    :class:`ContextManager[IO]<typing.ContextManager>`
         An initialized context manager.
         Entering the context manager will return a file-like object.
 

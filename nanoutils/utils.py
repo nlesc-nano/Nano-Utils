@@ -370,12 +370,12 @@ class VersionInfo(NamedTuple):
 
     @classmethod
     def from_str(cls, version: str) -> 'VersionInfo':
-        """Construct a :class:`VersionInfo` from a string`.
+        """Construct a :class:`VersionInfo` from a string.
 
         Parameters
         ----------
         version : :class:`str`
-            A string representation of a version (*e.g.* :code:`version = "0.8.2").
+            A string representation of a version (*e.g.* :code:`version = "0.8.2"`).
             The string should contain three ``"."`` separated integers, respectively,
             representing the major, minor and micro/patch versions.
 
