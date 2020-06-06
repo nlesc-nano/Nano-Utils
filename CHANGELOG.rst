@@ -9,6 +9,7 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 0.4.1
 *****
 * Minor documentation fixes.
+* Added the ``ignore_if()`` decorator.
 
 
 0.4.2
