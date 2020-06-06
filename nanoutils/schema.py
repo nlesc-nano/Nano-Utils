@@ -228,14 +228,13 @@ class Formatter(str):
         """Implement :code:`str(self)` and :code:`repr(self)`."""
         return f'{self.__class__.__name__}(msg={self._msg!r})'
 
-    def format(self, *args: object, **kwargs: object) -> str:  # type: ignore
+    def format(self, obj: object) -> str:  # type: ignore
         r"""Return a formatted version of :attr:`Formatter._msg`.
 
         Parameters
         ----------
-        \*args/\**kwargs
-            Variadic (keyword) arguments to ensure signature compatibility.
-            Supplied values will not be used.
+        obj : :class:`object`
+            The to-be formatted object.
 
         Returns
         -------
