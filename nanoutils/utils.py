@@ -12,6 +12,7 @@ API
 
 """
 
+import warnings
 import importlib
 from types import ModuleType
 from functools import partial, wraps
@@ -30,21 +31,15 @@ from typing import (
     MutableMapping,
     Collection,
     cast,
-    overload,
-    TYPE_CHECKING
+    overload
 )
 
 from .empty import EMPTY_CONTAINER
 
-if TYPE_CHECKING:
-    from .utils import VersionInfo as VersionInfoType
-else:
-    VersionInfoType = 'nanoutils.VersionInfo'
-
 __all__ = [
     'PartialPrepend', 'VersionInfo',
-    'group_by_values', 'get_importable', 'set_docstring', 'construct_api_doc', 'raise_if',
-    'split_dict'
+    'group_by_values', 'get_importable', 'construct_api_doc', 'split_dict',
+    'set_docstring', 'raise_if', 'ignore_if'
 ]
 
 _T = TypeVar('_T')
@@ -293,8 +288,10 @@ def raise_if(exception: None) -> Callable[[_FT], _FT]:
 @overload  # noqa: E302
 def raise_if(exception: BaseException) -> Callable[[Callable], Callable[..., NoReturn]]:
     ...
-def raise_if(exception: Optional[BaseException]) -> Callable:  # noqa: E302
+def raise_if(exception):  # noqa: E302
     """A decorator which raises the passed exception whenever calling the decorated function.
+
+    If **exception** is :data:`None` then the decorated function will be called as usual.
 
     Examples
     --------
@@ -328,6 +325,11 @@ def raise_if(exception: Optional[BaseException]) -> Callable:  # noqa: E302
         An exception.
         If :data:`None` is passed then the decorated function will be called as usual.
 
+    See Also
+    --------
+    :func:`nanoutils.ignore_if`
+        A decorator which, if an exception is passed, ignores calls to the decorated function.
+
     """
     if exception is None:
         def decorator(func: _FT):
@@ -338,6 +340,89 @@ def raise_if(exception: Optional[BaseException]) -> Callable:  # noqa: E302
             @wraps(func)
             def wrapper(*args, **kwargs):
                 raise exception
+            return wrapper
+
+    else:
+        raise TypeError(f"{exception.__class__.__name__!r}")
+    return decorator
+
+
+@overload
+def ignore_if(exception: None, warn: bool = ...) -> Callable[[_FT], _FT]:
+    ...
+@overload  # noqa: E302
+def ignore_if(exception: BaseException, warn: bool = ...) -> Callable[[Callable], Callable[..., None]]:  # noqa: E501
+    ...
+def ignore_if(exception, warn=True):  # noqa: E302
+    """A decorator which, if an exception is passed, ignores calls to the decorated function.
+
+    If **exception** is :data:`None` then the decorated function will be called as usual.
+
+    Examples
+    --------
+    .. code:: python
+
+        >>> import warnings
+        >>> from nanoutils import ignore_if
+
+        >>> ex1 = None
+        >>> ex2 = TypeError("This is an exception")
+
+        >>> @ignore_if(ex1)
+        ... def func1() -> bool:
+        ...     return True
+
+        >>> @ignore_if(ex2)
+        ... def func2() -> bool:
+        ...     return True
+
+        >>> func1()
+        True
+
+        >>> func2()
+
+        # Catch the warning and a raise it as an exception
+        >>> with warnings.catch_warnings():
+        ...     warnings.simplefilter("error", UserWarning)
+        ...     func2()
+        Traceback (most recent call last):
+          ...
+        UserWarning: Skipping call to func2()
+
+    Parameters
+    ----------
+    exception : :exc:`BaseException`, optional
+        An exception.
+        If :data:`None` is passed then the decorated function will be called as usual.
+    warn : :class:`bool`
+        If :data:`True` issue a :exc:`UserWarning` whenever calling the decorated function
+
+    See Also
+    --------
+    :func:`nanoutils.raise_if`
+        A decorator which raises the passed exception whenever calling the decorated function.
+
+    """
+    _WARN = warn
+
+    if exception is None:
+        def decorator(func: _FT):
+            return func
+
+    elif isinstance(exception, BaseException):
+        def decorator(func: _FT):
+            try:
+                msg = f"Skipping call to {getattr(func, '__qualname__', func.__name__)}()"
+            except AttributeError:
+                msg = f"Skipping call to {func.__class__.__name__}(...)()"
+
+            @wraps(func)
+            def wrapper(*args, **kwargs):
+                if _WARN:
+                    exc = UserWarning(msg)
+                    exc.__cause__ = exception
+                    warnings.warn(exc)
+                    return None
             return wrapper
 
     else:
@@ -375,8 +460,22 @@ class VersionInfo(NamedTuple):
         return self.micro
 
     @classmethod
-    def from_str(cls, version: str) -> VersionInfoType:
-        """Construct a :class:`VersionInfo` from a string; *e.g.* :code:`version = "0.8.2"`."""
+    def from_str(cls, version: str) -> 'VersionInfo':
+        """Construct a :class:`VersionInfo` from a string.
+
+        Parameters
+        ----------
+        version : :class:`str`
+            A string representation of a version (*e.g.* :code:`version = "0.8.2"`).
+            The string should contain three ``"."`` separated integers, respectively,
+            representing the major, minor and micro/patch versions.
+
+        Returns
+        -------
+        :class:`nanoutils.VersionInfo`
+            A new VersionInfo instance.
+
+        """
         if not isinstance(version, str):
             cls_name = version.__class__.__name__
             raise TypeError(f"'version' expected a string; observed type: {cls_name!r}")
@@ -490,4 +589,4 @@ def _null_func(obj: _T) -> _T:
     return obj
 
 
-__doc__ = construct_api_doc(globals(), decorators={'set_docstring', 'raise_if'})
+__doc__ = construct_api_doc(globals(), decorators={'set_docstring', 'raise_if', 'raise_if'})

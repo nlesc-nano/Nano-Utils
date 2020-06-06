@@ -87,12 +87,15 @@ class SetAttr(Generic[_T1, _T2]):
 
         Parameters
         ----------
-        obj : :class:`T1<typing.TypeVar>`
+        obj : :class:`object`
             The to-be modified object.
+            See :attr:`SetAttr.obj`.
         name : :class:`str`
             The name of the to-be modified attribute.
-        value : :class:`T2<typing.TypeVar>`
+            See :attr:`SetAttr.name`.
+        value : :class:`object`
             The value to-be assigned to the **name** attribute of **obj**.
+            See :attr:`SetAttr.value`.
 
 
         :rtype: :data:`None`
@@ -107,19 +110,19 @@ class SetAttr(Generic[_T1, _T2]):
 
     @reprlib.recursive_repr()
     def __repr__(self) -> str:
-        """Implement :func:`str(self)<str>` and :func:`repr(self)<repr>`."""
+        """Implement :class:`str(self)<str>` and :func:`repr(self)<repr>`."""
         obj = object.__repr__(self.obj)
         value = reprlib.repr(self.value)
         return f'{self.__class__.__name__}(obj={obj}, name={self.name!r}, value={value})'
 
     def __eq__(self, value: object) -> bool:
-        """Implement :func:`self == value<object.__eq__>`."""
+        """Implement :meth:`self == value<object.__eq__>`."""
         if type(self) is not type(value):
             return False
         return self.obj is value.obj and self.name == value.name and self.value == value.value  # type: ignore  # noqa: E501
 
     def __reduce__(self) -> NoReturn:
-        """A Helper function for :mod:`pickle`.
+        """A helper for :mod:`pickle`.
 
         Warnings
         --------

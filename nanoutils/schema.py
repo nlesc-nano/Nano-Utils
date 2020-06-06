@@ -182,8 +182,23 @@ class Default(Generic[_T]):
         """Implement :code:`str(self)` and :code:`repr(self)`."""
         return f'{self.__class__.__name__}({self.value!r}, call={self.call!r})'
 
-    def validate(self, data: object) -> _T:
-        """Validate the passed **data**."""
+    def validate(self, *args: object, **kwargs: object) -> _T:
+        r"""Validate the passed **data**.
+
+        Parameters
+        ----------
+        \*args/\**kwargs
+            Variadic (keyword) arguments to ensure signature compatibility.
+            Supplied values will not be used.
+
+        Returns
+        -------
+        :class:`object`
+            Return :attr:`Default.value`.
+            The to-be returned value will be called if
+            it is a callable and :attr:`Default.call` is :data:`True`.
+
+        """
         if self.call and callable(self.value):
             return self.value()
         else:
@@ -214,7 +229,19 @@ class Formatter(str):
         return f'{self.__class__.__name__}(msg={self._msg!r})'
 
     def format(self, obj: object) -> str:  # type: ignore
-        """Return a formatted version of :attr:`Formatter._msg`."""
+        r"""Return a formatted version of :attr:`Formatter._msg`.
+
+        Parameters
+        ----------
+        obj : :class:`object`
+            The to-be formatted object.
+
+        Returns
+        -------
+        :class:`str`
+            A formatted string.
+
+        """
         try:
             name = self._msg.split("'", maxsplit=2)[1]
         except IndexError:
@@ -255,7 +282,7 @@ def isinstance_factory(class_or_tuple: _ClassOrTuple) -> Callable[[object], bool
         >>> func(1)  # isinstance(1, int)
         True
 
-        >>> func(1.0)  # isinstance(1, float)
+        >>> func(1.0)  # isinstance(1.0, int)
         False
 
     Parameters

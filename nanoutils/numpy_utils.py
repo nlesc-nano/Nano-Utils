@@ -147,7 +147,7 @@ def array_combinations(array: ArrayLike, r: int = 2, axis: int = -1) -> ndarray:
     -------
     :class:`numpy.ndarray`, shape :math:`(k, \dotsc, r)`
         A :math:`n+1` dimensional array with all **ar** combinations (of length ``r``)
-        along axis -1.
+        along **axis**.
         :math:`k` represents the number of combinations: :math:`k = \dfrac{m! / r!}{(m-r)!}`.
 
     """  # noqa: E501
@@ -213,7 +213,7 @@ def fill_diagonal_blocks(array: ndarray, i: int, j: int, val: float = nan) -> No
         The size of the diagonal blocks along axis -2.
     j : :class:`int`
         The size of the diagonal blocks along axis -1.
-    fill_value : :class:`float`
+    val : :class:`float`
         Value to be written on the diagonal.
         Its type must be compatible with that of the array **a**.
 

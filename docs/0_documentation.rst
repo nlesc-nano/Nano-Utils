@@ -8,3 +8,8 @@ API
     5_numpy.rst
     6_set_attr.rst
     7_file_container.rst
+
+.. toctree::
+    :hidden:
+
+    _6_set_attr.rst

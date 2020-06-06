@@ -76,7 +76,7 @@ def file_to_context(file, **kwargs):  # noqa: E302
     r"""Take a path- or file-like object and return an appropiate context manager.
 
     Passing a path-like object will supply it to :func:`open`,
-    while passing a file-like object will pass it to :class:`contextlib.nullcontext`.
+    while passing a file-like object will pass it to :func:`contextlib.nullcontext`.
 
     Examples
     --------
@@ -98,7 +98,7 @@ def file_to_context(file, **kwargs):  # noqa: E302
 
     Parameters
     ----------
-    file : :class:`str`, :class:`bytes`, :class:`os.PathLike` or :class:`io.IOBase`
+    file : :class:`str`, :class:`bytes`, :class:`os.PathLike` or :class:`~typing.IO`
         A `path- <https://docs.python.org/3/glossary.html#term-path-like-object>`_ or
         `file-like <https://docs.python.org/3/glossary.html#term-file-object>`_ object.
     **kwargs : :data:`~typing.Any`
@@ -107,7 +107,7 @@ def file_to_context(file, **kwargs):  # noqa: E302
 
     Returns
     -------
-    :func:`open` or :class:`~contextlib.nullcontext`
+    :class:`ContextManager[IO]<typing.ContextManager>`
         An initialized context manager.
         Entering the context manager will return a file-like object.
 
@@ -178,15 +178,15 @@ class AbstractFileContainer(metaclass=ABCMeta):
     @final
     @classmethod
     def read(cls: Type[_ST], file: Union[PathType, IO],
-             decoding: Optional[str] = None, **kwargs: Any) -> _ST:
+             bytes_decoding: Optional[str] = None, **kwargs: Any) -> _ST:
         r"""Construct a new instance from this object's class by reading the content of **file**.
 
         Parameters
         ----------
-        file : :class:`str`, :class:`bytes`, :class:`os.PathLike` or :class:`io.IOBase`
+        file : :class:`str`, :class:`bytes`, :class:`os.PathLike` or :class:`~typing.IO`
             A `path- <https://docs.python.org/3/glossary.html#term-path-like-object>`_ or
             `file-like <https://docs.python.org/3/glossary.html#term-file-object>`_ object.
-        decoding : :class:`str`, optional
+        bytes_decoding : :class:`str`, optional
             The type of encoding to use when reading from **file**
             when it will be/is be opened in :class:`bytes` mode.
             This value should be left empty otherwise.
@@ -199,7 +199,10 @@ class AbstractFileContainer(metaclass=ABCMeta):
         context_manager = file_to_context(file, **kwargs)
 
         with context_manager as f:
-            decoder = _null_func if decoding is None else partial(decode, decoding)
+            if bytes_decoding is None:
+                decoder: Callable[[str], Union[str, bytes]] = _null_func
+            else:
+                decoder = partial(decode, encoding=bytes_decoding)
             cls_dict = cls._read(f, decoder)  # type: ignore
 
         ret = cls(**cls_dict)
@@ -232,27 +235,27 @@ class AbstractFileContainer(metaclass=ABCMeta):
         raise NotImplementedError('Trying to call an abstract method')
 
     def _read_postprocess(self) -> None:
-        r"""Construct a new instance from this object's class by reading the content of **file**.
+        r"""Post process new instances created by :meth:`~AbstractFileContainer.read`.
 
         See Also
         --------
         :meth:`AbstractFileContainer.read`
-            The main method for reading files.
+            Construct a new instance from this object's class by reading the content of **file**.
 
         """
         pass
 
     @final
     def write(self, file: Union[PathType, IO],
-              decoding: Optional[str] = None, **kwargs: Any) -> None:
+              bytes_encoding: Optional[str] = None, **kwargs: Any) -> None:
         r"""Write the content of this instance to **file**.
 
         Parameters
         ----------
-        file : :class:`str`, :class:`bytes`, :class:`os.PathLike` or :class:`io.IOBase`
+        file : :class:`str`, :class:`bytes`, :class:`os.PathLike` or :class:`~typing.IO`
             A `path- <https://docs.python.org/3/glossary.html#term-path-like-object>`_ or
             `file-like <https://docs.python.org/3/glossary.html#term-file-object>`_ object.
-        decoding : :class:`str`, optional
+        bytes_encoding : :class:`str`, optional
             The type of encoding to use when writing to **file**
             when it will be/is be opened in :class:`bytes` mode.
             This value should be left empty otherwise.
@@ -265,7 +268,10 @@ class AbstractFileContainer(metaclass=ABCMeta):
         context_manager = file_to_context(file, **kwargs)
 
         with context_manager as f:
-            encoder = _null_func if decoding is None else partial(encode, encoding=decoding)
+            if bytes_encoding is None:
+                encoder: Callable[[str], Union[str, bytes]] = _null_func
+            else:
+                encoder = partial(encode, encoding=bytes_encoding)
             self._write(f, encoder)  # type: ignore
 
     @abstractmethod
