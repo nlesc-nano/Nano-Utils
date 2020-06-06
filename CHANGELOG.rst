@@ -6,11 +6,9 @@ All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
-0.4.0
+0.4.1
 *****
-* Added the ``AbstractFileContainer`` class and ``file_to_context()`` function.
-* Marked all internally used type annotations are private.
-* Added `contextlib2 <https://github.com/jazzband/contextlib2>`_ as a dependency for Python 3.6.
+* Minor documentation fixes.
 
 
 0.4.0

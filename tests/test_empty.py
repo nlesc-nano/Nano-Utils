@@ -13,3 +13,8 @@ def test_empty() -> None:
     assertion.isinstance(EMPTY_COLLECTION, abc.Collection)
     assertion.isinstance(EMPTY_SET, abc.Set)
     assertion.isinstance(EMPTY_CONTAINER, abc.Container)
+    assertion.not_(EMPTY_SEQUENCE)
+    assertion.not_(EMPTY_MAPPING)
+    assertion.not_(EMPTY_COLLECTION)
+    assertion.not_(EMPTY_SET)
+    assertion.not_(EMPTY_CONTAINER)

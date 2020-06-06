@@ -23,18 +23,6 @@ API
 
     An annotation for `path-like <https://docs.python.org/3/glossary.html#term-path-like-object>`_ objects.
 
-.. data:: OpenTextMode
-    :value: typing.Literal['r', 'r+', '+r', 'rt', 'tr', 'rt+', ...]
-
-    A Literal with accepted values for opening path-like objects in :class:`str` mode.
-    See https://github.com/python/typeshed/blob/master/stdlib/3/io.pyi.
-
-.. data:: OpenBinaryMode
-    :value: typing.Literal['rb+', 'r+b', '+rb', 'br+', 'b+r', '+br', ...]
-
-    A Literal with accepted values for opening path-like objects in :class:`bytes` mode.
-    See https://github.com/python/typeshed/blob/master/stdlib/3/io.pyi.
-
 """  # noqa: E501
 
 import os

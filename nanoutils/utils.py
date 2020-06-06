@@ -30,16 +30,10 @@ from typing import (
     MutableMapping,
     Collection,
     cast,
-    overload,
-    TYPE_CHECKING
+    overload
 )
 
 from .empty import EMPTY_CONTAINER
-
-if TYPE_CHECKING:
-    from .utils import VersionInfo as VersionInfoType
-else:
-    VersionInfoType = 'nanoutils.VersionInfo'
 
 __all__ = [
     'PartialPrepend', 'VersionInfo',
@@ -375,8 +369,22 @@ class VersionInfo(NamedTuple):
         return self.micro
 
     @classmethod
-    def from_str(cls, version: str) -> VersionInfoType:
-        """Construct a :class:`VersionInfo` from a string; *e.g.* :code:`version = "0.8.2"`."""
+    def from_str(cls, version: str) -> 'VersionInfo':
+        """Construct a :class:`VersionInfo` from a string`.
+
+        Parameters
+        ----------
+        version : :class:`str`
+            A string representation of a version (*e.g.* :code:`version = "0.8.2").
+            The string should contain three ``"."`` separated integers, respectively,
+            representing the major, minor and micro/patch versions.
+
+        Returns
+        -------
+        :class:`nanoutils.VersionInfo`
+            A new VersionInfo instance.
+
+        """
         if not isinstance(version, str):
             cls_name = version.__class__.__name__
             raise TypeError(f"'version' expected a string; observed type: {cls_name!r}")
