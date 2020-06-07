@@ -37,9 +37,10 @@ from typing import (
 
 from .empty import EMPTY_CONTAINER
 from ._partial import PartialPrepend
+from ._set_attr import SetAttr
 
 __all__ = [
-    'PartialPrepend', 'VersionInfo',
+    'PartialPrepend', 'SetAttr', 'VersionInfo',
     'group_by_values', 'get_importable', 'construct_api_doc', 'split_dict', 'get_func_name',
     'set_docstring', 'raise_if', 'ignore_if'
 ]

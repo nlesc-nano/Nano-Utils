@@ -1,16 +1,9 @@
-"""A module for containing the :class:`nanoutils.SetAttr` class.
+"""A private module for containing the :class:`nanoutils.SetAttr` class.
 
-Index
+Notes
 -----
-.. currentmodule:: nanoutils
-.. autosummary::
-    SetAttr
-
-API
----
-.. autoclass:: SetAttr
-    :noindex:
-    :members:
+:class:`~nanoutils.SetAttr` should be imported from
+either :mod:`nanoutils` or :mod:`nanoutils.utils`.
 
 """
 
