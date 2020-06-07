@@ -242,13 +242,13 @@ class AbstractFileContainer(metaclass=ABCMeta):
     def _read_postprocess(self) -> None:
         r"""Post process new instances created by :meth:`~AbstractFileContainer.read`.
 
+
+        :rtype: :data:`None`
+
         See Also
         --------
         :meth:`AbstractFileContainer.read`
             Construct a new instance from this object's class by reading the content of **file**.
-
-
-        :rtype: :data:`None`
 
         """
         pass
@@ -298,13 +298,13 @@ class AbstractFileContainer(metaclass=ABCMeta):
             A function for converting strings into either :class:`str` or :class:`bytes`,
             the exact type matching that of **file_obj**.
 
+
+        :rtype: :data:`None`
+
         See Also
         --------
         :meth:`AbstractFileContainer.write`:
             Write the content of this instance to **file**.
-
-
-        :rtype: :data:`None`
 
         """
         raise NotImplementedError('Trying to call an abstract method')
