@@ -293,7 +293,7 @@ class AbstractFileContainer(metaclass=ABCMeta):
         ----------
         file_obj : :class:`IO[AnyStr]<typing.IO>`
             A file-like object opened in write mode.
-        encoder : :class:`Callable[[bytes], AnyStr]<typing.Callable>`
+        encoder : :class:`Callable[[str], AnyStr]<typing.Callable>`
             A function for converting strings into either :class:`str` or :class:`bytes`,
             the exact type matching that of **file_obj**.
 
