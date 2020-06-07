@@ -31,7 +31,6 @@ from typing import (
     NoReturn,
     MutableMapping,
     Collection,
-    Generic,
     cast,
     overload
 )
