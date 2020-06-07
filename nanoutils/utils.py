@@ -45,8 +45,6 @@ __all__ = [
     'set_docstring', 'raise_if', 'ignore_if'
 ]
 
-PartialPrepend.__module__ = __name__
-
 _T = TypeVar('_T')
 _KT = TypeVar('_KT')
 _VT = TypeVar('_VT')
