@@ -249,6 +249,9 @@ class AbstractFileContainer(metaclass=ABCMeta):
         :meth:`AbstractFileContainer.read`
             Construct a new instance from this object's class by reading the content of **file**.
 
+
+        :rtype: :data:`None`
+
         """
         pass
 
@@ -304,6 +307,9 @@ class AbstractFileContainer(metaclass=ABCMeta):
         --------
         :meth:`AbstractFileContainer.write`:
             Write the content of this instance to **file**.
+
+
+        :rtype: :data:`None`
 
         """
         raise NotImplementedError('Trying to call an abstract method')
