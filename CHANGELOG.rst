@@ -13,6 +13,11 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 * Added the ``get_func_name()`` function.
 * Added the ``module`` argument to ``issubclass_factory()``, ``isinstance_factory()``
   and ``import_factory()``.
+* ``PartialPrepend`` and ``SetAttr`` are now in their own (private) modules.
+  Note that they still should be imported from (preferably) ``nanoutils`` or
+  otherwise ``nanoutils.utils.
+* Run tests on the ``docs/`` directory.
+* Updated annotations and documentation.
 
 
 0.4.2
