@@ -263,6 +263,7 @@ class AbstractFileContainer(metaclass=ABCMeta):
         file : :class:`str`, :class:`bytes`, :class:`os.PathLike` or :class:`~typing.IO`
             A `path- <https://docs.python.org/3/glossary.html#term-path-like-object>`_ or
             `file-like <https://docs.python.org/3/glossary.html#term-file-object>`_ object.
+            Defaults to :data:`sys.stdout` if not specified.
         bytes_encoding : :class:`str`, optional
             The type of encoding to use when writing to **file**
             when it will be/is be opened in :class:`bytes` mode.
