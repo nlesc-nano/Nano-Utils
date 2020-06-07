@@ -1,7 +1,7 @@
 nanoutils.SetAttr
 =================
-.. autoclass:: nanoutils.SetAttr
-    :noindex:
+.. currentmodule:: nanoutils
+.. autoclass:: SetAttr
     :members:
     :private-members:
     :special-members:

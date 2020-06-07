@@ -4,11 +4,13 @@ Index
 -----
 .. currentmodule:: nanoutils
 .. autosummary::
-    {autosummary}
+    SetAttr
 
 API
 ---
-{autofunction}
+.. autoclass:: SetAttr
+    :noindex:
+    :members:
 
 """
 
@@ -16,8 +18,6 @@ import reprlib
 from types import TracebackType
 from typing import Generic, TypeVar, NoReturn, Dict, Any, Optional, Type
 from threading import RLock
-
-from .utils import construct_api_doc
 
 __all__ = ['SetAttr']
 
@@ -163,6 +163,3 @@ class SetAttr(Generic[_T1, _T2]):
                  traceback: Optional[TracebackType]) -> None:
         """Exit the context manager, restore :attr:`SetAttr.obj`."""
         self.attr = self._value_old
-
-
-__doc__ = construct_api_doc(globals())
