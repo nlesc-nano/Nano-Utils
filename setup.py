@@ -3,7 +3,7 @@
 import os
 from typing import Dict
 
-from setuptools import setup  # type: ignore
+from setuptools import setup
 
 here = os.path.abspath(os.path.dirname(__file__))
 
