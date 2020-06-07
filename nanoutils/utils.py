@@ -15,7 +15,7 @@ API
 import warnings
 import importlib
 from types import ModuleType
-from functools import partial, wraps
+from functools import wraps
 from typing import (
     List,
     Any,
@@ -31,7 +31,6 @@ from typing import (
     NoReturn,
     MutableMapping,
     Collection,
-    Generic,
     cast,
     overload
 )
@@ -41,7 +40,7 @@ from ._partial import PartialPrepend
 
 __all__ = [
     'PartialPrepend', 'VersionInfo',
-    'group_by_values', 'get_importable', 'construct_api_doc', 'split_dict',
+    'group_by_values', 'get_importable', 'construct_api_doc', 'split_dict', 'get_func_name',
     'set_docstring', 'raise_if', 'ignore_if'
 ]
 
@@ -51,6 +50,85 @@ _T = TypeVar('_T')
 _KT = TypeVar('_KT')
 _VT = TypeVar('_VT')
 _FT = TypeVar('_FT', bound=Callable[..., Any])
+
+
+def get_func_name(func: Callable[..., Any], prepend_module: bool = False,
+                  repr_fallback: bool = False) -> str:
+    """Extract and return the name of **func**.
+
+    A total of three attempts are performed at retrieving the passed functions name:
+
+    1. Return the functions qualified name (:attr:`~definition.__qualname__`).
+    2. Return the functions name (:attr:`~definition.__name__`).
+    3. Return the (called) name of the functions type.
+
+    Examples
+    --------
+    .. code:: python
+
+        >>> from functools import partial
+        >>> from nanoutils import get_func_name
+
+        >>> def func1():
+        ...     pass
+
+        >>> class Class():
+        ...     def func2(self):
+        ...         pass
+
+        >>> func3 = partial(len)
+
+        >>> get_func_name(func1)
+        'func1'
+
+        >>> get_func_name(func1, prepend_module=True)  # doctest: +SKIP
+        '__main__.func1'
+
+        >>> get_func_name(Class.func2)
+        'Class.func2'
+
+        >>> get_func_name(func3)
+        'partial(...)'
+
+        >>> get_func_name(func3, repr_fallback=True)
+        'functools.partial(<built-in function len>)'
+
+
+    Parameters
+    ----------
+    func : :class:`~collections.abc.Callable`
+        A callable object.
+    prepend_module : :class:`bool`
+        If :data:`True` prepend the objects module (:attr:`~definition.__module__`),
+        if available, to the to-be returned string.
+    repr_fallback : :class:`bool`
+        By default, when the passed function has neither a :attr:`~definition.__qualname__` or
+        :attr:`~definition.__name__` attribute the (called) name of the functions class is returned.
+        If :data:`True` then use :func:`repr` instead.
+
+    Returns
+    -------
+    :class:`str`
+        A string representation of the name of **func**.
+
+    """
+    try:
+        name: str = getattr(func, '__qualname__', func.__name__)
+    except AttributeError as ex:
+        if not callable(func):
+            raise TypeError("'func' expected a callable; "
+                            f"observed type: {func.__class__.__name__!r}") from ex
+        if repr_fallback:
+            name = repr(func)
+        else:
+            name = f'{func.__class__.__name__}(...)'
+
+    if prepend_module:
+        try:
+            return f'{func.__module__}.{name}'
+        except AttributeError:
+            pass
+    return name
 
 
 def group_by_values(iterable: Iterable[Tuple[_VT, _KT]]) -> Dict[_KT, List[_VT]]:
@@ -164,11 +242,7 @@ def get_importable(string: str, validate: Optional[Callable[[_T], bool]] = None)
     if validate is None:
         return ret
     elif not validate(ret):
-        try:
-            val_str = f'{validate.__qualname__}()'
-        except AttributeError:
-            val_str = f'{validate.__class__.__name__}(...)()'
-
+        val_str = get_func_name(validate) + '()'
         raise RuntimeError(f'Passing {ret!r} to {val_str} failed to return True')
     return ret
 
@@ -391,10 +465,7 @@ def ignore_if(exception, warn=True):  # noqa: E302
 
     elif isinstance(exception, BaseException):
         def decorator2(func: Callable[..., Any]) -> Callable[..., None]:
-            try:
-                msg = f"Skipping call to {getattr(func, '__qualname__', func.__name__)}()"
-            except AttributeError:
-                msg = f"Skipping call to {func.__class__.__name__}(...)()"
+            msg = f"Skipping call to {get_func_name(func)}()"
 
             @wraps(func)
             def wrapper(*args: Any, **kwargs: Any) -> None:
