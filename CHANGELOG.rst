@@ -5,16 +5,14 @@ Change Log
 All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
+
 0.4.2
 *****
 * Set the default output of ``AbstractFileContainer.write()`` to ``sys.stdout``.
 * Cleaned up ``tests_require`` in ``setup.py``.
-
-
-0.4.1
-*****
-* Minor documentation fixes.
-* Added the ``ignore_if()`` decorator.
+* Added the ``get_func_name()`` function.
+* Added the ``module`` argument to ``issubclass_factory()``, ``isinstance_factory()``
+  and ``import_factory()``.
 
 
 0.4.3
