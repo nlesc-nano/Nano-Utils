@@ -1,4 +1,4 @@
-"""A module with empty (immutable) iterables.
+"""A module with empty (immutable) containers and iterables.
 
 Can be used as default arguments for functions.
 
