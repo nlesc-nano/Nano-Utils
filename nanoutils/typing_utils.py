@@ -37,7 +37,7 @@ Index
 :data:`~typing.Final`               Special typing construct to indicate final names to type checkers.
 :func:`~typing.final`               A decorator to indicate final methods and final classes.
 :class:`~typing.Protocol`           Base class for protocol classes.
-:class:`~typing.SupportsIndex`      An ABC with one abstract method :class:`~object.__index__()`.
+:class:`~typing.SupportsIndex`      An ABC with one abstract method :meth:`~object.__index__()`.
 :class:`~typing.TypedDict`          A simple typed name space. At runtime it is equivalent to a plain :class:`dict`.
 :func:`~typing.runtime_checkable`   Mark a protocol class as a runtime protocol, so that it an be used with :func:`isinstance()` and :func:`issubclass()`.
 :data:`~nanoutils.PathType`         An annotation for `path-like <https://docs.python.org/3/glossary.html#term-path-like-object>`_ objects.
