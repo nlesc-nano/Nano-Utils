@@ -206,7 +206,7 @@ def fill_diagonal_blocks(array: ndarray, i: int, j: int, val: float = nan) -> No
 
     Parameters
     ----------
-    array : :class:`nump.ndarray`
+    array : :class:`numpy.ndarray`
         A >= 2D NumPy array whose diagonal blocks are to be filled.
         Gets modified in-place.
     i : :class:`int`
