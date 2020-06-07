@@ -220,7 +220,7 @@ class Formatter(str):
 
     """
 
-    def __init__(self, msg: str):
+    def __init__(self, msg: str) -> None:
         """Initialize an instance."""
         self._msg: str = msg
 
@@ -268,7 +268,8 @@ _PO = inspect.Parameter.POSITIONAL_ONLY
 _POK = inspect.Parameter.POSITIONAL_OR_KEYWORD
 
 
-def isinstance_factory(class_or_tuple: _ClassOrTuple, module: str = __name__) -> Callable[[object], bool]:
+def isinstance_factory(class_or_tuple: _ClassOrTuple,
+                       module: str = __name__) -> Callable[[object], bool]:
     """Return a function which checks if the passed object is an instance of **class_or_tuple**.
 
     Examples
