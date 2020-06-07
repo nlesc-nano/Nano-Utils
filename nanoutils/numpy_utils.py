@@ -1,4 +1,4 @@
-""":mod:`numpy` related utility functions.
+"""Utility functions related to :mod:`numpy`.
 
 Note that these functions require the NumPy package.
 
