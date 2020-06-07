@@ -18,6 +18,7 @@ from types import ModuleType
 from functools import partial, wraps
 from typing import (
     List,
+    Any,
     Tuple,
     Optional,
     Callable,
@@ -30,11 +31,13 @@ from typing import (
     NoReturn,
     MutableMapping,
     Collection,
+    Generic,
     cast,
     overload
 )
 
 from .empty import EMPTY_CONTAINER
+from ._partial import PartialPrepend
 
 __all__ = [
     'PartialPrepend', 'VersionInfo',
@@ -42,10 +45,12 @@ __all__ = [
     'set_docstring', 'raise_if', 'ignore_if'
 ]
 
+PartialPrepend.__module__ = __name__
+
 _T = TypeVar('_T')
 _KT = TypeVar('_KT')
 _VT = TypeVar('_VT')
-_FT = TypeVar('_FT', bound=Callable)
+_FT = TypeVar('_FT', bound=Callable[..., Any])
 
 
 def group_by_values(iterable: Iterable[Tuple[_VT, _KT]]) -> Dict[_KT, List[_VT]]:
@@ -168,33 +173,6 @@ def get_importable(string: str, validate: Optional[Callable[[_T], bool]] = None)
     return ret
 
 
-class PartialPrepend(partial):
-    """A :func:`~functools.partial` subclass where the ``*args`` are appended rather than prepended.
-
-    Examples
-    --------
-    .. code:: python
-
-        >>> from functools import partial
-        >>> from nanoutils import PartialPrepend
-
-        >>> func1 = partial(isinstance, 1)  # isinstance(1, ...)
-        >>> func2 = PartialPrepend(isinstance, float)  # isinstance(..., float)
-
-        >>> func1(int)  # isinstance(1, int)
-        True
-
-        >>> func2(1.0)  # isinstance(1.0, float)
-        True
-
-    """  # noqa: E501
-
-    def __call__(self, *args, **keywords):
-        """Call and return :attr:`~PartialReversed.func`."""
-        keywords = {**self.keywords, **keywords}
-        return self.func(*args, *self.args, **keywords)
-
-
 @overload
 def split_dict(dct: MutableMapping[_KT, _VT], preserve_order: bool = ..., *,
                keep_keys: Iterable[_KT]) -> Dict[_KT, _VT]:
@@ -203,7 +181,7 @@ def split_dict(dct: MutableMapping[_KT, _VT], preserve_order: bool = ..., *,
 def split_dict(dct: MutableMapping[_KT, _VT], preserve_order: bool = ..., *,
                disgard_keys: Iterable[_KT]) -> Dict[_KT, _VT]:
     ...
-def split_dict(dct: MutableMapping[_KT, _VT], preserve_order: bool = False, *, keep_keys: Iterable[_KT] = None, disgard_keys: Iterable[_KT] = None) -> Dict[_KT, _VT]:  # noqa: E302,E501
+def split_dict(dct, preserve_order=False, *, keep_keys=None, disgard_keys=None):  # type: ignore # noqa: E302,E501
     r"""Pop all items from **dct** which are in not in **keep_keys** and use them to construct a new dictionary.
 
     Note that, by popping its keys, the passed **dct** will also be modified inplace.
@@ -286,7 +264,7 @@ def _disgard_keys(dct: Mapping[_KT, _VT], keep_keys: Iterable[_KT],
 def raise_if(exception: None) -> Callable[[_FT], _FT]:
     ...
 @overload  # noqa: E302
-def raise_if(exception: BaseException) -> Callable[[Callable], Callable[..., NoReturn]]:
+def raise_if(exception: BaseException) -> Callable[[Callable[..., Any]], Callable[..., NoReturn]]:
     ...
 def raise_if(exception):  # noqa: E302
     """A decorator which raises the passed exception whenever calling the decorated function.
@@ -332,26 +310,27 @@ def raise_if(exception):  # noqa: E302
 
     """
     if exception is None:
-        def decorator(func: _FT):
+        def decorator1(func: _FT) -> _FT:
             return func
+        return decorator1
 
     elif isinstance(exception, BaseException):
-        def decorator(func: _FT):
+        def decorator2(func: Callable[..., Any]) -> Callable[..., NoReturn]:
             @wraps(func)
-            def wrapper(*args, **kwargs):
+            def wrapper(*args: Any, **kwargs: Any) -> NoReturn:
                 raise exception
             return wrapper
+        return decorator2
 
     else:
         raise TypeError(f"{exception.__class__.__name__!r}")
-    return decorator
 
 
 @overload
 def ignore_if(exception: None, warn: bool = ...) -> Callable[[_FT], _FT]:
     ...
 @overload  # noqa: E302
-def ignore_if(exception: BaseException, warn: bool = ...) -> Callable[[Callable], Callable[..., None]]:  # noqa: E501
+def ignore_if(exception: BaseException, warn: bool = ...) -> Callable[[Callable[..., Any]], Callable[..., None]]:  # noqa: E501
     ...
 def ignore_if(exception, warn=True):  # noqa: E302
     """A decorator which, if an exception is passed, ignores calls to the decorated function.
@@ -406,28 +385,29 @@ def ignore_if(exception, warn=True):  # noqa: E302
     _WARN = warn
 
     if exception is None:
-        def decorator(func: _FT):
+        def decorator1(func: _FT) -> _FT:
             return func
+        return decorator1
 
     elif isinstance(exception, BaseException):
-        def decorator(func: _FT):
+        def decorator2(func: Callable[..., Any]) -> Callable[..., None]:
             try:
                 msg = f"Skipping call to {getattr(func, '__qualname__', func.__name__)}()"
             except AttributeError:
                 msg = f"Skipping call to {func.__class__.__name__}(...)()"
 
             @wraps(func)
-            def wrapper(*args, **kwargs):
+            def wrapper(*args: Any, **kwargs: Any) -> None:
                 if _WARN:
                     exc = UserWarning(msg)
                     exc.__cause__ = exception
                     warnings.warn(exc)
                     return None
             return wrapper
+        return decorator2
 
     else:
         raise TypeError(f"{exception.__class__.__name__!r}")
-    return decorator
 
 
 class VersionInfo(NamedTuple):
