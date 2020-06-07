@@ -18,6 +18,7 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
   otherwise ``nanoutils.utils.
 * Run tests on the ``docs/`` directory.
 * Updated annotations and documentation.
+* Fixed an issue where decorator documentation wasn't properly generated.
 
 
 0.4.1

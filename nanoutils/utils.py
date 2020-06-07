@@ -630,7 +630,7 @@ def construct_api_doc(glob_dict: Mapping[str, object],
 
     return __doc__.format(
         autosummary='\n'.join(f'    {i}' for i in __all__),
-        autofunction='\n'.join(_get_directive(glob_dict[i], i) for i in __all__)
+        autofunction='\n'.join(_get_directive(glob_dict[i], i, decorators) for i in __all__)
     )
 
 
@@ -639,4 +639,4 @@ def _null_func(obj: _T) -> _T:
     return obj
 
 
-__doc__ = construct_api_doc(globals(), decorators={'set_docstring', 'raise_if', 'raise_if'})
+__doc__ = construct_api_doc(globals(), decorators={'set_docstring', 'raise_if', 'ignore_if'})
