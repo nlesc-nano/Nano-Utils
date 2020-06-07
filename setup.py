@@ -32,7 +32,7 @@ tests_require = [
     'pytest-flake8>=1.0.5',
     'pydocstyle>=5.0.0',
     'pytest-pydocstyle>=2.1',
-    'pytest-mypy>=0.6.2'
+    'pytest-mypy>=0.6.1'  # The use of stub files will require >= 0.6.2
 ]
 tests_require += docs_require
 
@@ -47,7 +47,7 @@ setup(
     url='https://github.com/nlesc-nano/Nano-Utils',
     packages=['nanoutils'],
     package_dir={'nanoutils': 'nanoutils'},
-    package_data={'nanoutils': ['py.typed', '*.pyi']},
+    package_data={'nanoutils': ['py.typed']},
     include_package_data=True,
     license='Apache Software License',
     zip_safe=False,
