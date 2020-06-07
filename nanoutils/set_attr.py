@@ -1,4 +1,4 @@
-"""A module for containing the :class:`SetAttr` class.
+"""A module for containing the :class:`nanoutils.SetAttr` class.
 
 Index
 -----
@@ -59,17 +59,17 @@ class SetAttr(Generic[_T1, _T2]):
 
     @property
     def obj(self) -> _T1:
-        """:class:`object`: The to-be modified object."""
+        """:class:`object`: Get the to-be modified object."""
         return self._obj
 
     @property
     def name(self) -> str:
-        """:class:`str`: The name of the to-be modified attribute."""
+        """:class:`str`: Get the name of the to-be modified attribute."""
         return self._name
 
     @property
     def value(self) -> _T2:
-        """:class:`object`: The value to-be assigned to the :attr:`name` attribute of :attr:`SetAttr.obj`."""  # noqa: E501
+        """:class:`object`: Get the value to-be assigned to the :attr:`name` attribute of :attr:`SetAttr.obj`."""  # noqa: E501
         return self._value
 
     @property
