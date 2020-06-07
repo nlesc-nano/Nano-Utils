@@ -242,7 +242,6 @@ class AbstractFileContainer(metaclass=ABCMeta):
     def _read_postprocess(self) -> None:
         r"""Post process new instances created by :meth:`~AbstractFileContainer.read`.
 
-
         :rtype: :data:`None`
 
         See Also
