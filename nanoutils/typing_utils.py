@@ -1,4 +1,4 @@
-""":mod:`typing<python:typing>` related types.
+"""Types related to the builtin :mod:`typing<python:typing>` module.
 
 Contains aliases for ``python >= 3.8`` exclusive objects related to typing.
 
