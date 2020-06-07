@@ -200,7 +200,7 @@ class Default(Generic[_T]):
 
         """
         if self.call and callable(self.value):
-            return self.value()
+            return self.value()  # type: ignore
         else:
             return self.value
 
@@ -257,7 +257,7 @@ class Formatter(str):
             return repr(obj)
 
     @property
-    def __mod__(self):  # type: ignore
+    def __mod__(self):
         """Get :meth:`Formatter.format`."""
         return self.format
 
@@ -304,7 +304,7 @@ def isinstance_factory(class_or_tuple: _ClassOrTuple) -> Callable[[object], bool
     try:
         isinstance('bob', class_or_tuple)
     except TypeError as ex:
-        raise TypeError("'class_or_tuple' expected a type or tuple of types; "  # type: ignore
+        raise TypeError("'class_or_tuple' expected a type or tuple of types; "
                         f"observed type: {class_or_tuple.__class__.__name__!r}") from ex
 
     if isinstance(class_or_tuple, type):
@@ -360,7 +360,7 @@ def issubclass_factory(class_or_tuple: _ClassOrTuple) -> Callable[[type], bool]:
     try:
         issubclass(int, class_or_tuple)
     except TypeError as ex:
-        raise TypeError("'class_or_tuple' expected a type or tuple of types; "  # type: ignore
+        raise TypeError("'class_or_tuple' expected a type or tuple of types; "
                         f"observed type: {class_or_tuple.__class__.__name__!r}") from ex
 
     if isinstance(class_or_tuple, type):

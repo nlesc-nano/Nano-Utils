@@ -181,7 +181,7 @@ def split_dict(dct: MutableMapping[_KT, _VT], preserve_order: bool = ..., *,
 def split_dict(dct: MutableMapping[_KT, _VT], preserve_order: bool = ..., *,
                disgard_keys: Iterable[_KT]) -> Dict[_KT, _VT]:
     ...
-def split_dict(dct, preserve_order=False, *, keep_keys=None, disgard_keys=None):  # type: ignore # noqa: E302,E501
+def split_dict(dct, preserve_order=False, *, keep_keys=None, disgard_keys=None):  # noqa: E302,E501
     r"""Pop all items from **dct** which are in not in **keep_keys** and use them to construct a new dictionary.
 
     Note that, by popping its keys, the passed **dct** will also be modified inplace.

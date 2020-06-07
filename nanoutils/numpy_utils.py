@@ -97,7 +97,7 @@ def as_nd_array(value: Union[Iterable, ArrayLike], dtype: DtypeLike,
         if not isinstance(value, abc.Iterable):
             raise ex
 
-        ret = np.fromiter(value, dtype=dtype)
+        ret: ndarray = np.fromiter(value, dtype=dtype)
         ret.shape += (ndmin - ret.ndim) * (1,)
         return ret
 

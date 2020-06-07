@@ -75,7 +75,7 @@ class SetAttr(Generic[_T1, _T2]):
     @property
     def attr(self) -> _T2:
         """:class:`object`: Get or set the :attr:`~SetAttr.name` attribute of :attr:`SetAttr.obj`."""  # noqa: E501
-        return getattr(self.obj, self.name)
+        return getattr(self.obj, self.name)  # type: ignore
 
     @attr.setter
     def attr(self, value: _T2) -> None:
