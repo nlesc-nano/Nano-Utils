@@ -31,6 +31,7 @@ from typing import (
     NoReturn,
     MutableMapping,
     Collection,
+    Generic,
     cast,
     overload
 )
@@ -44,6 +45,8 @@ __all__ = [
     'group_by_values', 'get_importable', 'construct_api_doc', 'split_dict', 'get_func_name',
     'set_docstring', 'raise_if', 'ignore_if'
 ]
+
+PartialPrepend.__module__ = __name__
 
 _T = TypeVar('_T')
 _KT = TypeVar('_KT')
