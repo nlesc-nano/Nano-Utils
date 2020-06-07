@@ -145,7 +145,7 @@ class AbstractFileContainer(metaclass=ABCMeta):
         >>> from nanoutils import AbstractFileContainer
 
         >>> class SubClass(AbstractFileContainer):
-        ...     def __init__(self, value):
+        ...     def __init__(self, value: str):
         ...         self.value = value
         ...
         ...     @classmethod
@@ -194,6 +194,11 @@ class AbstractFileContainer(metaclass=ABCMeta):
             Further keyword arguments for :func:`open`.
             Only relevant if **file** is a path-like object.
 
+        Returns
+        -------
+        :class:`nanoutils.AbstractFileContainer`
+            A new instance constructed from **file**.
+
         """  # noqa
         kwargs.setdefault('mode', 'r')
         context_manager = file_to_context(file, **kwargs)
@@ -223,7 +228,7 @@ class AbstractFileContainer(metaclass=ABCMeta):
 
         Returns
         -------
-        :class:`dict` [:class:`str`, :data:`~typing.Any`]
+        :class:`Dict[str, Any]<typing.Dict>`
             A dictionary with keyword arguments for a new instance of this objects' class.
 
         See Also
@@ -242,11 +247,14 @@ class AbstractFileContainer(metaclass=ABCMeta):
         :meth:`AbstractFileContainer.read`
             Construct a new instance from this object's class by reading the content of **file**.
 
+
+        :rtype: :data:`None`
+
         """
         pass
 
     @final
-    def write(self, file: Union[PathType, IO],
+    def write(self, file: Union[PathType, IO] = sys.stdout,
               bytes_encoding: Optional[str] = None, **kwargs: Any) -> None:
         r"""Write the content of this instance to **file**.
 
@@ -262,6 +270,9 @@ class AbstractFileContainer(metaclass=ABCMeta):
         \**kwargs : :data:`~typing.Any`
             Further keyword arguments for :func:`open`.
             Only relevant if **file** is a path-like object.
+
+
+        :rtype: :data:`None`
 
         """
         kwargs.setdefault('mode', 'w')
@@ -290,6 +301,9 @@ class AbstractFileContainer(metaclass=ABCMeta):
         --------
         :meth:`AbstractFileContainer.write`:
             Write the content of this instance to **file**.
+
+
+        :rtype: :data:`None`
 
         """
         raise NotImplementedError('Trying to call an abstract method')
