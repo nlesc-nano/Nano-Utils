@@ -2,6 +2,34 @@
 
 Contains aliases for ``python >= 3.8`` exclusive objects related to typing.
 
+See Also
+--------
+.. image:: https://badge.fury.io/py/typing-extensions.svg
+    :target: https://badge.fury.io/py/typing-extensions
+
+The typing module: Support for gradual typing as defined by `PEP 484 <https://www.python.org/dev/peps/pep-0484/>`_.
+
+At large scale, the structure of the module is following:
+
+* Imports and exports, all public names should be explicitly added to :data:`__all__`.
+* Internal helper functions: these should never be used in code outside this module.
+* :class:`~typing._SpecialForm` and its instances (special forms): :data:`~typing.Any`,
+  :data:`~typing.NoReturn`, :data:`~typing.ClassVar`, :data:`~typing.Union` and :data:`~typing.Optional`.
+* Two classes whose instances can be type arguments in addition to types:
+  :class:`~typing.ForwardRef` and :class:`~typing.TypeVar`.
+* The core of internal generics API: _GenericAlias and _VariadicGenericAlias, the latter is
+  currently only used by :data:`~typing.Tuple` and :data:`~typing.Callable`.
+  All subscripted types like :code:`X[int]`, :code:`Union[int, str]`,
+  *etc.*, are instances of either of these classes.
+* The public counterpart of the generics API consists of two classes: :class:`~typing.Generic`
+  and :class:`~typing.Protocol`.
+* Public helper functions: :func:`~typing.get_type_hints`, :func:`~typing.overload`,
+  :func:`~typing.cast`, :func:`~typing.no_type_check`, :func:`~typing.no_type_check_decorator`.
+* Generic aliases for :mod:`collections.abc` ABCs and few additional protocols.
+* Special types: :func:`~typing.NewType`, :class:`~typing.NamedTuple` and :class:`~typing.TypedDict`.
+* Wrapper submodules for :mod:`re` and :mod:`io` related types.
+
+
 Index
 -----
 =================================== ======================================================================================================================================
