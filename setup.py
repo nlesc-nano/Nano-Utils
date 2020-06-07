@@ -27,13 +27,12 @@ tests_require = [
     'assertionlib',
     'schema',
     'numpy',
-    'pytest>=4.1.0',
+    'pytest>=5.4.0',
     'pytest-cov',
     'pytest-flake8>=1.0.5',
     'pydocstyle>=5.0.0',
     'pytest-pydocstyle>=2.1',
-    'typing-extensions>=3.7.4; python_version<"3.8"',
-    'pytest-mypy>=0.6.2'
+    'pytest-mypy>=0.6.1'  # The use of stub files will require >= 0.6.2
 ]
 tests_require += docs_require
 
