@@ -65,11 +65,11 @@ _OpenBinaryMode = Literal[
 def file_to_context(file: IO[AnyStr], **kwargs: Any) -> ContextManager[IO[AnyStr]]:
     ...
 @overload  # noqa: E302
-def file_to_context(file: Union[int, PathType], mode: _OpenTextMode = ...,  # type: ignore
+def file_to_context(file: Union[int, PathType], *, mode: _OpenTextMode = ...,  # type: ignore
                     **kwargs: Any) -> ContextManager[IO[str]]:
     ...
 @overload  # noqa: E302
-def file_to_context(file: Union[int, PathType], mode: _OpenBinaryMode = ...,
+def file_to_context(file: Union[int, PathType], *, mode: _OpenBinaryMode = ...,
                     **kwargs: Any) -> ContextManager[IO[bytes]]:
     ...
 def file_to_context(file, **kwargs):  # noqa: E302
@@ -205,10 +205,10 @@ class AbstractFileContainer(metaclass=ABCMeta):
 
         with context_manager as f:
             if bytes_decoding is None:
-                decoder: Callable[[str], Union[str, bytes]] = _null_func
+                decoder: Callable[[Any], str] = _null_func
             else:
-                decoder = partial(decode, encoding=bytes_decoding)
-            cls_dict = cls._read(f, decoder)  # type: ignore
+                decoder = partial(decode, encoding=bytes_decoding)  # type: ignore
+            cls_dict = cls._read(f, decoder)
 
         ret = cls(**cls_dict)
         ret._read_postprocess()
@@ -236,7 +236,7 @@ class AbstractFileContainer(metaclass=ABCMeta):
         :meth:`AbstractFileContainer.read`
             Construct a new instance from this object's class by reading the content of **file**.
 
-        """  # noqa
+        """
         raise NotImplementedError('Trying to call an abstract method')
 
     def _read_postprocess(self) -> None:
@@ -283,7 +283,7 @@ class AbstractFileContainer(metaclass=ABCMeta):
                 encoder: Callable[[str], Union[str, bytes]] = _null_func
             else:
                 encoder = partial(encode, encoding=bytes_encoding)
-            self._write(f, encoder)  # type: ignore
+            self._write(f, encoder)
 
     @abstractmethod
     def _write(self, file_obj: IO[AnyStr], encoder: Callable[[str], AnyStr]) -> None:
