@@ -5,14 +5,15 @@ on:
     pull_request:
         types: [closed]
 
-name: Automatic Rebase
+name: Automatic rebase
 jobs:
     rebase:
         name: Rebase
+        if: github.event.issue.pull_request != ''
         runs-on: ubuntu-latest
         steps:
         - name: Checkout the latest code
-          uses: actions/checkout@v1
+          uses: actions/checkout@v2
           with:
             fetch-depth: 0
         - name: Automatic Rebase
