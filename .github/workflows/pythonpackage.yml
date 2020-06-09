@@ -32,7 +32,7 @@ jobs:
             - name: Install numpy-stubs
               run: |
                 pip show numpy
-                NUMPY_GE_1_20=$(numpy_ge_1_20 | grep 'numpy >= 1.20:')
+                NUMPY_GE_1_20=$(numpy_ge_1_20)
                 if [[ NUMPY_GE_1_20 == 'FALSE' ]]; then
                     pip install git+https://github.com/numpy/numpy-stubs@master
                 fi
