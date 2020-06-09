@@ -251,7 +251,7 @@ def numpy_ge_1_20() -> None:
 
         >>> numpy_ge_1_20()  # doctest: +SKIP
         <BLANKLINE>
-        numpy >= 1.20: FALSE
+        numpy >= 1.20:FALSE
 
     A command line example.
 
@@ -266,14 +266,14 @@ def numpy_ge_1_20() -> None:
 
         >>> numpy_ge_1_20  # doctest: +SKIP
         <BLANKLINE>
-        numpy >= 1.20: FALSE
+        numpy >= 1.20:FALSE
 
     """  # noqa: E501
     if NUMPY_EX is not None:
         warning1 = ImportWarning(str(NUMPY_EX))
         warning1.__cause__ = NUMPY_EX
         warnings.warn(warning1)
-        print("\nnumpy >= 1.20: ERROR")
+        print("\nnumpy >= 1.20:ERROR")
         return
 
     __version__ = getattr(np, '__version__', None)
@@ -283,13 +283,13 @@ def numpy_ge_1_20() -> None:
         warning2 = RuntimeWarning(f"Failed to parse the NumPy version: {__version__!r}")
         warning2.__cause__ = ex
         warnings.warn(warning2)
-        print("\nnumpy >= 1.20: ERROR")
+        print("\nnumpy >= 1.20:ERROR")
         return
 
     if version.major > 1 or (version.major == 1 and version.minor >= 20):
-        print("\nnumpy >= 1.20: TRUE")
+        print("\nnumpy >= 1.20:TRUE")
     else:
-        print("\nnumpy >= 1.20: FALSE")
+        print("\nnumpy >= 1.20:FALSE")
 
 
 __doc__ = construct_api_doc(globals())
