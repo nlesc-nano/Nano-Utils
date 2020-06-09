@@ -32,7 +32,6 @@ jobs:
             - name: Install numpy-stubs
               shell: bash -l {0}
               run: |
-                numpy_ge_1_20
                 pip show numpy
                 NUMPY_GE_1_20=$(numpy_ge_1_20)
                 if [[ $NUMPY_GE_1_20 == 'FALSE' ]]; then
