@@ -29,6 +29,12 @@ jobs:
             - name: Install dependencies
               run: pip install -e .[test]
 
+            - name: Installed numpy-stubs for numpy < 1.20.0
+              if: |
+                INSTALL_STUBS=$(numpy_ge_1_20 | grep 'numpy >= 1.20: ')
+                ${{ INSTALL_STUBS }} == 'TRUE'
+              run: pip install git+https://github.com/numpy/numpy-stubs
+
             - name: Python info
               run: |
                 which python
