@@ -65,11 +65,11 @@ _OpenBinaryMode = Literal[
 def file_to_context(file: IO[AnyStr], **kwargs: Any) -> ContextManager[IO[AnyStr]]:
     ...
 @overload  # noqa: E302
-def file_to_context(file: Union[int, PathType], mode: _OpenTextMode = ...,  # type: ignore
+def file_to_context(file: Union[int, PathType], *, mode: _OpenTextMode = ...,  # type: ignore
                     **kwargs: Any) -> ContextManager[IO[str]]:
     ...
 @overload  # noqa: E302
-def file_to_context(file: Union[int, PathType], mode: _OpenBinaryMode = ...,
+def file_to_context(file: Union[int, PathType], *, mode: _OpenBinaryMode = ...,
                     **kwargs: Any) -> ContextManager[IO[bytes]]:
     ...
 def file_to_context(file, **kwargs):  # noqa: E302
@@ -145,7 +145,7 @@ class AbstractFileContainer(metaclass=ABCMeta):
         >>> from nanoutils import AbstractFileContainer
 
         >>> class SubClass(AbstractFileContainer):
-        ...     def __init__(self, value):
+        ...     def __init__(self, value: str):
         ...         self.value = value
         ...
         ...     @classmethod
@@ -194,16 +194,21 @@ class AbstractFileContainer(metaclass=ABCMeta):
             Further keyword arguments for :func:`open`.
             Only relevant if **file** is a path-like object.
 
+        Returns
+        -------
+        :class:`nanoutils.AbstractFileContainer`
+            A new instance constructed from **file**.
+
         """  # noqa
         kwargs.setdefault('mode', 'r')
         context_manager = file_to_context(file, **kwargs)
 
         with context_manager as f:
             if bytes_decoding is None:
-                decoder: Callable[[str], Union[str, bytes]] = _null_func
+                decoder: Callable[[Any], str] = _null_func
             else:
-                decoder = partial(decode, encoding=bytes_decoding)
-            cls_dict = cls._read(f, decoder)  # type: ignore
+                decoder = partial(decode, encoding=bytes_decoding)  # type: ignore
+            cls_dict = cls._read(f, decoder)
 
         ret = cls(**cls_dict)
         ret._read_postprocess()
@@ -223,7 +228,7 @@ class AbstractFileContainer(metaclass=ABCMeta):
 
         Returns
         -------
-        :class:`dict` [:class:`str`, :data:`~typing.Any`]
+        :class:`Dict[str, Any]<typing.Dict>`
             A dictionary with keyword arguments for a new instance of this objects' class.
 
         See Also
@@ -231,11 +236,13 @@ class AbstractFileContainer(metaclass=ABCMeta):
         :meth:`AbstractFileContainer.read`
             Construct a new instance from this object's class by reading the content of **file**.
 
-        """  # noqa
+        """
         raise NotImplementedError('Trying to call an abstract method')
 
     def _read_postprocess(self) -> None:
         r"""Post process new instances created by :meth:`~AbstractFileContainer.read`.
+
+        :rtype: :data:`None`
 
         See Also
         --------
@@ -246,7 +253,7 @@ class AbstractFileContainer(metaclass=ABCMeta):
         pass
 
     @final
-    def write(self, file: Union[PathType, IO],
+    def write(self, file: Union[PathType, IO] = sys.stdout,
               bytes_encoding: Optional[str] = None, **kwargs: Any) -> None:
         r"""Write the content of this instance to **file**.
 
@@ -255,6 +262,7 @@ class AbstractFileContainer(metaclass=ABCMeta):
         file : :class:`str`, :class:`bytes`, :class:`os.PathLike` or :class:`~typing.IO`
             A `path- <https://docs.python.org/3/glossary.html#term-path-like-object>`_ or
             `file-like <https://docs.python.org/3/glossary.html#term-file-object>`_ object.
+            Defaults to :data:`sys.stdout` if not specified.
         bytes_encoding : :class:`str`, optional
             The type of encoding to use when writing to **file**
             when it will be/is be opened in :class:`bytes` mode.
@@ -262,6 +270,9 @@ class AbstractFileContainer(metaclass=ABCMeta):
         \**kwargs : :data:`~typing.Any`
             Further keyword arguments for :func:`open`.
             Only relevant if **file** is a path-like object.
+
+
+        :rtype: :data:`None`
 
         """
         kwargs.setdefault('mode', 'w')
@@ -272,7 +283,7 @@ class AbstractFileContainer(metaclass=ABCMeta):
                 encoder: Callable[[str], Union[str, bytes]] = _null_func
             else:
                 encoder = partial(encode, encoding=bytes_encoding)
-            self._write(f, encoder)  # type: ignore
+            self._write(f, encoder)
 
     @abstractmethod
     def _write(self, file_obj: IO[AnyStr], encoder: Callable[[str], AnyStr]) -> None:
@@ -282,9 +293,12 @@ class AbstractFileContainer(metaclass=ABCMeta):
         ----------
         file_obj : :class:`IO[AnyStr]<typing.IO>`
             A file-like object opened in write mode.
-        encoder : :class:`Callable[[bytes], AnyStr]<typing.Callable>`
+        encoder : :class:`Callable[[str], AnyStr]<typing.Callable>`
             A function for converting strings into either :class:`str` or :class:`bytes`,
             the exact type matching that of **file_obj**.
+
+
+        :rtype: :data:`None`
 
         See Also
         --------

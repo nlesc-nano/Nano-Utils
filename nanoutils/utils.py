@@ -15,9 +15,10 @@ API
 import warnings
 import importlib
 from types import ModuleType
-from functools import partial, wraps
+from functools import wraps
 from typing import (
     List,
+    Any,
     Tuple,
     Optional,
     Callable,
@@ -35,17 +36,98 @@ from typing import (
 )
 
 from .empty import EMPTY_CONTAINER
+from ._partial import PartialPrepend
+from ._set_attr import SetAttr
 
 __all__ = [
-    'PartialPrepend', 'VersionInfo',
-    'group_by_values', 'get_importable', 'construct_api_doc', 'split_dict',
+    'PartialPrepend', 'SetAttr', 'VersionInfo',
+    'group_by_values', 'get_importable', 'construct_api_doc', 'split_dict', 'get_func_name',
     'set_docstring', 'raise_if', 'ignore_if'
 ]
 
 _T = TypeVar('_T')
 _KT = TypeVar('_KT')
 _VT = TypeVar('_VT')
-_FT = TypeVar('_FT', bound=Callable)
+_FT = TypeVar('_FT', bound=Callable[..., Any])
+
+
+def get_func_name(func: Callable[..., Any], prepend_module: bool = False,
+                  repr_fallback: bool = False) -> str:
+    """Extract and return the name of **func**.
+
+    A total of three attempts are performed at retrieving the passed functions name:
+
+    1. Return the functions qualified name (:attr:`~definition.__qualname__`).
+    2. Return the functions name (:attr:`~definition.__name__`).
+    3. Return the (called) name of the functions type.
+
+    Examples
+    --------
+    .. code:: python
+
+        >>> from functools import partial
+        >>> from nanoutils import get_func_name
+
+        >>> def func1():
+        ...     pass
+
+        >>> class Class():
+        ...     def func2(self):
+        ...         pass
+
+        >>> func3 = partial(len)
+
+        >>> get_func_name(func1)
+        'func1'
+
+        >>> get_func_name(func1, prepend_module=True)  # doctest: +SKIP
+        '__main__.func1'
+
+        >>> get_func_name(Class.func2)
+        'Class.func2'
+
+        >>> get_func_name(func3)
+        'partial(...)'
+
+        >>> get_func_name(func3, repr_fallback=True)
+        'functools.partial(<built-in function len>)'
+
+
+    Parameters
+    ----------
+    func : :class:`~collections.abc.Callable`
+        A callable object.
+    prepend_module : :class:`bool`
+        If :data:`True` prepend the objects module (:attr:`~definition.__module__`),
+        if available, to the to-be returned string.
+    repr_fallback : :class:`bool`
+        By default, when the passed function has neither a :attr:`~definition.__qualname__` or
+        :attr:`~definition.__name__` attribute the (called) name of the functions class is returned.
+        If :data:`True` then use :func:`repr` instead.
+
+    Returns
+    -------
+    :class:`str`
+        A string representation of the name of **func**.
+
+    """
+    try:
+        name: str = getattr(func, '__qualname__', func.__name__)
+    except AttributeError as ex:
+        if not callable(func):
+            raise TypeError("'func' expected a callable; "
+                            f"observed type: {func.__class__.__name__!r}") from ex
+        if repr_fallback:
+            name = repr(func)
+        else:
+            name = f'{func.__class__.__name__}(...)'
+
+    if prepend_module:
+        try:
+            return f'{func.__module__}.{name}'
+        except AttributeError:
+            pass
+    return name
 
 
 def group_by_values(iterable: Iterable[Tuple[_VT, _KT]]) -> Dict[_KT, List[_VT]]:
@@ -159,40 +241,9 @@ def get_importable(string: str, validate: Optional[Callable[[_T], bool]] = None)
     if validate is None:
         return ret
     elif not validate(ret):
-        try:
-            val_str = f'{validate.__qualname__}()'
-        except AttributeError:
-            val_str = f'{validate.__class__.__name__}(...)()'
-
+        val_str = get_func_name(validate) + '()'
         raise RuntimeError(f'Passing {ret!r} to {val_str} failed to return True')
     return ret
-
-
-class PartialPrepend(partial):
-    """A :func:`~functools.partial` subclass where the ``*args`` are appended rather than prepended.
-
-    Examples
-    --------
-    .. code:: python
-
-        >>> from functools import partial
-        >>> from nanoutils import PartialPrepend
-
-        >>> func1 = partial(isinstance, 1)  # isinstance(1, ...)
-        >>> func2 = PartialPrepend(isinstance, float)  # isinstance(..., float)
-
-        >>> func1(int)  # isinstance(1, int)
-        True
-
-        >>> func2(1.0)  # isinstance(1.0, float)
-        True
-
-    """  # noqa: E501
-
-    def __call__(self, *args, **keywords):
-        """Call and return :attr:`~PartialReversed.func`."""
-        keywords = {**self.keywords, **keywords}
-        return self.func(*args, *self.args, **keywords)
 
 
 @overload
@@ -203,7 +254,7 @@ def split_dict(dct: MutableMapping[_KT, _VT], preserve_order: bool = ..., *,
 def split_dict(dct: MutableMapping[_KT, _VT], preserve_order: bool = ..., *,
                disgard_keys: Iterable[_KT]) -> Dict[_KT, _VT]:
     ...
-def split_dict(dct: MutableMapping[_KT, _VT], preserve_order: bool = False, *, keep_keys: Iterable[_KT] = None, disgard_keys: Iterable[_KT] = None) -> Dict[_KT, _VT]:  # noqa: E302,E501
+def split_dict(dct, preserve_order=False, *, keep_keys=None, disgard_keys=None):  # noqa: E302,E501
     r"""Pop all items from **dct** which are in not in **keep_keys** and use them to construct a new dictionary.
 
     Note that, by popping its keys, the passed **dct** will also be modified inplace.
@@ -286,7 +337,7 @@ def _disgard_keys(dct: Mapping[_KT, _VT], keep_keys: Iterable[_KT],
 def raise_if(exception: None) -> Callable[[_FT], _FT]:
     ...
 @overload  # noqa: E302
-def raise_if(exception: BaseException) -> Callable[[Callable], Callable[..., NoReturn]]:
+def raise_if(exception: BaseException) -> Callable[[Callable[..., Any]], Callable[..., NoReturn]]:
     ...
 def raise_if(exception):  # noqa: E302
     """A decorator which raises the passed exception whenever calling the decorated function.
@@ -332,26 +383,27 @@ def raise_if(exception):  # noqa: E302
 
     """
     if exception is None:
-        def decorator(func: _FT):
+        def decorator1(func: _FT) -> _FT:
             return func
+        return decorator1
 
     elif isinstance(exception, BaseException):
-        def decorator(func: _FT):
+        def decorator2(func: Callable[..., Any]) -> Callable[..., NoReturn]:
             @wraps(func)
-            def wrapper(*args, **kwargs):
+            def wrapper(*args: Any, **kwargs: Any) -> NoReturn:
                 raise exception
             return wrapper
+        return decorator2
 
     else:
         raise TypeError(f"{exception.__class__.__name__!r}")
-    return decorator
 
 
 @overload
 def ignore_if(exception: None, warn: bool = ...) -> Callable[[_FT], _FT]:
     ...
 @overload  # noqa: E302
-def ignore_if(exception: BaseException, warn: bool = ...) -> Callable[[Callable], Callable[..., None]]:  # noqa: E501
+def ignore_if(exception: BaseException, warn: bool = ...) -> Callable[[Callable[..., Any]], Callable[..., None]]:  # noqa: E501
     ...
 def ignore_if(exception, warn=True):  # noqa: E302
     """A decorator which, if an exception is passed, ignores calls to the decorated function.
@@ -406,28 +458,26 @@ def ignore_if(exception, warn=True):  # noqa: E302
     _WARN = warn
 
     if exception is None:
-        def decorator(func: _FT):
+        def decorator1(func: _FT) -> _FT:
             return func
+        return decorator1
 
     elif isinstance(exception, BaseException):
-        def decorator(func: _FT):
-            try:
-                msg = f"Skipping call to {getattr(func, '__qualname__', func.__name__)}()"
-            except AttributeError:
-                msg = f"Skipping call to {func.__class__.__name__}(...)()"
+        def decorator2(func: Callable[..., Any]) -> Callable[..., None]:
+            msg = f"Skipping call to {get_func_name(func)}()"
 
             @wraps(func)
-            def wrapper(*args, **kwargs):
+            def wrapper(*args: Any, **kwargs: Any) -> None:
                 if _WARN:
                     exc = UserWarning(msg)
                     exc.__cause__ = exception
                     warnings.warn(exc)
                     return None
             return wrapper
+        return decorator2
 
     else:
         raise TypeError(f"{exception.__class__.__name__!r}")
-    return decorator
 
 
 class VersionInfo(NamedTuple):
@@ -580,7 +630,7 @@ def construct_api_doc(glob_dict: Mapping[str, object],
 
     return __doc__.format(
         autosummary='\n'.join(f'    {i}' for i in __all__),
-        autofunction='\n'.join(_get_directive(glob_dict[i], i) for i in __all__)
+        autofunction='\n'.join(_get_directive(glob_dict[i], i, decorators) for i in __all__)
     )
 
 
@@ -589,4 +639,4 @@ def _null_func(obj: _T) -> _T:
     return obj
 
 
-__doc__ = construct_api_doc(globals(), decorators={'set_docstring', 'raise_if', 'raise_if'})
+__doc__ = construct_api_doc(globals(), decorators={'set_docstring', 'raise_if', 'ignore_if'})

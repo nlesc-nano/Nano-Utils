@@ -1,14 +1,9 @@
-"""A module for containing the :class:`SetAttr` class.
+"""A private module for containing the :class:`nanoutils.SetAttr` class.
 
-Index
+Notes
 -----
-.. currentmodule:: nanoutils
-.. autosummary::
-    {autosummary}
-
-API
----
-{autofunction}
+:class:`~nanoutils.SetAttr` should be imported from
+either :mod:`nanoutils` or :mod:`nanoutils.utils`.
 
 """
 
@@ -16,8 +11,6 @@ import reprlib
 from types import TracebackType
 from typing import Generic, TypeVar, NoReturn, Dict, Any, Optional, Type
 from threading import RLock
-
-from .utils import construct_api_doc
 
 __all__ = ['SetAttr']
 
@@ -59,23 +52,23 @@ class SetAttr(Generic[_T1, _T2]):
 
     @property
     def obj(self) -> _T1:
-        """:class:`object`: The to-be modified object."""
+        """:class:`object`: Get the to-be modified object."""
         return self._obj
 
     @property
     def name(self) -> str:
-        """:class:`str`: The name of the to-be modified attribute."""
+        """:class:`str`: Get the name of the to-be modified attribute."""
         return self._name
 
     @property
     def value(self) -> _T2:
-        """:class:`object`: The value to-be assigned to the :attr:`name` attribute of :attr:`SetAttr.obj`."""  # noqa: E501
+        """:class:`object`: Get the value to-be assigned to the :attr:`name` attribute of :attr:`SetAttr.obj`."""  # noqa: E501
         return self._value
 
     @property
     def attr(self) -> _T2:
         """:class:`object`: Get or set the :attr:`~SetAttr.name` attribute of :attr:`SetAttr.obj`."""  # noqa: E501
-        return getattr(self.obj, self.name)
+        return getattr(self.obj, self.name)  # type: ignore
 
     @attr.setter
     def attr(self, value: _T2) -> None:
@@ -163,6 +156,3 @@ class SetAttr(Generic[_T1, _T2]):
                  traceback: Optional[TracebackType]) -> None:
         """Exit the context manager, restore :attr:`SetAttr.obj`."""
         self.attr = self._value_old
-
-
-__doc__ = construct_api_doc(globals())

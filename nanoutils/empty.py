@@ -1,4 +1,4 @@
-"""A module with empty (immutable) iterables.
+"""A module with empty (immutable) containers and iterables.
 
 Can be used as default arguments for functions.
 
@@ -19,31 +19,31 @@ API
     :type: Container
     :value: frozenset()
 
-    An empty :class:`~collections.abc.Container`.
+    An immutable empty :class:`~collections.abc.Container`.
 
 .. data:: EMPTY_COLLECTION
     :type: Collection
     :value: frozenset()
 
-    An empty :class:`~collections.abc.Collection`.
+    An immutable empty :class:`~collections.abc.Collection`.
 
 .. data:: EMPTY_SET
     :type: Set
     :value: frozenset()
 
-    An empty :class:`~collections.abc.Set`.
+    An immutable empty :class:`~collections.abc.Set`.
 
 .. data:: EMPTY_SEQUENCE
     :type: Sequence
-    :value: ()
+    :value: tuple()
 
-    An empty :class:`~collections.abc.Sequence`.
+    An immutable empty :class:`~collections.abc.Sequence`.
 
 .. data:: EMPTY_MAPPING
     :type: Mapping
-    :value: mappingproxy({})
+    :value: types.MappingProxyType({})
 
-    An empty :class:`~collections.abc.Mapping`.
+    An immutable empty :class:`~collections.abc.Mapping`.
 
 """
 
@@ -54,17 +54,8 @@ __all__ = [
     'EMPTY_SEQUENCE', 'EMPTY_MAPPING', 'EMPTY_COLLECTION', 'EMPTY_SET', 'EMPTY_CONTAINER'
 ]
 
-#: An empty :class:`~collections.abc.Sequence`.
 EMPTY_SEQUENCE: Sequence = ()
-
-#: An empty :class:`~collections.abc.Mapping`.
 EMPTY_MAPPING: Mapping = MappingProxyType({})
-
-#: An empty :class:`~collections.abc.Collection`.
 EMPTY_COLLECTION: Collection = frozenset()
-
-#: An empty :class:`~collections.abc.Set`.
 EMPTY_SET: AbstractSet = frozenset()
-
-#: An empty :class:`~collections.abc.Container`.
 EMPTY_CONTAINER: Container = frozenset()

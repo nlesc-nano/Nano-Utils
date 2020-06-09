@@ -1,6 +1,6 @@
-""":mod:`numpy` related utility functions.
+"""Utility functions related to :mod:`numpy`.
 
-Note that these functions require the numpy package.
+Note that these functions require the NumPy package.
 
 See Also
 --------
@@ -52,7 +52,7 @@ __all__ = ['as_nd_array', 'array_combinations', 'fill_diagonal_blocks']
 
 
 @raise_if(NUMPY_EX)
-def as_nd_array(value: Union[Iterable, ArrayLike], dtype: DtypeLike,
+def as_nd_array(array: Union[Iterable, ArrayLike], dtype: DtypeLike,
                 ndmin: int = 1, copy: bool = False) -> ndarray:
     """Construct a numpy array from an iterable or array-like object.
 
@@ -75,9 +75,9 @@ def as_nd_array(value: Union[Iterable, ArrayLike], dtype: DtypeLike,
 
     Parameters
     ----------
-    value : :class:`~collections.abc.Iterable` or array-like
+    array : :class:`~collections.abc.Iterable` or array-like
         An array-like object or an iterable consisting of scalars.
-    dtype : data-type
+    dtype : :class:`type` or :class:`numpy.dtype`
         The data type of the to-be returned array.
     ndmin : :class:`int`
         The minimum dimensionality of the to-be returned array.
@@ -91,13 +91,13 @@ def as_nd_array(value: Union[Iterable, ArrayLike], dtype: DtypeLike,
 
     """
     try:
-        return np.array(value, dtype=dtype, ndmin=ndmin, copy=copy)
+        return np.array(array, dtype=dtype, ndmin=ndmin, copy=copy)
 
     except TypeError as ex:
-        if not isinstance(value, abc.Iterable):
+        if not isinstance(array, abc.Iterable):
             raise ex
 
-        ret = np.fromiter(value, dtype=dtype)
+        ret: ndarray = np.fromiter(array, dtype=dtype)
         ret.shape += (ndmin - ret.ndim) * (1,)
         return ret
 
@@ -147,8 +147,9 @@ def array_combinations(array: ArrayLike, r: int = 2, axis: int = -1) -> ndarray:
     -------
     :class:`numpy.ndarray`, shape :math:`(k, \dotsc, r)`
         A :math:`n+1` dimensional array with all **ar** combinations (of length ``r``)
-        along **axis**.
-        :math:`k` represents the number of combinations: :math:`k = \dfrac{m! / r!}{(m-r)!}`.
+        along the user-specified **axis**.
+        The variable :math:`k` herein represents the number of combinations:
+        :math:`k = \dfrac{m! / r!}{(m-r)!}`.
 
     """  # noqa: E501
     ar = np.array(array, ndmin=1, copy=False)
@@ -206,7 +207,7 @@ def fill_diagonal_blocks(array: ndarray, i: int, j: int, val: float = nan) -> No
 
     Parameters
     ----------
-    array : :class:`nump.ndarray`
+    array : :class:`numpy.ndarray`
         A >= 2D NumPy array whose diagonal blocks are to be filled.
         Gets modified in-place.
     i : :class:`int`

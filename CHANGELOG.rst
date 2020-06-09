@@ -6,6 +6,21 @@ All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+0.4.2
+*****
+* Set the default output of ``AbstractFileContainer.write()`` to ``sys.stdout``.
+* Cleaned up ``tests_require`` in ``setup.py``.
+* Added the ``get_func_name()`` function.
+* Added the ``module`` argument to ``issubclass_factory()``, ``isinstance_factory()``
+  and ``import_factory()``.
+* ``PartialPrepend`` and ``SetAttr`` are now in their own (private) modules.
+  Note that they still should be imported from (preferably) ``nanoutils`` or
+  otherwise ``nanoutils.utils.
+* Run tests on the ``docs/`` directory.
+* Updated annotations and documentation.
+* Fixed an issue where decorator documentation wasn't properly generated.
+
+
 0.4.1
 *****
 * Minor documentation fixes.

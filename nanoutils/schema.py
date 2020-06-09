@@ -29,7 +29,7 @@ from typing import TypeVar, SupportsFloat, Callable, Union, overload, Generic, T
 from numbers import Integral
 
 from .typing_utils import Literal
-from .utils import PartialPrepend, get_importable, construct_api_doc
+from .utils import PartialPrepend, get_importable, construct_api_doc, get_func_name
 
 __all__ = ['Default', 'Formatter', 'supports_float', 'supports_int',
            'isinstance_factory', 'issubclass_factory', 'import_factory']
@@ -200,7 +200,7 @@ class Default(Generic[_T]):
 
         """
         if self.call and callable(self.value):
-            return self.value()
+            return self.value()  # type: ignore
         else:
             return self.value
 
@@ -220,7 +220,7 @@ class Formatter(str):
 
     """
 
-    def __init__(self, msg: str):
+    def __init__(self, msg: str) -> None:
         """Initialize an instance."""
         self._msg: str = msg
 
@@ -257,7 +257,7 @@ class Formatter(str):
             return repr(obj)
 
     @property
-    def __mod__(self):  # type: ignore
+    def __mod__(self):
         """Get :meth:`Formatter.format`."""
         return self.format
 
@@ -268,7 +268,8 @@ _PO = inspect.Parameter.POSITIONAL_ONLY
 _POK = inspect.Parameter.POSITIONAL_OR_KEYWORD
 
 
-def isinstance_factory(class_or_tuple: _ClassOrTuple) -> Callable[[object], bool]:
+def isinstance_factory(class_or_tuple: _ClassOrTuple,
+                       module: str = __name__) -> Callable[[object], bool]:
     """Return a function which checks if the passed object is an instance of **class_or_tuple**.
 
     Examples
@@ -289,6 +290,8 @@ def isinstance_factory(class_or_tuple: _ClassOrTuple) -> Callable[[object], bool
     ----------
     class_or_tuple : :class:`type` or :data:`Tuple[type, ...]<typing.Tuple>`
         A type object or tuple of type objects.
+    module : :class:`str`
+        The :attr:`~definition.__module__` of the to-be returned function.
 
     Returns
     -------
@@ -304,7 +307,7 @@ def isinstance_factory(class_or_tuple: _ClassOrTuple) -> Callable[[object], bool
     try:
         isinstance('bob', class_or_tuple)
     except TypeError as ex:
-        raise TypeError("'class_or_tuple' expected a type or tuple of types; "  # type: ignore
+        raise TypeError("'class_or_tuple' expected a type or tuple of types; "
                         f"observed type: {class_or_tuple.__class__.__name__!r}") from ex
 
     if isinstance(class_or_tuple, type):
@@ -315,7 +318,7 @@ def isinstance_factory(class_or_tuple: _ClassOrTuple) -> Callable[[object], bool
     ret = PartialPrepend(isinstance, class_or_tuple)
     ret.__name__ = ret.func.__name__  # type: ignore
     ret.__qualname__ = ret.func.__qualname__  # type: ignore
-    ret.__module__ = __name__
+    ret.__module__ = module
     ret.__doc__ = f'Return :code:`isinstance(obj, {cls_str})`.'
     ret.__signature__ = inspect.Signature(  # type: ignore
         parameters=[inspect.Parameter('obj', _PO, annotation=object)],
@@ -324,7 +327,8 @@ def isinstance_factory(class_or_tuple: _ClassOrTuple) -> Callable[[object], bool
     return ret
 
 
-def issubclass_factory(class_or_tuple: _ClassOrTuple) -> Callable[[type], bool]:
+def issubclass_factory(class_or_tuple: _ClassOrTuple,
+                       module: str = __name__) -> Callable[[type], bool]:
     """Return a function which checks if the passed class is a subclass of **class_or_tuple**.
 
     Examples
@@ -345,6 +349,8 @@ def issubclass_factory(class_or_tuple: _ClassOrTuple) -> Callable[[type], bool]:
     ----------
     class_or_tuple : :class:`type` or :data:`Tuple[type, ...]<typing.Tuple>`
         A type object or tuple of type objects.
+    module : :class:`str`
+        The :attr:`~definition.__module__` of the to-be returned function.
 
     Returns
     -------
@@ -360,7 +366,7 @@ def issubclass_factory(class_or_tuple: _ClassOrTuple) -> Callable[[type], bool]:
     try:
         issubclass(int, class_or_tuple)
     except TypeError as ex:
-        raise TypeError("'class_or_tuple' expected a type or tuple of types; "  # type: ignore
+        raise TypeError("'class_or_tuple' expected a type or tuple of types; "
                         f"observed type: {class_or_tuple.__class__.__name__!r}") from ex
 
     if isinstance(class_or_tuple, type):
@@ -371,7 +377,7 @@ def issubclass_factory(class_or_tuple: _ClassOrTuple) -> Callable[[type], bool]:
     ret = PartialPrepend(issubclass, class_or_tuple)
     ret.__name__ = ret.func.__name__  # type: ignore
     ret.__qualname__ = ret.func.__qualname__  # type: ignore
-    ret.__module__ = __name__
+    ret.__module__ = module
     ret.__doc__ = f'Return :code:`isinstance(obj, {cls_str})`.'
     ret.__signature__ = inspect.Signature(  # type: ignore
         parameters=[inspect.Parameter('cls', _PO, annotation=type)],
@@ -380,7 +386,8 @@ def issubclass_factory(class_or_tuple: _ClassOrTuple) -> Callable[[type], bool]:
     return ret
 
 
-def import_factory(validate: Callable[[_T], bool]) -> Callable[[str], _T]:
+def import_factory(validate: Callable[[_T], bool],
+                   module: str = __name__) -> Callable[[str], _T]:
     """Return a function which calls :func:`nanoutils.get_importable` with the **validate** argument.
 
     Examples
@@ -403,6 +410,8 @@ def import_factory(validate: Callable[[_T], bool]) -> Callable[[str], _T]:
     ----------
     validate : :data:`Callable[[T], bool]<typing.Callable>`
         A callable used for validating the passed object.
+    module : :class:`str`
+        The :attr:`~definition.__module__` of the to-be returned function.
 
     Returns
     -------
@@ -419,15 +428,14 @@ def import_factory(validate: Callable[[_T], bool]) -> Callable[[str], _T]:
         raise TypeError("'validate' expected a callable; observed type: "
                         f"{validate.__class__.__name__!r}")
 
-    try:
-        val_name = validate.__qualname__
-    except AttributeError:
-        val_name = repr(validate)
+    val_name = get_func_name(validate, repr_fallback=True)
 
     ret = PartialPrepend(get_importable, validate=validate)
-    ret.__name__ = ret.func.__name__  # type: ignore
-    ret.__qualname__ = ret.func.__qualname__  # type: ignore
-    ret.__module__ = __name__
+    name_fallback = f'{ret.func.__class__.__name__}(...)'
+
+    ret.__name__: str = getattr(ret.func, '__name__', name_fallback)  # type: ignore
+    ret.__qualname__: str = getattr(ret.func, '__qualname__', name_fallback)  # type: ignore
+    ret.__module__ = module
     ret.__doc__ = f'Return :code:`nanoutils.get_importable(string, validate={val_name})`.'
     ret.__signature__ = inspect.Signature(  # type: ignore
         parameters=[inspect.Parameter('string', _POK, annotation=str)],
