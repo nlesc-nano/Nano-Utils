@@ -9,10 +9,10 @@ either :mod:`nanoutils` or :mod:`nanoutils.utils`.
 
 import reprlib
 from types import TracebackType
-from typing import Generic, TypeVar, NoReturn, Dict, Any, Optional, Type
+from typing import Generic, TypeVar, NoReturn, Dict, Any, Optional, Type, List
 from threading import RLock
 
-__all__ = ['SetAttr']
+__all__: List[str] = []
 
 _T1 = TypeVar('_T1')
 _T2 = TypeVar('_T2')
