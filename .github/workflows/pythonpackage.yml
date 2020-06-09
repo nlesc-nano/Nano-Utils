@@ -30,6 +30,7 @@ jobs:
               run: pip install -e .[test]
 
             - name: Install numpy-stubs
+              shell: bash -l {0}
               run: |
                 pip show numpy
                 NUMPY_GE_1_20=$(numpy_ge_1_20)
