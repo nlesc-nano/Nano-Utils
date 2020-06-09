@@ -72,6 +72,9 @@ setup(
         'Topic :: Software Development :: Libraries',
         'Typing :: Typed'
     ],
+    entry_points={
+        'console_scripts': ['numpy_ge_1_20=nanoutils.numpy_utils:numpy_ge_1_20']
+    },
     python_requires='>=3.6',
     install_requires=[
         'typing_extensions>=3.7.4; python_version<"3.8"',

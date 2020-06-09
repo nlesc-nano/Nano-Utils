@@ -7,7 +7,10 @@ either :mod:`nanoutils` or :mod:`nanoutils.utils`.
 
 """
 
+from typing import List
 from functools import partial
+
+__all__: List[str] = []
 
 
 class PartialPrepend(partial):

@@ -28,12 +28,13 @@ API
 
 """
 
+import warnings
 from math import factorial, nan
 from typing import TYPE_CHECKING, Optional, Union, Iterable
 from itertools import combinations
 from collections import abc
 
-from .utils import raise_if, construct_api_doc
+from .utils import raise_if, construct_api_doc, VersionInfo
 
 try:
     import numpy as np
@@ -231,6 +232,60 @@ def fill_diagonal_blocks(array: ndarray, i: int, j: int, val: float = nan) -> No
         array[..., i0:i0+i, j0:j0+j] = val
         i0 += i
         j0 += j
+
+
+def numpy_ge_1_20() -> None:
+    r"""Print :code:`"\nnumpy >= 1.20: TRUE"` if the :mod:`numpy` version is 1.20 or higher; print :code:`"\nnumpy >= 1.20: FALSE"` otherwise.
+
+    :code:`"\nnumpy >= 1.20: ERROR"` will be printed if an exception is encountered.
+
+    Examples
+    --------
+    .. code:: python
+
+        >>> import numpy as np
+        >>> from nanoutils.numpy_utils import numpy_ge_1_20
+
+        >>> np.__version__  # doctest: +SKIP
+        '1.17.3'
+
+        >>> numpy_ge_1_20()  # doctest: +SKIP
+        FALSE
+
+    A command line example.
+
+    .. code:: bash
+
+        >>> pip show numpy  # doctest: +SKIP
+        Name: numpy
+        Version: 1.17.3
+        Summary: NumPy is the fundamental package for array computing with Python.
+        Home-page: https://www.numpy.org
+        ...
+
+        >>> numpy_ge_1_20  # doctest: +SKIP
+        FALSE
+
+    """  # noqa: E501
+    if NUMPY_EX is not None:
+        warning1 = ImportWarning(str(NUMPY_EX))
+        warning1.__cause__ = NUMPY_EX
+        warnings.warn(warning1)
+        return
+
+    __version__ = getattr(np, '__version__', None)
+    try:
+        version = VersionInfo.from_str(__version__)
+    except Exception as ex:
+        warning2 = RuntimeWarning(f"Failed to parse the NumPy version: {__version__!r}")
+        warning2.__cause__ = ex
+        warnings.warn(warning2)
+        return
+
+    if version.major > 1 or (version.major == 1 and version.minor >= 20):
+        print("TRUE")
+    else:
+        print("FALSE")
 
 
 __doc__ = construct_api_doc(globals())

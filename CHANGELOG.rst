@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+0.4.3
+*****
+* Added the ``nanoutils.testing_utils`` module;
+  contains the ``FileNotFoundWarning`` class and ``@delete_finally()`` decorator.
+
+
 0.4.2
 *****
 * Set the default output of ``AbstractFileContainer.write()`` to ``sys.stdout``.
@@ -24,7 +30,7 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 0.4.1
 *****
 * Minor documentation fixes.
-* Added the ``ignore_if()`` decorator.
+* Added the ``@ignore_if()`` decorator.
 
 
 0.4.0

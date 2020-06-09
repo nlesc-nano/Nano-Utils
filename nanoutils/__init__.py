@@ -4,10 +4,11 @@
 
 from .__version__ import __version__
 
-from . import typing_utils, empty, utils, numpy_utils, schema, file_container
+from . import typing_utils, empty, utils, testing_utils, numpy_utils, schema, file_container
 from .typing_utils import *
 from .empty import *
 from .utils import *
+from .testing_utils import *
 from .numpy_utils import *
 from .file_container import *
 from .schema import (
@@ -23,6 +24,7 @@ __all__ = []
 __all__ += typing_utils.__all__
 __all__ += empty.__all__
 __all__ += utils.__all__
+__all__ += testing_utils.__all__
 __all__ += numpy_utils.__all__
 __all__ += schema.__all__
 __all__ += file_container.__all__

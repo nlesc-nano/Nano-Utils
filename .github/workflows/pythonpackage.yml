@@ -27,9 +27,16 @@ jobs:
                 python-version: ${{ matrix.python-version }}
 
             - name: Install dependencies
+              run: pip install -e .[test]
+
+            - name: Install numpy-stubs
+              shell: bash -l {0}
               run: |
-                pip install -e .[test]
-                pip install git+https://github.com/numpy/numpy-stubs@master
+                pip show numpy
+                NUMPY_GE_1_20=$(numpy_ge_1_20)
+                if [[ $NUMPY_GE_1_20 == 'FALSE' ]]; then
+                    pip install git+https://github.com/numpy/numpy-stubs@master
+                fi
 
             - name: Python info
               run: |
