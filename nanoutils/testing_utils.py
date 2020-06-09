@@ -42,6 +42,7 @@ def _delete_finally(path: PathType, warn: bool = True) -> None:
             _warning = FileNotFoundWarning(f'No such file or directory: {path!r}')
             warnings.warn(_warning, stacklevel=3)
 
+    # In case an unexpected exception is encountered
     except Exception as ex:
         _warning2 = RuntimeWarning(str(ex))
         _warning2.__cause__ = ex
@@ -75,14 +76,14 @@ def delete_finally(*paths: Union[AnyStr, 'os.PathLike[AnyStr]'],
 
     Parameters
     ----------
-    /*paths : :class:`str`, :class:`bytes` or :class:`os.PathLike`
+    \*paths : :class:`str`, :class:`bytes` or :class:`os.PathLike`
         Path-like objects with the names of to-be deleted files and/or directories.
     prefix : :class:`str`, :class:`bytes` or :class:`os.PathLike`, optional
         The directory where all user specified **paths** are located.
         If :data:`None`, asume the files/directories are either absolute or
         located in the current working directory.
     warn : :class:`bool`
-        If :data:`True` issue a :exc`~nanoutils.FileNotFoundWarning` if
+        If :data:`True` issue a :exc:`~nanoutils.FileNotFoundWarning` if
         a to-be deleted file or directory cannot be found.
 
     """  # noqa: E501
