@@ -8,7 +8,7 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 1.0.0
 *****
-* Updated the development status from alpha to stable.
+* Updated the development status from Beta to Production/Stable.
 
 
 0.4.3
