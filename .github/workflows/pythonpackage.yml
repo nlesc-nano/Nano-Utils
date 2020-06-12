@@ -17,6 +17,9 @@ jobs:
             matrix:
                 os: [ubuntu-latest, macos-latest, windows-latest]
                 python-version: [3.6, 3.7, 3.8]
+        env:
+            OS: ${{ matrix.os }}
+            PYTHON: ${{ matrix.python-version }}
 
         steps:
             - uses: actions/checkout@v2
@@ -33,7 +36,7 @@ jobs:
               shell: bash -l {0}
               run: |
                 pip show numpy
-                NUMPY_GE_1_20=$(numpy_ge_1_20)
+                NUMPY_GE_1_20=$(python ./numpy_ge_1_20.py)
                 if [[ $NUMPY_GE_1_20 == 'FALSE' ]]; then
                     pip install git+https://github.com/numpy/numpy-stubs@master
                 fi
@@ -54,3 +57,4 @@ jobs:
               with:
                 file: ./coverage.xml
                 name: codecov-umbrella
+                env_vars: OS,PYTHON
