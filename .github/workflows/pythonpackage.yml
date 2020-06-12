@@ -33,7 +33,7 @@ jobs:
               shell: bash -l {0}
               run: |
                 pip show numpy
-                NUMPY_GE_1_20=$(numpy_ge_1_20)
+                NUMPY_GE_1_20=$(python ./numpy_ge_1_20.py)
                 if [[ $NUMPY_GE_1_20 == 'FALSE' ]]; then
                     pip install git+https://github.com/numpy/numpy-stubs@master
                 fi
