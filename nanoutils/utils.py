@@ -299,10 +299,10 @@ def split_dict(dct, preserve_order=False, *, keep_keys=None, disgard_keys=None):
     """  # noqa: E501
     if keep_keys is disgard_keys is None:
         raise TypeError("'keep_keys' and 'disgard_keys' cannot both be unspecified")
-    elif keep_keys is not None:
-        iterable = _keep_keys(dct, keep_keys, preserve_order)
-    elif disgard_keys is not None:
+    elif keep_keys is None:
         iterable = _disgard_keys(dct, disgard_keys, preserve_order)
+    elif disgard_keys is None:
+        iterable = _keep_keys(dct, keep_keys, preserve_order)
     else:
         raise TypeError("'keep_keys' and 'disgard_keys' cannot both be specified")
 
