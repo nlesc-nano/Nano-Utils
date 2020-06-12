@@ -54,3 +54,4 @@ jobs:
               with:
                 file: ./coverage.xml
                 name: codecov-umbrella
+                env_vars: OS,PYTHON
