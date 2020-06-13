@@ -204,6 +204,14 @@ class AbstractFileContainer(metaclass=ABCMeta):
         context_manager = file_to_context(file, **kwargs)
 
         with context_manager as f:
+            try:
+                assert f.readable()
+            except (TypeError, AttributeError) as ex:
+                raise TypeError("'file' expected a file- or path-like object; "
+                                f"observed type: {file.__class__.__name__!r}") from ex
+            except AssertionError:
+                f.read()  # This will raise an :exc:`io.UnsupportedOperation`
+
             if bytes_decoding is None:
                 decoder: Callable[[Any], str] = _null_func
             else:
@@ -279,6 +287,14 @@ class AbstractFileContainer(metaclass=ABCMeta):
         context_manager = file_to_context(file, **kwargs)
 
         with context_manager as f:
+            try:
+                assert f.writable()
+            except (TypeError, AttributeError) as ex:
+                raise TypeError("'file' expected a file- or path-like object; "
+                                f"observed type: {file.__class__.__name__!r}") from ex
+            except AssertionError:
+                f.write(None)  # This will raise an :exc:`io.UnsupportedOperation`
+
             if bytes_encoding is None:
                 encoder: Callable[[str], Union[str, bytes]] = _null_func
             else:
