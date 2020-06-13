@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+1.0.1
+*****
+* Validate the passed path-/file-like object in `AbstractFileContainer.read()` and `.write()`.
+* Enabled the readthedocs Autobuild Documentation for Pull Requests option.
+
+
 1.0.0
 *****
 * Updated the development status from Beta to Production/Stable.
