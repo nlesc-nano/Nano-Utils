@@ -30,6 +30,12 @@ jobs:
               with:
                 python-version: ${{ matrix.python-version }}
 
+            - name: Install Cython
+              # Fix for an issue with installing NumPy on windows with python 3.8
+              # See https://github.com/nlesc-nano/Nano-Utils/pull/18/checks?check_run_id=768354960
+              if: matrix.os == 'windows-latest' && matrix.python-version == 3.8
+              run: pip install -e .[test]
+
             - name: Install dependencies
               run: pip install -e .[test]
 
