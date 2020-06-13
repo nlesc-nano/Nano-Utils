@@ -19,14 +19,14 @@ with open('README.rst', encoding='utf-8') as f:
 # Requirements for building the documentation
 docs_require = [
     'sphinx>=2.4',
-    'sphinx_rtd_theme'
+    'sphinx_rtd_theme',
+    'numpy'
 ]
 
 # Requirements for running tests
 tests_require = [
     'assertionlib',
     'schema',
-    'numpy',
     'pytest>=5.4.0',
     'pytest-cov',
     'pytest-flake8>=1.0.5',
