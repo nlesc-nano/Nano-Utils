@@ -18,9 +18,6 @@ jobs:
             matrix:
                 os: [ubuntu-latest, macos-latest, windows-latest]
                 python-version: [3.6, 3.7, 3.8]
-        env:
-            OS: ${{ matrix.os }}
-            PYTHON: ${{ matrix.python-version }}
 
         steps:
             - uses: actions/checkout@v2
@@ -64,4 +61,3 @@ jobs:
               with:
                 file: ./coverage.xml
                 name: codecov-umbrella
-                env_vars: OS,PYTHON
