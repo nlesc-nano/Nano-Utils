@@ -28,7 +28,7 @@ _FT = TypeVar('_FT', bound=Callable[..., Any])
 
 
 class FileNotFoundWarning(ResourceWarning):
-    """A :exc:`ResourceWarning` subclass for when a file or directory is requested but doesn’t exist."""  # noq: E501
+    """A :exc:`ResourceWarning` subclass for when a file or directory is requested but doesn’t exist."""  # noqa: E501
 
 
 def _delete_finally(path: PathType, warn: bool = True) -> None:
