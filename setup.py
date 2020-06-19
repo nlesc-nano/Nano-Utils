@@ -32,7 +32,9 @@ tests_require = [
     'pytest-flake8>=1.0.5',
     'pydocstyle>=5.0.0',
     'pytest-pydocstyle>=2.1',
-    'pytest-mypy>=0.6.2'
+    'pytest-mypy>=0.6.2',
+    'twine',
+    'wheel'
 ]
 tests_require += docs_require
 
