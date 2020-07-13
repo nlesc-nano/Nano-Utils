@@ -59,7 +59,7 @@ API
 import os
 import sys
 from abc import abstractmethod
-from typing import Union, Iterable, Sequence, TYPE_CHECKING
+from typing import Union, Iterable, TYPE_CHECKING
 
 if sys.version_info < (3, 8):
     from typing_extensions import Literal, Final, final, Protocol, TypedDict, runtime_checkable
