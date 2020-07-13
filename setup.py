@@ -23,6 +23,12 @@ docs_require = [
     'numpy'
 ]
 
+# Requirements for building wheels
+build_requires = [
+    'twine',
+    'wheel'
+]
+
 # Requirements for running tests
 tests_require = [
     'assertionlib',
@@ -32,9 +38,10 @@ tests_require = [
     'pytest-flake8>=1.0.5',
     'pydocstyle>=5.0.0',
     'pytest-pydocstyle>=2.1',
-    'pytest-mypy>=0.6.2'
+    'pytest-mypy>=0.6.2',
 ]
 tests_require += docs_require
+tests_require += build_requires
 
 setup(
     name='Nano-Utils',
@@ -79,5 +86,9 @@ setup(
     ],
     setup_requires=['pytest-runner'] + docs_require,
     tests_require=tests_require,
-    extras_require={'doc': docs_require, 'test': tests_require}
+    extras_require={
+        'doc': docs_require,
+        'test': tests_require,
+        'build': build_requires
+    }
 )

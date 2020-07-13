@@ -1,10 +1,13 @@
 """A pytest ``conftest.py`` file."""
 
 import logging
-from typing import Any
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from _pytest.config import Config
 
 
-def pytest_configure(config: Any) -> None:
+def pytest_configure(config: 'Config') -> None:
     """Flake8 is very verbose by default. Silence it.
 
     See Also

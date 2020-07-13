@@ -34,6 +34,7 @@ from itertools import combinations
 from collections import abc
 
 from .utils import raise_if, construct_api_doc
+from .typing_utils import ArrayLike, DtypeLike
 
 try:
     import numpy as np
@@ -43,10 +44,8 @@ except ImportError as ex:
 
 if TYPE_CHECKING:
     from numpy import ndarray
-    from numpy.typing import DtypeLike, ArrayLike
 else:
-    DtypeLike = 'numpy.dtype'
-    ArrayLike = ndarray = 'numpy.ndarray'
+    ndarray = 'numpy.ndarray'
 
 __all__ = ['as_nd_array', 'array_combinations', 'fill_diagonal_blocks']
 
