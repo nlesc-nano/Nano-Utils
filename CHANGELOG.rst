@@ -8,10 +8,11 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 1.1.0
 *****
-* Added alias for the following ``numpy.typing`` annotations:
+* Added aliases for the following ``numpy.typing`` annotations:
   ``ArrayLike``, ``DtypeLike`` & ``ShapeLike``.
 * Fixed an issue with the license in ``MANIFEST.in``.
 * Enable `Cancel Workflow Action <https://github.com/marketplace/actions/cancel-workflow-action>`_ for the unit tests.
+* Added tests for building wheels.
 
 
 1.0.1
