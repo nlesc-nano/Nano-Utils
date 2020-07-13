@@ -32,16 +32,19 @@ At large scale, the structure of the module is following:
 
 Index
 -----
-=================================== ======================================================================================================================================
-:data:`~typing.Literal`             Special typing form to define literal types (a.k.a. value types).
-:data:`~typing.Final`               Special typing construct to indicate final names to type checkers.
-:func:`~typing.final`               A decorator to indicate final methods and final classes.
-:class:`~typing.Protocol`           Base class for protocol classes.
-:class:`~typing.SupportsIndex`      An ABC with one abstract method :meth:`~object.__index__()`.
-:class:`~typing.TypedDict`          A simple typed name space. At runtime it is equivalent to a plain :class:`dict`.
-:func:`~typing.runtime_checkable`   Mark a protocol class as a runtime protocol, so that it an be used with :func:`isinstance()` and :func:`issubclass()`.
-:data:`~nanoutils.PathType`         An annotation for `path-like <https://docs.python.org/3/glossary.html#term-path-like-object>`_ objects.
-=================================== ======================================================================================================================================
+========================================== ======================================================================================================================================
+:data:`~typing.Literal`                    Special typing form to define literal types (a.k.a. value types).
+:data:`~typing.Final`                      Special typing construct to indicate final names to type checkers.
+:func:`~typing.final`                      A decorator to indicate final methods and final classes.
+:class:`~typing.Protocol`                  Base class for protocol classes.
+:class:`~typing.SupportsIndex`             An ABC with one abstract method :meth:`~object.__index__()`.
+:class:`~typing.TypedDict`                 A simple typed name space. At runtime it is equivalent to a plain :class:`dict`.
+:func:`~typing.runtime_checkable`          Mark a protocol class as a runtime protocol, so that it an be used with :func:`isinstance()` and :func:`issubclass()`.
+:data:`~nanoutils.PathType`                An annotation for `path-like <https://docs.python.org/3/glossary.html#term-path-like-object>`_ objects.
+:data:`~numpy.typing.ArrayLike`            Objects that can be converted to arrays (see :class:`numpy.ndarray`).
+:data:`~numpy.typing.DtypeLike`            Objects that can be converted to dtypes (see :class:`numpy.dtype`).
+:data:`<ShapeLike>numpy.typing._ShapeLike` Objects that can serve as valid array shapes.
+========================================== ======================================================================================================================================
 
 API
 ---
@@ -56,7 +59,7 @@ API
 import os
 import sys
 from abc import abstractmethod
-from typing import Union, Iterable
+from typing import Union, Iterable, Sequence, TYPE_CHECKING
 
 if sys.version_info < (3, 8):
     from typing_extensions import Literal, Final, final, Protocol, TypedDict, runtime_checkable
@@ -75,9 +78,21 @@ if sys.version_info < (3, 8):
 else:
     from typing import Literal, Final, final, Protocol, TypedDict, SupportsIndex, runtime_checkable
 
+if TYPE_CHECKING:
+    # Requires numpy >= 1.20
+    from numpy.typing import ArrayLike, DtypeLike, _ShapeLike as ShapeLike
+
+else:
+    ArrayLike = 'numpy.typing.ArrayLike'
+    DtypeLike = 'numpy.typing.DtypeLike'
+    ShapeLike = 'numpy.typing._ShapeLike'
+
 __all__ = [
     'Literal', 'Final', 'final', 'Protocol', 'SupportsIndex', 'TypedDict', 'runtime_checkable',
-    'PathType'
+
+    'PathType',
+
+    'ArrayLike', 'DtypeLike', 'ShapeLike'
 ]
 
 # See https://github.com/python/typeshed/blob/master/stdlib/3/os/path.pyi.
