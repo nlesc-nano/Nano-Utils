@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+1.1.1
+*****
+* Bump the Cancel Workflow Action version to `0.4.1`.
+
+
 1.1.0
 *****
 * Added aliases for the following ``numpy.typing`` annotations:
