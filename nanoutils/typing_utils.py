@@ -43,7 +43,7 @@ Index
 :data:`~nanoutils.PathType`                An annotation for `path-like <https://docs.python.org/3/glossary.html#term-path-like-object>`_ objects.
 :data:`~numpy.typing.ArrayLike`            Objects that can be converted to arrays (see :class:`numpy.ndarray`).
 :data:`~numpy.typing.DtypeLike`            Objects that can be converted to dtypes (see :class:`numpy.dtype`).
-:data:`<ShapeLike>numpy.typing._ShapeLike` Objects that can serve as valid array shapes.
+:data:`ShapeLike<numpy.typing._ShapeLike>` Objects that can serve as valid array shapes.
 ========================================== ======================================================================================================================================
 
 API
