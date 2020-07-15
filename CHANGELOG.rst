@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+1.1.2
+*****
+* Bump the setup-python version to `v2`.
+* Enable tests for Python 3.9.
+
+
 1.1.1
 *****
 * Bump the Cancel Workflow Action version to `0.4.1`.
