@@ -30,7 +30,6 @@ jobs:
             - name: Set up Python ${{ matrix.python-version }} on ${{ matrix.os }}
               uses: actions/setup-python@v2
               with:
-                stable: False
                 python-version: ${{ matrix.python-version }}
 
             - name: Install Cython
