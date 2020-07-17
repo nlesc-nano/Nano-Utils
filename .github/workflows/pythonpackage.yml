@@ -39,7 +39,7 @@ jobs:
               run: pip install cython
 
             - name: Install wheel
-              if: matrix.python-version == 3.9.0-beta.4
+              if: matrix.python-version == '3.9.0-beta.4'
               run: pip install wheel
 
             - name: Install dependencies
