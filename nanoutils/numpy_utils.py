@@ -28,9 +28,9 @@ API
 
 """
 
-from math import factorial, nan
-from typing import TYPE_CHECKING, Optional, Union, Iterable
-from itertools import combinations
+from math import nan
+from typing import TYPE_CHECKING, Optional, Union, Iterable, TypeVar, Callable, overload
+from itertools import combinations, permutations, combinations_with_replacement, chain
 from collections import abc
 
 from .utils import raise_if, construct_api_doc
@@ -47,7 +47,13 @@ if TYPE_CHECKING:
 else:
     ndarray = 'numpy.ndarray'
 
-__all__ = ['as_nd_array', 'array_combinations', 'fill_diagonal_blocks']
+__all__ = ['as_nd_array', 'array_combinations', 'array_combinations_with_replacement',
+           'array_permutations', 'fill_diagonal_blocks']
+
+_T = TypeVar('_T')
+_NDT = TypeVar('_NDT', bound=ndarray)
+
+_CombFunc = Callable[[Iterable[_T], int], Iterable[Iterable[_T]]]
 
 
 @raise_if(NUMPY_EX)
@@ -102,9 +108,21 @@ def as_nd_array(array: Union[Iterable, ArrayLike], dtype: DtypeLike,
         return ret
 
 
-@raise_if(NUMPY_EX)
-def array_combinations(array: ArrayLike, r: int = 2, axis: int = -1) -> ndarray:
-    r"""Construct an array with all :func:`~itertools.combinations` of **ar** along a use-specified axis.
+_ERR = '{} requires an array of at least one dimension'
+
+
+@overload
+def array_combinations(a: ArrayLike, r: int, axis: int = ..., out: _NDT = ...) -> _NDT:
+    ...
+@overload  # noqa: E302
+def array_combinations(a: _NDT, r: int, axis: int = ..., out: None = ...) -> _NDT:
+    ...
+@overload  # noqa: E302
+def array_combinations(a: ArrayLike, r: int, axis: int = ..., out: None = ...) -> ndarray:
+    ...
+@raise_if(NUMPY_EX)  # noqa: E302
+def array_combinations(array, r, axis=-1, out=None):
+    r"""Create a new array by creating all **array** combinations of length **r** along a user-specified **axis**.
 
     Examples
     --------
@@ -113,66 +131,213 @@ def array_combinations(array: ArrayLike, r: int = 2, axis: int = -1) -> ndarray:
 
         >>> from nanoutils import array_combinations
 
-        >>> array = [[1, 2, 3, 4],
-        ...          [5, 6, 7, 8]]
+        >>> array = [[1, 2, 3],
+        ...          [4, 5, 6]]
 
         >>> array_combinations(array, r=2)
         array([[[1, 2],
-                [5, 6]],
+                [1, 3],
+                [2, 3]],
         <BLANKLINE>
-               [[1, 3],
-                [5, 7]],
-        <BLANKLINE>
-               [[1, 4],
-                [5, 8]],
-        <BLANKLINE>
-               [[2, 3],
-                [6, 7]],
-        <BLANKLINE>
-               [[2, 4],
-                [6, 8]],
-        <BLANKLINE>
-               [[3, 4],
-                [7, 8]]])
+               [[4, 5],
+                [4, 6],
+                [5, 6]]])
 
     Parameters
     ----------
-    array : array-like, shape :math:`(m, \dotsc)`
-        An :math:`n` dimensional array-like object.
+    array : array-like, ndim :math:`n`
+        The input array.
     r : :class:`int`
         The length of each combination.
     axis : :class:`int`
         The axis used for constructing the combinations.
+    out : :class:`numpy.ndarray`, optional
+        Alternative output array in which to place the result.
+        It must have the same shape as the expected output,
+        but the type of the output values will be cast if necessary.
 
     Returns
     -------
-    :class:`numpy.ndarray`, shape :math:`(k, \dotsc, r)`
-        A :math:`n+1` dimensional array with all **ar** combinations (of length ``r``)
+    :class:`numpy.ndarray`, ndim :math:`n + 1`
+        A new array with all **ar** combinations (of length **r**)
         along the user-specified **axis**.
-        The variable :math:`k` herein represents the number of combinations:
-        :math:`k = \dfrac{m! / r!}{(m-r)!}`.
+
+    See Also
+    --------
+    :func:`itertools.combinations`
+        Return successive r-length combinations of elements in the iterable.
 
     """  # noqa: E501
-    ar = np.array(array, ndmin=1, copy=False)
-    n = ar.shape[axis]
+    a = np.asanyarray(array)
+    if not a.ndim:
+        raise ValueError(_ERR.format('array_combinations'))
 
-    # Identify the number of combinations
+    return _combinator(a, r, combinations, axis, out)
+
+
+@overload
+def array_combinations_with_replacement(a: ArrayLike, r: int, axis: int = ..., out: _NDT = ...) -> _NDT:  # noqa: E501
+    ...
+@overload  # noqa: E302
+def array_combinations_with_replacement(a: _NDT, r: int, axis: int = ..., out: None = ...) -> _NDT:
+    ...
+@overload  # noqa: E302
+def array_combinations_with_replacement(a: ArrayLike, r: int, axis: int = ..., out: None = ...) -> ndarray:  # noqa: E501
+    ...
+@raise_if(NUMPY_EX)  # noqa: E302
+def array_combinations_with_replacement(array, r, axis=-1, out=None):
+    r"""Create a new array by creating all **array** combinations with replacements of length **r** along a user-specified **axis**.
+
+    Examples
+    --------
+    .. doctest:: python
+        :skipif: NUMPY_EX is not None
+
+        >>> from nanoutils import array_combinations_with_replacement
+
+        >>> array = [[1, 2, 3],
+        ...          [4, 5, 6]]
+
+        >>> array_combinations_with_replacement(array, r=2)
+        array([[[1, 1],
+                [1, 2],
+                [1, 3],
+                [2, 2],
+                [2, 3],
+                [3, 3]],
+        <BLANKLINE>
+               [[4, 4],
+                [4, 5],
+                [4, 6],
+                [5, 5],
+                [5, 6],
+                [6, 6]]])
+
+    Parameters
+    ----------
+    array : array-like, ndim :math:`n`
+        The input array.
+    r : :class:`int`
+        The length of each combination.
+    axis : :class:`int`
+        The axis used for constructing the combinations.
+    out : :class:`numpy.ndarray`, optional
+        Alternative output array in which to place the result.
+        It must have the same shape as the expected output,
+        but the type of the output values will be cast if necessary.
+
+    Returns
+    -------
+    :class:`numpy.ndarray`, ndim :math:`n + 1`
+        A new array with all **ar** combinations with replacement (of length **r**)
+        along the user-specified **axis**.
+
+    See Also
+    --------
+    :func:`itertools.combinations_with_replacement`
+        Return successive r-length combinations of elements in the iterable
+        allowing individual elements to have successive repeats.
+
+    """  # noqa: E501
+    a = np.asanyarray(array)
+    if not a.ndim:
+        raise ValueError(_ERR.format('array_combinations_with_replacement'))
+
+    return _combinator(a, r, combinations_with_replacement, axis, out)
+
+
+@overload
+def array_permutations(a: ArrayLike, r: int, axis: int = ..., out: _NDT = ...) -> _NDT:
+    ...
+@overload  # noqa: E302
+def array_permutations(a: _NDT, r: int, axis: int = ..., out: None = ...) -> _NDT:
+    ...
+@overload  # noqa: E302
+def array_permutations(a: ArrayLike, r: int, axis: int = ..., out: None = ...) -> ndarray:
+    ...
+@raise_if(NUMPY_EX)  # noqa: E302
+def array_permutations(array, r, axis=-1, out=None):
+    r"""Create a new array by creating all **array** permutations of length **r** along a user-specified **axis**.
+
+    Examples
+    --------
+    .. doctest:: python
+        :skipif: NUMPY_EX is not None
+
+        >>> from nanoutils import array_permutations
+
+        >>> array = [[1, 2, 3],
+        ...          [4, 5, 6]]
+
+        >>> array_permutations(array, r=2)
+        array([[[1, 2],
+                [1, 3],
+                [2, 1],
+                [2, 3],
+                [3, 1],
+                [3, 2]],
+        <BLANKLINE>
+               [[4, 5],
+                [4, 6],
+                [5, 4],
+                [5, 6],
+                [6, 4],
+                [6, 5]]])
+
+    Parameters
+    ----------
+    array : array-like, ndim :math:`n`
+        The input array.
+    r : :class:`int`
+        The length of each permutation.
+    axis : :class:`int`
+        The axis used for constructing the permutations.
+    out : :class:`numpy.ndarray`, optional
+        Alternative output array in which to place the result.
+        It must have the same shape as the expected output,
+        but the type of the output values will be cast if necessary.
+
+    Returns
+    -------
+    :class:`numpy.ndarray`, ndim :math:`n + 1`
+        A new array with all **ar** permutations (of length **r**)
+        along the user-specified **axis**.
+
+    See Also
+    --------
+    :func:`itertools.permutations`
+        Return successive r-length permutations of elements in the iterable.
+
+    """  # noqa: E501
+    a = np.asanyarray(array)
+    if not a.ndim:
+        raise ValueError(_ERR.format('array_permutations'))
+
+    return _combinator(a, r, permutations, axis, out)
+
+
+@overload
+def _combinator(a: _NDT, r: int, func: _CombFunc, axis: int = ..., out: None = ...) -> _NDT:
+    ...
+@overload  # noqa: E302
+def _combinator(a: ndarray, r: int, func: _CombFunc, axis: int = -1, out: _NDT = None) -> _NDT:
+    ...
+@raise_if(NUMPY_EX)  # noqa: E302
+def _combinator(a, r, func, axis=-1, out=None):
+    """Helper function for doing combinatorics."""
     try:
-        combinations_len = int(factorial(n) / factorial(r) / factorial(n - r))
-    except ValueError as ex:
-        raise ValueError(f"'r' ({r!r}) expects a positive integer larger than or equal to the "
-                         f"length of 'array' axis {axis!r} ({n!r})") from ex
+        n = a.shape[axis]
+        n_range = range(n)  # raises a TypeError if `axis` is a slice
+    except IndexError:
+        raise np.AxisError(axis, ndim=a.ndim) from None
+    except TypeError:
+        cls_name = axis.__class__.__name__
+        raise TypeError(f'{cls_name!r} object cannot be interpreted as an integer') from None
 
-    # Define the shape of the to-be returned array
-    _shape = list(ar.shape)
-    del _shape[axis]
-    shape = (combinations_len,) + tuple(_shape) + (r,)
-
-    # Create, fill and return the new array
-    ret = np.empty(shape, dtype=ar.dtype)
-    for i, idx in enumerate(combinations(range(n), r=r)):
-        ret[i] = ar.take(idx, axis=axis)
-    return ret
+    flat_iter = chain.from_iterable(func(n_range, r))
+    indices = np.fromiter(flat_iter, int)
+    indices.shape = -1, r
+    return a.take(indices, axis, out)
 
 
 @raise_if(NUMPY_EX)
