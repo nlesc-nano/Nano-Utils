@@ -57,7 +57,8 @@ def as_nd_array(array: Union[Iterable, ArrayLike], dtype: DtypeLike,
 
     Examples
     --------
-    .. code:: python
+    .. doctest:: python
+        :skipif: NUMPY_EX is not None
 
         >>> from nanoutils import as_nd_array
 
@@ -107,7 +108,8 @@ def array_combinations(array: ArrayLike, r: int = 2, axis: int = -1) -> ndarray:
 
     Examples
     --------
-    .. code:: python
+    .. doctest:: python
+        :skipif: NUMPY_EX is not None
 
         >>> from nanoutils import array_combinations
 
@@ -182,7 +184,8 @@ def fill_diagonal_blocks(array: ndarray, i: int, j: int, val: float = nan) -> No
 
     Examples
     --------
-    .. code:: python
+    .. doctest:: python
+        :skipif: NUMPY_EX is not None
 
         >>> import numpy as np
         >>> from nanoutils import fill_diagonal_blocks

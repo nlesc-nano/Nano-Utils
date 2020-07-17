@@ -74,7 +74,8 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.autosummary',
     'sphinx.ext.napoleon',
-    'sphinx.ext.duration'
+    'sphinx.ext.duration',
+    'sphinx.ext.doctest'
 ]
 
 
@@ -247,6 +248,13 @@ napoleon_use_admonition_for_notes = True
 # Defaults to False.
 napoleon_use_admonition_for_references = True
 
+
+# Python code that is treated like it were put in a testsetup directive for
+# every file that is tested, and for every group.
+# You can use this to e.g. import modules you will always need in your doctests.
+doctest_global_setup = """
+from nanoutils.numpy_utils import NUMPY_EX
+"""
 
 # A string of reStructuredText that will be included at the end of every source file that is read.
 # This is a possible place to add substitutions that
