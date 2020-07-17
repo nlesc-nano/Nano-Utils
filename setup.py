@@ -31,8 +31,7 @@ build_requires = [
 
 # Requirements for running tests
 tests_require = [
-    'assertionlib; python_version<"3.9"',
-    'assertionlib>=3.1.2; python_version>="3.9"',
+    'assertionlib',
     'schema',
     'pytest>=5.4.0',
     'pytest-cov',
