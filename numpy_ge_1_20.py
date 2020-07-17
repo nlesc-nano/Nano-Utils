@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-r"""Print :code:`"\nnumpy >= 1.20: TRUE"` if the :mod:`numpy` version is 1.20 or higher; print :code:`"\nnumpy >= 1.20: FALSE"` otherwise.
-
-:code:`"\nnumpy >= 1.20: ERROR"` will be printed if an exception is encountered.
+r"""Print :code:`TRUE` if the :mod:`numpy` version is 1.20 or higher; print :code:`FALSE` otherwise.
 
 Examples
 --------
@@ -28,8 +26,8 @@ from nanoutils import VersionInfo
 
 try:
     import numpy as np
-    NUMPY_EX: Optional[ImportError] = None
-except ImportError as ex:
+    NUMPY_EX: Optional[Exception] = None
+except Exception as ex:
     NUMPY_EX = ex
 
 

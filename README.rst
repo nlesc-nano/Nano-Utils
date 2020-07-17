@@ -17,10 +17,12 @@
     :target: https://docs.python.org/3.7/
 .. image:: https://img.shields.io/badge/python-3.8-blue.svg
     :target: https://docs.python.org/3.8/
+.. image:: https://img.shields.io/badge/python-3.9-blue.svg
+    :target: https://docs.python.org/3.9/
 
 
 ################
-Nano-Utils 1.1.1
+Nano-Utils 1.1.2
 ################
 Utility functions used throughout the various nlesc-nano repositories.
 
