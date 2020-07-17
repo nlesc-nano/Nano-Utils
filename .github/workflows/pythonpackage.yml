@@ -17,7 +17,7 @@ jobs:
             fail-fast: false
             matrix:
                 os: [ubuntu-latest, macos-latest, windows-latest]
-                python-version: [3.6, 3.7, 3.8, 3.9.0-beta.4]
+                python-version: [3.6, 3.7, 3.8, '3.9.0-beta']
 
         steps:
             - name: Cancel Previous Runs
@@ -39,7 +39,7 @@ jobs:
               run: pip install cython
 
             - name: Install wheel
-              if: matrix.python-version == '3.9.0-beta.4'
+              if: matrix.python-version == '3.9.0-beta'
               run: pip install wheel
 
             - name: Install dependencies
