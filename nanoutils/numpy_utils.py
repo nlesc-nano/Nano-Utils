@@ -146,7 +146,7 @@ def array_combinations(array, r, axis=-1, out=None):
     Parameters
     ----------
     array : array-like, ndim :math:`n`
-        The input array.
+        The input array of at least one dimension.
     r : :class:`int`
         The length of each combination.
     axis : :class:`int`
@@ -216,7 +216,7 @@ def array_combinations_with_replacement(array, r, axis=-1, out=None):
     Parameters
     ----------
     array : array-like, ndim :math:`n`
-        The input array.
+        The input array of at least one dimension.
     r : :class:`int`
         The length of each combination.
     axis : :class:`int`
@@ -287,7 +287,7 @@ def array_permutations(array, r, axis=-1, out=None):
     Parameters
     ----------
     array : array-like, ndim :math:`n`
-        The input array.
+        The input array of at least one dimension.
     r : :class:`int`
         The length of each permutation.
     axis : :class:`int`
@@ -392,8 +392,16 @@ def fill_diagonal_blocks(array: ndarray, i: int, j: int, val: float = nan) -> No
     if (j <= 0) or (i <= 0):
         raise ValueError(f"'i' and 'j' should be larger than 0; observed values: {i} & {j}")
 
+    try:
+        dim1 = array.shape[-2]
+    except IndexError:
+        raise ValueError('fill_diagonal_blocks requires an array '
+                         'of at least teo dimension') from None
+    except (AttributeError, TypeError):
+        raise TypeError("fill_diagonal_blocks expected an 'ndarray'; "
+                        f"observed type: {array.__class.__name__!r}") from None
+
     i0 = j0 = 0
-    dim1 = array.shape[-2]
     while dim1 > i0:
         array[..., i0:i0+i, j0:j0+j] = val
         i0 += i
