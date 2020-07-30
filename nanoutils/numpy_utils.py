@@ -112,13 +112,13 @@ _ERR = '{} requires an array of at least one dimension'
 
 
 @overload
-def array_combinations(a: ArrayLike, r: int, axis: int = ..., out: _NDT = ...) -> _NDT:
-    ...
-@overload  # noqa: E302
 def array_combinations(a: _NDT, r: int, axis: int = ..., out: None = ...) -> _NDT:
     ...
 @overload  # noqa: E302
 def array_combinations(a: ArrayLike, r: int, axis: int = ..., out: None = ...) -> ndarray:
+    ...
+@overload  # noqa: E302
+def array_combinations(a: ArrayLike, r: int, axis: int = ..., out: _NDT = ...) -> _NDT:
     ...
 @raise_if(NUMPY_EX)  # noqa: E302
 def array_combinations(array, r, axis=-1, out=None):
@@ -176,13 +176,13 @@ def array_combinations(array, r, axis=-1, out=None):
 
 
 @overload
-def array_combinations_with_replacement(a: ArrayLike, r: int, axis: int = ..., out: _NDT = ...) -> _NDT:  # noqa: E501
-    ...
-@overload  # noqa: E302
 def array_combinations_with_replacement(a: _NDT, r: int, axis: int = ..., out: None = ...) -> _NDT:
     ...
 @overload  # noqa: E302
 def array_combinations_with_replacement(a: ArrayLike, r: int, axis: int = ..., out: None = ...) -> ndarray:  # noqa: E501
+    ...
+@overload  # noqa: E302
+def array_combinations_with_replacement(a: ArrayLike, r: int, axis: int = ..., out: _NDT = ...) -> _NDT:  # noqa: E501
     ...
 @raise_if(NUMPY_EX)  # noqa: E302
 def array_combinations_with_replacement(array, r, axis=-1, out=None):
@@ -247,13 +247,13 @@ def array_combinations_with_replacement(array, r, axis=-1, out=None):
 
 
 @overload
-def array_permutations(a: ArrayLike, r: int, axis: int = ..., out: _NDT = ...) -> _NDT:
-    ...
-@overload  # noqa: E302
 def array_permutations(a: _NDT, r: int, axis: int = ..., out: None = ...) -> _NDT:
     ...
 @overload  # noqa: E302
 def array_permutations(a: ArrayLike, r: int, axis: int = ..., out: None = ...) -> ndarray:
+    ...
+@overload  # noqa: E302
+def array_permutations(a: ArrayLike, r: int, axis: int = ..., out: _NDT = ...) -> _NDT:
     ...
 @raise_if(NUMPY_EX)  # noqa: E302
 def array_permutations(array, r, axis=-1, out=None):
