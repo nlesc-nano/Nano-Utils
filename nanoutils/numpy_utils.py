@@ -320,7 +320,7 @@ def array_permutations(array, r, axis=-1, out=None):
 def _combinator(a: _NDT, r: int, func: _CombFunc, axis: int = ..., out: None = ...) -> _NDT:
     ...
 @overload  # noqa: E302
-def _combinator(a: ndarray, r: int, func: _CombFunc, axis: int = -1, out: _NDT = None) -> _NDT:
+def _combinator(a: ndarray, r: int, func: _CombFunc, axis: int = ..., out: _NDT = ...) -> _NDT:
     ...
 @raise_if(NUMPY_EX)  # noqa: E302
 def _combinator(a, r, func, axis=-1, out=None):
