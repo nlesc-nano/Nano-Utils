@@ -43,9 +43,10 @@ except Exception as ex:
     NUMPY_EX = ex
 
 if TYPE_CHECKING:
-    from numpy import ndarray
+    from numpy import ndarray, ScalarType
 else:
     ndarray = 'numpy.ndarray'
+    ScalarType = 'numpy.ScalarType'
 
 __all__ = ['as_nd_array', 'array_combinations', 'array_combinations_with_replacement',
            'array_permutations', 'fill_diagonal_blocks']
@@ -57,8 +58,11 @@ _CombFunc = Callable[[Iterable[_T], int], Iterable[Iterable[_T]]]
 
 
 @raise_if(NUMPY_EX)
-def as_nd_array(array: Union[Iterable, ArrayLike], dtype: DtypeLike,
-                ndmin: int = 1, copy: bool = False) -> ndarray:
+def as_nd_array(object: Union[Iterable[ScalarType], ArrayLike], dtype: DtypeLike, *,
+                copy: bool = False,
+                order: Optional[Literal['K', 'A', 'C', 'F']] = None,
+                subok: bool = False,
+                ndmin: int = 1) -> ndarray:
     """Construct a numpy array from an iterable or array-like object.
 
     Examples
@@ -78,17 +82,24 @@ def as_nd_array(array: Union[Iterable, ArrayLike], dtype: DtypeLike,
         >>> as_nd_array(iterator, int)
         array([1, 2, 3, 4])
 
-
     Parameters
     ----------
     array : :class:`~collections.abc.Iterable` or array-like
         An array-like object or an iterable consisting of scalars.
     dtype : :class:`type` or :class:`numpy.dtype`
         The data type of the to-be returned array.
-    ndmin : :class:`int`
-        The minimum dimensionality of the to-be returned array.
+
+    Keyword Arguments
+    -----------------
     copy : :class:`bool`
         If :data:`True`, always return a copy.
+    order : :class:`str`, optional
+        Specify the memory layout of the array.
+        Accepted values are ``"K"``, ``"A"``, ``"C"`` and ``"F"``.
+    subok : :class:`bool`
+        If :data:`True`, then :class:`numpy.ndarray` sub-classes will be passed-through.
+    ndmin : :class:`int`
+        The minimum dimensionality of the to-be returned array.
 
     Returns
     -------
@@ -97,15 +108,15 @@ def as_nd_array(array: Union[Iterable, ArrayLike], dtype: DtypeLike,
 
     """
     try:
-        return np.array(array, dtype=dtype, ndmin=ndmin, copy=copy)
+        return np.array(object, dtype, copy=copy, order=order, subok=subok, ndmin=ndmin)
 
     except TypeError as ex:
-        if not isinstance(array, abc.Iterable):
+        if not isinstance(object, abc.Iterable):
             raise ex
 
         ret: ndarray = np.fromiter(array, dtype=dtype)
         ret.shape += (ndmin - ret.ndim) * (1,)
-        return ret
+        return np.asarray(ret, order=order)
 
 
 _ERR = '{} requires an array of at least one dimension'
@@ -341,7 +352,7 @@ def _combinator(a, r, func, axis=-1, out=None):
 
 
 @raise_if(NUMPY_EX)
-def fill_diagonal_blocks(array: ndarray, i: int, j: int, val: float = nan) -> None:
+def fill_diagonal_blocks(array: ndarray, i: int, j: int, val: ArrayLike = nan) -> None:
     """Fill diagonal blocks in **array** of size :math:`(i, j)`.
 
     The blocks are filled along the last 2 axes in **array**.

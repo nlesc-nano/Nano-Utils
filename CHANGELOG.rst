@@ -11,6 +11,7 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 * Added `array_permutations()` and `array_combinations_with_replacement()`.
 * The output shape of `array_combinations()` is now determined by `numpy.take()`,
   rather than always setting to combinations along the first axis.
+* Updated the signature of `as_nd_array()` to match `numpy.array()`.
 
 
 1.1.2
