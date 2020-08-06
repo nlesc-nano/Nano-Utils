@@ -34,7 +34,7 @@ from itertools import combinations, permutations, combinations_with_replacement,
 from collections import abc
 
 from .utils import raise_if, construct_api_doc
-from .typing_utils import ArrayLike, DtypeLike
+from .typing_utils import ArrayLike, DtypeLike, Literal
 
 try:
     import numpy as np
