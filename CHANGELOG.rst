@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+1.1.3
+*****
+* Enable tests for the python 3.10 alpha.
+
+
 1.1.2
 *****
 * Bump the setup-python version to `v2`.
