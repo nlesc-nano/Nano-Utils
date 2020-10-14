@@ -42,7 +42,7 @@ jobs:
 
             - name: Install numpy
               if: matrix.python-version == '3.10.0-alpha - 3.10'
-              run: pip install git+https://github.com/numpy/numpy@master
+              run: pip install git+https://github.com/numpy/numpy@master --no-use-pep517
 
             - name: Install dependencies
               run: pip install -e .[test]
