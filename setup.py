@@ -33,6 +33,7 @@ build_requires = [
 tests_require = [
     'assertionlib',
     'schema',
+    'pyyaml',
     'h5py',
     'pytest>=5.4.0',
     'pytest-cov',
