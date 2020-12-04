@@ -20,7 +20,8 @@ with open('README.rst', encoding='utf-8') as f:
 docs_require = [
     'sphinx>=2.4',
     'sphinx_rtd_theme',
-    'numpy'
+    'numpy<1.20; python_version<"3.7"',
+    'numpy; python_version>="3.7"',
 ]
 
 # Requirements for building wheels
