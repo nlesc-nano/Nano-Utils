@@ -250,6 +250,14 @@ napoleon_use_admonition_for_notes = True
 napoleon_use_admonition_for_references = True
 
 
+# This value contains a list of modules to be mocked up.
+# This is useful when some external dependencies are not met at build time and
+# break the building process.
+# You may only specify the root package of the dependencies themselves and
+# omit the sub-modules:
+autodoc_mock_imports = ["h5py", "yaml", "numpy"]
+
+
 # Python code that is treated like it were put in a testsetup directive for
 # every file that is tested, and for every group.
 # You can use this to e.g. import modules you will always need in your doctests.
