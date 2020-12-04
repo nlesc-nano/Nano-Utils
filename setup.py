@@ -51,7 +51,7 @@ setup(
     description='Utility functions used throughout the various nlesc-nano repositories.',
     long_description=f'{readme}\n\n',
     long_description_content_type='text/x-rst',
-    author=['B. F. van Beek'],
+    author=['Bas van Beek'],
     author_email='b.f.van.beek@vu.nl',
     url='https://github.com/nlesc-nano/Nano-Utils',
     packages=['nanoutils'],
