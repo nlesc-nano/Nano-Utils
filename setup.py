@@ -20,7 +20,6 @@ with open('README.rst', encoding='utf-8') as f:
 docs_require = [
     'sphinx>=2.4',
     'sphinx_rtd_theme',
-    'numpy'
 ]
 
 # Requirements for building wheels
@@ -33,6 +32,10 @@ build_requires = [
 tests_require = [
     'assertionlib',
     'schema',
+    'pyyaml',
+    'h5py',
+    'numpy<1.20; python_version<"3.7"',
+    'numpy; python_version>="3.7"',
     'pytest>=5.4.0',
     'pytest-cov',
     'pytest-flake8>=1.0.5',
@@ -49,7 +52,7 @@ setup(
     description='Utility functions used throughout the various nlesc-nano repositories.',
     long_description=f'{readme}\n\n',
     long_description_content_type='text/x-rst',
-    author=['B. F. van Beek'],
+    author=['Bas van Beek'],
     author_email='b.f.van.beek@vu.nl',
     url='https://github.com/nlesc-nano/Nano-Utils',
     packages=['nanoutils'],

@@ -208,7 +208,8 @@ texinfo_documents = [
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3/', None),
-    'numpy': ('https://numpy.org/doc/stable/', None)
+    'numpy': ('https://numpy.org/doc/stable/', None),
+    'h5py': ('http://docs.h5py.org/en/latest/', None),
 }
 
 
@@ -247,6 +248,14 @@ napoleon_use_admonition_for_notes = True
 # False to use the .. rubric:: directive instead.
 # Defaults to False.
 napoleon_use_admonition_for_references = True
+
+
+# This value contains a list of modules to be mocked up.
+# This is useful when some external dependencies are not met at build time and
+# break the building process.
+# You may only specify the root package of the dependencies themselves and
+# omit the sub-modules:
+autodoc_mock_imports = ["h5py", "yaml", "numpy"]
 
 
 # Python code that is treated like it were put in a testsetup directive for

@@ -17,14 +17,11 @@ jobs:
             fail-fast: false
             matrix:
                 os: [ubuntu-latest, macos-latest, windows-latest]
-                python-version: [3.6, 3.7, 3.8, '3.9.0-alpha - 3.9']
-                exclude:
-                    - os: macos-latest
-                      python-version: '3.9.0-alpha - 3.9'
+                python-version: [3.6, 3.7, 3.8, 3.9]
 
         steps:
             - name: Cancel Previous Runs
-              uses: styfle/cancel-workflow-action@0.4.1
+              uses: styfle/cancel-workflow-action@0.6.0
               with:
                 access_token: ${{ github.token }}
 
@@ -35,27 +32,12 @@ jobs:
               with:
                 python-version: ${{ matrix.python-version }}
 
-            - name: Install Cython
-              # Fix for an issue with installing NumPy on windows with python 3.8
-              # See https://github.com/nlesc-nano/Nano-Utils/pull/18/checks?check_run_id=768354960
-              if: matrix.os == 'windows-latest' && matrix.python-version == 3.8
-              run: pip install cython
-
             - name: Install wheel
-              if: matrix.python-version == '3.9.0-alpha - 3.9'
+              if: matrix.python-version == '3.9'
               run: pip install wheel
 
             - name: Install dependencies
               run: pip install -e .[test]
-
-            - name: Install numpy-stubs
-              shell: bash -l {0}
-              run: |
-                pip show numpy
-                NUMPY_GE_1_20=$(python ./numpy_ge_1_20.py)
-                if [[ $NUMPY_GE_1_20 == 'FALSE' ]]; then
-                    pip install git+https://github.com/numpy/numpy-stubs@master
-                fi
 
             - name: Python info
               run: |

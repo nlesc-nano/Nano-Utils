@@ -42,7 +42,7 @@ Index
 :func:`~typing.runtime_checkable`          Mark a protocol class as a runtime protocol, so that it an be used with :func:`isinstance()` and :func:`issubclass()`.
 :data:`~nanoutils.PathType`                An annotation for `path-like <https://docs.python.org/3/glossary.html#term-path-like-object>`_ objects.
 :data:`~numpy.typing.ArrayLike`            Objects that can be converted to arrays (see :class:`numpy.ndarray`).
-:data:`~numpy.typing.DtypeLike`            Objects that can be converted to dtypes (see :class:`numpy.dtype`).
+:data:`~numpy.typing.DTypeLike`            Objects that can be converted to dtypes (see :class:`numpy.dtype`).
 :data:`ShapeLike<numpy.typing._ShapeLike>` Objects that can serve as valid array shapes.
 ========================================== ======================================================================================================================================
 
@@ -80,11 +80,13 @@ else:
 
 if TYPE_CHECKING:
     # Requires numpy >= 1.20
-    from numpy.typing import ArrayLike, DtypeLike, _ShapeLike as ShapeLike
+    from numpy.typing import ArrayLike, DTypeLike, _ShapeLike as ShapeLike
+    from numpy.typing import DTypeLike as DtypeLike
 
 else:
     ArrayLike = 'numpy.typing.ArrayLike'
-    DtypeLike = 'numpy.typing.DtypeLike'
+    DTypeLike = 'numpy.typing.DTypeLike'
+    DtypeLike = DTypeLike
     ShapeLike = 'numpy.typing._ShapeLike'
 
 __all__ = [
@@ -92,7 +94,7 @@ __all__ = [
 
     'PathType',
 
-    'ArrayLike', 'DtypeLike', 'ShapeLike'
+    'ArrayLike', 'DTypeLike', 'DtypeLike', 'ShapeLike'
 ]
 
 # See https://github.com/python/typeshed/blob/master/stdlib/3/os/path.pyi.

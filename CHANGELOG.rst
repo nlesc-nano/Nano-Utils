@@ -6,6 +6,14 @@ All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+1.2.0
+*****
+* Added ``UniqueLoader``, a `pyyaml Loader <https://pyyaml.org/wiki/PyYAMLDocumentation>`_ that dissallows duplicate keys.
+* Added three functions for recursivvelly iterating through `hdf5 <https://docs.h5py.org/en/stable/>`_ files/groups:
+  ``recursive_keys()``, ``recursive_values()`` and ``recursive_items()``.
+* Renamed ``DtypeLike`` to ``DTypeLike``.
+
+
 1.1.2
 *****
 * Bump the setup-python version to `v2`.
