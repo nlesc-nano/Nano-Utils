@@ -7,6 +7,8 @@ either :mod:`nanoutils` or :mod:`nanoutils.utils`.
 
 """
 
+from __future__ import annotations
+
 from typing import (
     Any,
     TypeVar,
@@ -15,8 +17,6 @@ from typing import (
     overload,
     Iterator,
     Dict,
-    Union,
-    Optional,
 )
 
 _T_co = TypeVar("_T_co", covariant=True)
@@ -78,7 +78,7 @@ class SequenceView(Sequence[_T_co]):
         """Return a shallow copy of this instance."""
         return self  # `self` is immutable
 
-    def __deepcopy__(self: _SVT, memo: Optional[Dict[int, Any]] = None) -> _SVT:
+    def __deepcopy__(self: _SVT, memo: None | Dict[int, Any] = None) -> _SVT:
         """Return a deep copy of this instance."""
         return self  # `self` is immutable
 
@@ -88,7 +88,7 @@ class SequenceView(Sequence[_T_co]):
     @overload  # noqa: E301
     def __getitem__(self: _SVT, key: slice) -> _SVT:
         ...
-    def __getitem__(self: _SVT, key: Union[int, slice]) -> Union[_SVT, _T_co]:  # noqa: E301
+    def __getitem__(self: _SVT, key: int | slice) -> _SVT | _T_co:  # noqa: E301
         """Implement :meth:`self[key] <object.__getitem__>`."""
         if isinstance(key, slice):
             cls = type(self)
@@ -98,8 +98,8 @@ class SequenceView(Sequence[_T_co]):
     def index(
         self,
         value: Any,
-        start: Optional[int] = None,
-        stop: Optional[int] = None,
+        start: None | int = None,
+        stop: None | int = None,
     ) -> int:
         """Return the first index of **value**."""
         args = []

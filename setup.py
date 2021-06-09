@@ -64,7 +64,6 @@ setup(
     zip_safe=False,
     keywords=[
         'python-3',
-        'python-3-6',
         'python-3-7',
         'python-3-8',
         'python-3-9',
@@ -78,17 +77,15 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Topic :: Software Development :: Libraries',
         'Typing :: Typed'
     ],
-    python_requires='>=3.6',
+    python_requires='>=3.7',
     install_requires=[
-        'typing_extensions>=3.7.4; python_version<"3.8"',
-        'contextlib2>=0.6.0; python_version<"3.7"'
+        'typing_extensions>=3.10.0; python_version<"3.8"',
     ],
     setup_requires=['pytest-runner'] + docs_require,
     tests_require=tests_require,

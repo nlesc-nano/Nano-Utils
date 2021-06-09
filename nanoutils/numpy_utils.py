@@ -28,8 +28,10 @@ API
 
 """
 
+from __future__ import annotations
+
 from math import factorial, nan
-from typing import TYPE_CHECKING, Optional, Union, Iterable
+from typing import Iterable, Any
 from itertools import combinations
 from collections import abc
 
@@ -38,21 +40,20 @@ from .typing_utils import ArrayLike, DtypeLike
 
 try:
     import numpy as np
-    NUMPY_EX: Optional[Exception] = None
+    NUMPY_EX: None | Exception = None
 except Exception as ex:
     NUMPY_EX = ex
-
-if TYPE_CHECKING:
-    from numpy import ndarray
-else:
-    ndarray = 'numpy.ndarray'
 
 __all__ = ['as_nd_array', 'array_combinations', 'fill_diagonal_blocks']
 
 
 @raise_if(NUMPY_EX)
-def as_nd_array(array: Union[Iterable, ArrayLike], dtype: DtypeLike,
-                ndmin: int = 1, copy: bool = False) -> ndarray:
+def as_nd_array(
+    array: Iterable[Any] | ArrayLike,
+    dtype: DtypeLike,
+    ndmin: int = 1,
+    copy: bool = False,
+) -> np.ndarray:
     """Construct a numpy array from an iterable or array-like object.
 
     Examples
@@ -97,13 +98,17 @@ def as_nd_array(array: Union[Iterable, ArrayLike], dtype: DtypeLike,
         if not isinstance(array, abc.Iterable):
             raise ex
 
-        ret: ndarray = np.fromiter(array, dtype=dtype)
+        ret: np.ndarray = np.fromiter(array, dtype=dtype)
         ret.shape += (ndmin - ret.ndim) * (1,)
         return ret
 
 
 @raise_if(NUMPY_EX)
-def array_combinations(array: ArrayLike, r: int = 2, axis: int = -1) -> ndarray:
+def array_combinations(
+    array: ArrayLike,
+    r: int = 2,
+    axis: int = -1,
+) -> np.ndarray:
     r"""Construct an array with all :func:`~itertools.combinations` of **ar** along a use-specified axis.
 
     Examples
@@ -176,7 +181,12 @@ def array_combinations(array: ArrayLike, r: int = 2, axis: int = -1) -> ndarray:
 
 
 @raise_if(NUMPY_EX)
-def fill_diagonal_blocks(array: ndarray, i: int, j: int, val: float = nan) -> None:
+def fill_diagonal_blocks(
+    array: np.ndarray,
+    i: int,
+    j: int,
+    val: float = nan,
+) -> None:
     """Fill diagonal blocks in **array** of size :math:`(i, j)`.
 
     The blocks are filled along the last 2 axes in **array**.

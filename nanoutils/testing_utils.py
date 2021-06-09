@@ -12,10 +12,12 @@ API
 
 """
 
+from __future__ import annotations
+
 import os
 import shutil
 import warnings
-from typing import TypeVar, Callable, Any, AnyStr, Optional, Union, Tuple, cast
+from typing import TypeVar, Callable, Any, AnyStr, Tuple, cast
 from os.path import isdir, isfile, join
 from functools import wraps
 
@@ -49,9 +51,11 @@ def _delete_finally(path: PathType, warn: bool = True) -> None:
         warnings.warn(_warning2, stacklevel=3)
 
 
-def delete_finally(*paths: Union[AnyStr, 'os.PathLike[AnyStr]'],
-                   prefix: Optional[AnyStr] = None,
-                   warn: bool = True) -> Callable[[_FT], _FT]:
+def delete_finally(
+    *paths: AnyStr | os.PathLike[AnyStr],
+    prefix: None | AnyStr = None,
+    warn: bool = True,
+) -> Callable[[_FT], _FT]:
     r"""A decorater which deletes the specified files and/or directories after calling the deocrated function.
 
     Examples

@@ -23,9 +23,11 @@ API
 
 """
 
+from __future__ import annotations
+
 import inspect
 import warnings
-from typing import TypeVar, SupportsFloat, Callable, Union, overload, Generic, Tuple
+from typing import TypeVar, SupportsFloat, Callable, overload, Generic, Tuple
 from numbers import Integral
 
 from .typing_utils import Literal
@@ -83,7 +85,7 @@ def supports_float(value: object) -> bool:  # noqa: E302
 
 
 @overload
-def supports_int(value: Union[int, Integral]) -> Literal[True]:
+def supports_int(value: int | Integral) -> Literal[True]:
     ...
 @overload  # noqa: E302
 def supports_int(value: object) -> bool:
@@ -262,14 +264,14 @@ class Formatter(str):
         return self.format
 
 
-_ClassOrTuple = Union[type, Tuple[type, ...]]
-
 _PO = inspect.Parameter.POSITIONAL_ONLY
 _POK = inspect.Parameter.POSITIONAL_OR_KEYWORD
 
 
-def isinstance_factory(class_or_tuple: _ClassOrTuple,
-                       module: str = __name__) -> Callable[[object], bool]:
+def isinstance_factory(
+    class_or_tuple: type | Tuple[type, ...],
+    module: str = __name__,
+) -> Callable[[object], bool]:
     """Return a function which checks if the passed object is an instance of **class_or_tuple**.
 
     Examples
@@ -327,8 +329,10 @@ def isinstance_factory(class_or_tuple: _ClassOrTuple,
     return ret
 
 
-def issubclass_factory(class_or_tuple: _ClassOrTuple,
-                       module: str = __name__) -> Callable[[type], bool]:
+def issubclass_factory(
+    class_or_tuple: type | Tuple[type, ...],
+    module: str = __name__,
+) -> Callable[[type], bool]:
     """Return a function which checks if the passed class is a subclass of **class_or_tuple**.
 
     Examples
@@ -386,8 +390,10 @@ def issubclass_factory(class_or_tuple: _ClassOrTuple,
     return ret
 
 
-def import_factory(validate: Callable[[_T], bool],
-                   module: str = __name__) -> Callable[[str], _T]:
+def import_factory(
+    validate: Callable[[_T], bool],
+    module: str = __name__,
+) -> Callable[[str], _T]:
     """Return a function which calls :func:`nanoutils.get_importable` with the **validate** argument.
 
     Examples

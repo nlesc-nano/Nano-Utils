@@ -58,23 +58,10 @@ API
 
 import os
 import sys
-from abc import abstractmethod
-from typing import Union, Iterable, TYPE_CHECKING
+from typing import Union, TYPE_CHECKING
 
 if sys.version_info < (3, 8):
-    from typing_extensions import Literal, Final, final, Protocol, TypedDict, runtime_checkable
-
-    @runtime_checkable
-    class SupportsIndex(Protocol):
-        """An ABC with one abstract method :meth:`__index__`."""
-
-        __slots__: Union[str, Iterable[str]] = ()
-
-        @abstractmethod
-        def __index__(self) -> int:
-            """Return **self** converted to an :class:`int`, if **self** is suitable for use as an index into a :class:`list`."""  # noqa: E501
-            pass
-
+    from typing_extensions import Literal, Final, final, Protocol, TypedDict, runtime_checkable, SupportsIndex  # noqa: E501
 else:
     from typing import Literal, Final, final, Protocol, TypedDict, SupportsIndex, runtime_checkable
 

@@ -12,13 +12,15 @@ API
 
 """
 
-from typing import Generator, Tuple, Optional
+from __future__ import annotations
+
+from typing import Generator, Tuple
 
 from .utils import raise_if, construct_api_doc
 
 try:
     import h5py
-    H5PY_EX: Optional[Exception] = None
+    H5PY_EX: None | Exception = None
 except Exception as ex:
     H5PY_EX = ex
 
@@ -26,7 +28,7 @@ __all__ = ['recursive_keys', 'recursive_values', 'recursive_items']
 
 
 @raise_if(H5PY_EX)
-def recursive_keys(f: 'h5py.Group') -> Generator[str, None, None]:
+def recursive_keys(f: h5py.Group) -> Generator[str, None, None]:
     """Recursively iterate through all dataset :attr:`names<h5py.Dataset.name>` in **f**.
 
     Examples
@@ -86,7 +88,7 @@ def recursive_keys(f: 'h5py.Group') -> Generator[str, None, None]:
 
 
 @raise_if(H5PY_EX)
-def recursive_values(f: 'h5py.Group') -> Generator['h5py.Dataset', None, None]:
+def recursive_values(f: h5py.Group) -> Generator[h5py.Dataset, None, None]:
     """Recursively iterate through all :attr:`<Datasets>h5py.Dataset` in **f**.
 
     Examples
@@ -142,7 +144,7 @@ def recursive_values(f: 'h5py.Group') -> Generator['h5py.Dataset', None, None]:
 
 
 @raise_if(H5PY_EX)
-def recursive_items(f: 'h5py.Group') -> Generator[Tuple[str, 'h5py.Dataset'], None, None]:
+def recursive_items(f: h5py.Group) -> Generator[Tuple[str, h5py.Dataset], None, None]:
     """Recursively iterate through all :attr:`~h5py.Dataset.name`/:attr:`~h5py.Dataset` pairs in **f**.
 
     Examples

@@ -9,6 +9,7 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 1.3.0
 *****
 * Added the new ``SequenceView`` and ``CatchErrors`` classes.
+* Drop support for Python 3.6.
 
 
 1.2.1

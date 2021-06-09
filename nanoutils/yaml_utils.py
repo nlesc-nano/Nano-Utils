@@ -12,8 +12,10 @@ API
 
 """
 
+from __future__ import annotations
+
 from collections.abc import Hashable
-from typing import Dict, Any, Optional, Union, IO
+from typing import Dict, Any, IO
 
 from .utils import raise_if
 
@@ -23,7 +25,7 @@ try:
         from yaml import CLoader as Loader
     except ImportError:
         from yaml import Loader  # type: ignore[misc]
-    YAML_EX: Optional[Exception] = None
+    YAML_EX: None | Exception = None
 except Exception as ex:
     from builtins import object as Loader  # type: ignore[misc]
     YAML_EX = ex
@@ -60,10 +62,10 @@ class UniqueLoader(Loader):
     '''
 
     @raise_if(YAML_EX)  # type: ignore[misc]
-    def __init__(cls, stream: Union[str, bytes, IO[str], IO[bytes]]) -> None:
+    def __init__(cls, stream: str | bytes | IO[str] | IO[bytes]) -> None:
         super().__init__(stream)
 
-    def construct_mapping(self, node: 'yaml.MappingNode', deep: bool = False) -> Dict[Any, Any]:
+    def construct_mapping(self, node: yaml.MappingNode, deep: bool = False) -> Dict[Any, Any]:
         """Construct Convert the passed **node** into a :class:`dict`."""
         if not isinstance(node, yaml.MappingNode):
             raise yaml.constructor.ConstructorError(

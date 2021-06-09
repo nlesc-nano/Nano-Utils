@@ -7,6 +7,8 @@ either :mod:`nanoutils` or :mod:`nanoutils.utils`.
 
 """
 
+from __future__ import annotations
+
 import types
 from typing import (
     TypeVar,
@@ -18,7 +20,6 @@ from typing import (
     Iterable,
     Any,
     Callable,
-    Optional,
 )
 
 from ._seq_view import SequenceView
@@ -121,9 +122,9 @@ class CatchErrors(Generic[_ET]):
 
     def __exit__(
         self,
-        exctype: Optional[Type[BaseException]] = None,
-        excinst: Optional[BaseException] = None,
-        exctb: Optional[types.TracebackType] = None,
+        exctype: None | Type[BaseException] = None,
+        excinst: None | BaseException = None,
+        exctb: None | types.TracebackType = None,
     ) -> bool:
         """Exit the context manager.
 
