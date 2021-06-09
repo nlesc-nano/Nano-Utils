@@ -15,22 +15,17 @@ API
 
 """
 
+from __future__ import annotations
+
 import sys
 from abc import ABCMeta, abstractmethod
 from codecs import decode, encode
 from functools import partial
-from typing import (
-    Dict, Optional, Any, Union, AnyStr, Callable, ContextManager,
-    TypeVar, overload, IO, Type
-)
+from contextlib import nullcontext
+from typing import Dict, Any, AnyStr, Callable, ContextManager, TypeVar, overload, IO, Type
 
 from .typing_utils import PathType, Literal, final
 from .utils import _null_func
-
-if sys.version_info < (3, 7):
-    from contextlib2 import nullcontext
-else:
-    from contextlib import nullcontext
 
 __all__ = ['AbstractFileContainer', 'file_to_context']
 
@@ -62,15 +57,26 @@ _OpenBinaryMode = Literal[
 
 
 @overload
-def file_to_context(file: IO[AnyStr], **kwargs: Any) -> ContextManager[IO[AnyStr]]:
+def file_to_context(
+    file: IO[AnyStr],
+    **kwargs: Any,
+) -> ContextManager[IO[AnyStr]]:
     ...
 @overload  # noqa: E302
-def file_to_context(file: Union[int, PathType], *, mode: _OpenTextMode = ...,  # type: ignore
-                    **kwargs: Any) -> ContextManager[IO[str]]:
+def file_to_context(  # type: ignore[misc]
+    file: int | PathType,
+    *,
+    mode: _OpenTextMode = ...,
+    **kwargs: Any,
+) -> ContextManager[IO[str]]:
     ...
 @overload  # noqa: E302
-def file_to_context(file: Union[int, PathType], *, mode: _OpenBinaryMode = ...,
-                    **kwargs: Any) -> ContextManager[IO[bytes]]:
+def file_to_context(
+    file: int | PathType,
+    *,
+    mode: _OpenBinaryMode = ...,
+    **kwargs: Any,
+) -> ContextManager[IO[bytes]]:
     ...
 def file_to_context(file, **kwargs):  # noqa: E302
     r"""Take a path- or file-like object and return an appropiate context manager.
@@ -177,8 +183,12 @@ class AbstractFileContainer(metaclass=ABCMeta):
 
     @final
     @classmethod
-    def read(cls: Type[_ST], file: Union[PathType, IO],
-             bytes_decoding: Optional[str] = None, **kwargs: Any) -> _ST:
+    def read(
+        cls: Type[_ST],
+        file: PathType | IO[Any],
+        bytes_decoding: None | str = None,
+        **kwargs: Any,
+    ) -> _ST:
         r"""Construct a new instance from this object's class by reading the content of **file**.
 
         Parameters
@@ -261,8 +271,12 @@ class AbstractFileContainer(metaclass=ABCMeta):
         pass
 
     @final
-    def write(self, file: Union[PathType, IO] = sys.stdout,
-              bytes_encoding: Optional[str] = None, **kwargs: Any) -> None:
+    def write(
+        self,
+        file: PathType | IO[Any] = sys.stdout,
+        bytes_encoding: None | str = None,
+        **kwargs: Any,
+    ) -> None:
         r"""Write the content of this instance to **file**.
 
         Parameters
@@ -296,7 +310,7 @@ class AbstractFileContainer(metaclass=ABCMeta):
                 f.write(None)  # This will raise an :exc:`io.UnsupportedOperation`
 
             if bytes_encoding is None:
-                encoder: Callable[[str], Union[str, bytes]] = _null_func
+                encoder: Callable[[str], str | bytes] = _null_func
             else:
                 encoder = partial(encode, encoding=bytes_encoding)
             self._write(f, encoder)

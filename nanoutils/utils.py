@@ -12,6 +12,8 @@ API
 
 """
 
+from __future__ import annotations
+
 import warnings
 import importlib
 from types import ModuleType
@@ -20,7 +22,6 @@ from typing import (
     List,
     Any,
     Tuple,
-    Optional,
     Callable,
     TypeVar,
     Iterable,
@@ -38,11 +39,23 @@ from typing import (
 from .empty import EMPTY_CONTAINER
 from ._partial import PartialPrepend
 from ._set_attr import SetAttr
+from ._seq_view import SequenceView
+from ._catch_err import CatchErrors
 
 __all__ = [
-    'PartialPrepend', 'SetAttr', 'VersionInfo',
-    'group_by_values', 'get_importable', 'construct_api_doc', 'split_dict', 'get_func_name',
-    'set_docstring', 'raise_if', 'ignore_if'
+    'PartialPrepend',
+    'SetAttr',
+    'VersionInfo',
+    'group_by_values',
+    'get_importable',
+    'construct_api_doc',
+    'split_dict',
+    'get_func_name',
+    'set_docstring',
+    'raise_if',
+    'ignore_if',
+    'SequenceView',
+    'CatchErrors',
 ]
 
 _T = TypeVar('_T')
@@ -51,8 +64,11 @@ _VT = TypeVar('_VT')
 _FT = TypeVar('_FT', bound=Callable[..., Any])
 
 
-def get_func_name(func: Callable[..., Any], prepend_module: bool = False,
-                  repr_fallback: bool = False) -> str:
+def get_func_name(
+    func: Callable[..., Any],
+    prepend_module: bool = False,
+    repr_fallback: bool = False,
+) -> str:
     """Extract and return the name of **func**.
 
     A total of three attempts are performed at retrieving the passed functions name:
@@ -169,7 +185,7 @@ def group_by_values(iterable: Iterable[Tuple[_VT, _KT]]) -> Dict[_KT, List[_VT]]
     return ret
 
 
-def set_docstring(docstring: Optional[str]) -> Callable[[_FT], _FT]:
+def set_docstring(docstring: None | str) -> Callable[[_FT], _FT]:
     """A decorator for assigning docstrings.
 
     Examples
@@ -199,7 +215,7 @@ def set_docstring(docstring: Optional[str]) -> Callable[[_FT], _FT]:
     return wrapper
 
 
-def get_importable(string: str, validate: Optional[Callable[[_T], bool]] = None) -> _T:
+def get_importable(string: str, validate: None | Callable[[_T], bool] = None) -> _T:
     """Get an importable object.
 
     Examples
@@ -247,12 +263,20 @@ def get_importable(string: str, validate: Optional[Callable[[_T], bool]] = None)
 
 
 @overload
-def split_dict(dct: MutableMapping[_KT, _VT], preserve_order: bool = ..., *,
-               keep_keys: Iterable[_KT]) -> Dict[_KT, _VT]:
+def split_dict(
+    dct: MutableMapping[_KT, _VT],
+    preserve_order: bool = ...,
+    *,
+    keep_keys: Iterable[_KT],
+) -> Dict[_KT, _VT]:
     ...
 @overload  # noqa: E302
-def split_dict(dct: MutableMapping[_KT, _VT], preserve_order: bool = ..., *,
-               disgard_keys: Iterable[_KT]) -> Dict[_KT, _VT]:
+def split_dict(
+    dct: MutableMapping[_KT, _VT],
+    preserve_order: bool = ...,
+    *,
+    disgard_keys: Iterable[_KT],
+) -> Dict[_KT, _VT]:
     ...
 def split_dict(dct, preserve_order=False, *, keep_keys=None, disgard_keys=None):  # noqa: E302,E501
     r"""Pop all items from **dct** which are in not in **keep_keys** and use them to construct a new dictionary.
@@ -309,8 +333,11 @@ def split_dict(dct, preserve_order=False, *, keep_keys=None, disgard_keys=None):
     return {k: dct.pop(k) for k in iterable}
 
 
-def _keep_keys(dct: Mapping[_KT, _VT], keep_keys: Iterable[_KT],
-               preserve_order: bool = False) -> Collection[_KT]:
+def _keep_keys(
+    dct: Mapping[_KT, _VT],
+    keep_keys: Iterable[_KT],
+    preserve_order: bool = False,
+) -> Collection[_KT]:
     """A helper function for :func:`split_dict`; used when :code:`keep_keys is not None`."""
     if preserve_order:
         return [k for k in dct if k not in keep_keys]
@@ -321,8 +348,11 @@ def _keep_keys(dct: Mapping[_KT, _VT], keep_keys: Iterable[_KT],
             return set(dct.keys()).difference(keep_keys)
 
 
-def _disgard_keys(dct: Mapping[_KT, _VT], keep_keys: Iterable[_KT],
-                  preserve_order: bool = False) -> Collection[_KT]:
+def _disgard_keys(
+    dct: Mapping[_KT, _VT],
+    keep_keys: Iterable[_KT],
+    preserve_order: bool = False,
+) -> Collection[_KT]:
     """A helper function for :func:`split_dict`; used when :code:`disgard_keys is not None`."""
     if preserve_order:
         return [k for k in dct if k in keep_keys]
@@ -510,7 +540,7 @@ class VersionInfo(NamedTuple):
         return self.micro
 
     @classmethod
-    def from_str(cls, version: str) -> 'VersionInfo':
+    def from_str(cls, version: str) -> VersionInfo:
         """Construct a :class:`VersionInfo` from a string.
 
         Parameters
@@ -538,8 +568,11 @@ class VersionInfo(NamedTuple):
         return cls(major=major, minor=minor, micro=micro)
 
 
-def _get_directive(obj: object, name: str,
-                   decorators: Container[str] = EMPTY_CONTAINER) -> str:
+def _get_directive(
+    obj: object,
+    name: str,
+    decorators: Container[str] = EMPTY_CONTAINER,
+) -> str:
     """A helper function for :func:`~nanoutils.construct_api_doc`."""
     if isinstance(obj, type):
         if issubclass(obj, BaseException):
@@ -558,8 +591,10 @@ def _get_directive(obj: object, name: str,
         return f'.. autodata:: {name}'
 
 
-def construct_api_doc(glob_dict: Mapping[str, object],
-                      decorators: Container[str] = EMPTY_CONTAINER) -> str:
+def construct_api_doc(
+    glob_dict: Mapping[str, object],
+    decorators: Container[str] = EMPTY_CONTAINER,
+) -> str:
     '''Format a **Nano-Utils** module-level docstring.
 
     Examples
