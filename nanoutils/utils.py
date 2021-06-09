@@ -38,11 +38,23 @@ from typing import (
 from .empty import EMPTY_CONTAINER
 from ._partial import PartialPrepend
 from ._set_attr import SetAttr
+from ._seq_view import SequenceView
+from ._catch_err import CatchErrors
 
 __all__ = [
-    'PartialPrepend', 'SetAttr', 'VersionInfo',
-    'group_by_values', 'get_importable', 'construct_api_doc', 'split_dict', 'get_func_name',
-    'set_docstring', 'raise_if', 'ignore_if'
+    'PartialPrepend',
+    'SetAttr',
+    'VersionInfo',
+    'group_by_values',
+    'get_importable',
+    'construct_api_doc',
+    'split_dict',
+    'get_func_name',
+    'set_docstring',
+    'raise_if',
+    'ignore_if',
+    'SequenceView',
+    'CatchErrors',
 ]
 
 _T = TypeVar('_T')
