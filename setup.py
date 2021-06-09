@@ -42,6 +42,7 @@ tests_require = [
     'pydocstyle>=5.0.0',
     'pytest-pydocstyle>=2.1',
     'pytest-mypy>=0.6.2',
+    'types-PyYAML',
 ]
 tests_require += docs_require
 tests_require += build_requires
