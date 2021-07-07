@@ -37,6 +37,7 @@ jobs:
                     python-version: ${{ matrix.version }}
 
             -   name: Install dependencies
+                if: matrix.special != '; pre-release'
                 run: pip install -e .[test]
 
             -   name: Install dependencies (pre-release)
