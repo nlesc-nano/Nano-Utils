@@ -9,6 +9,8 @@ either :mod:`nanoutils` or :mod:`nanoutils.utils`.
 
 from __future__ import annotations
 
+import pprint
+import textwrap
 from typing import (
     Any,
     TypeVar,
@@ -17,7 +19,24 @@ from typing import (
     overload,
     Iterator,
     Dict,
+    ClassVar,
 )
+
+from .typing_utils import TypedDict
+
+if sys.version_info >= (3, 8):
+    class _PPrintDict(TypedDict, total=False):
+        indent: int
+        width: int
+        depth: None | int
+        compact: bool
+        sort_dicts: bool
+else:
+    class _PPrintDict(TypedDict, total=False):
+        indent: int
+        width: int
+        depth: None | int
+        compact: bool
 
 _T_co = TypeVar("_T_co", covariant=True)
 _SVT = TypeVar("_SVT", bound="SequenceView[Any]")
@@ -55,6 +74,9 @@ class SequenceView(Sequence[_T_co]):
 
     __slots__ = ("__weakref__", "_seq")
 
+    #: A class variable containing a dictionary with keyword arguments for :func:`pprint.pformat`.
+    pprint_kwargs: ClassVar[_PPrintDict] = NotImplemented
+
     def __init__(self, sequence: Sequence[_T_co]) -> None:
         r"""Initialize this instance.
 
@@ -64,11 +86,28 @@ class SequenceView(Sequence[_T_co]):
             The to-be wrapped sequence.
 
         """
-        self._seq = sequence
+        self._seq: Sequence[_T_co] = sequence
+
+    def __init_subclass__(cls) -> None:
+        """Attach a unique :attr:`~SequenceView.pprint_kwargs` dict to each subclass."""
+        super().__init_subclass__()
+        width = 80 - 1 - len(cls.__name__)
+        if cls.pprint_kwargs is NotImplemented:
+            dct: _PPrintDict = {"compact": True, "width": width}
+            if sys.version_info >= (3, 8):
+                dct["sort_dicts"] = False
+        else:
+            dct = cls.pprint_kwargs.copy()
+            dct["width"] = width
+        cls.pprint_kwargs = dct
 
     def __hash__(self) -> int:
         """Implement :func:`hash(sellf) <hash>`."""
-        return id(self._seq)
+        if isinstance(self._seq, SequenceView):
+            # delegate to the underlying `SequenceView` instance
+            return hash(self._seq)
+        else:
+            return id(self._seq)
 
     def __reduce__(self) -> NoReturn:
         """Helper method for :mod:`pickle`."""
@@ -131,9 +170,19 @@ class SequenceView(Sequence[_T_co]):
 
     def __repr__(self) -> str:
         """Implement :func:`repr(self) <repr>`."""
-        name = type(self).__name__
-        return f"{name}({self._seq!r})"
+        cls = type(self)
+        name = cls.__name__
+        offset = len(name) + 1
+
+        seq = pprint.pformat(self._seq, **cls.pprint_kwargs)
+        seq_indent = textwrap.indent(seq, " " * offset)[offset:]
+        return f"{name}({seq_indent})"
 
     def __eq__(self, other: object) -> bool:
         """Implement :meth:`x == self <object.__eq__>`."""
         return self._seq == other
+
+
+# Ensure that `__init_subclass__` is called not just for `SequenceView` subclasses,
+# but also the superclass itself.
+SequenceView.__init_subclass__()
