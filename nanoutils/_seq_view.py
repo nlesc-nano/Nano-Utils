@@ -9,8 +9,10 @@ either :mod:`nanoutils` or :mod:`nanoutils.utils`.
 
 from __future__ import annotations
 
+import sys
 import pprint
 import textwrap
+from inspect import Signature, Parameter
 from typing import (
     Any,
     TypeVar,
@@ -19,10 +21,12 @@ from typing import (
     overload,
     Iterator,
     Dict,
+    Callable,
     ClassVar,
+    TYPE_CHECKING,
 )
 
-from .typing_utils import TypedDict
+from .typing_utils import TypedDict, SupportsIndex
 
 if sys.version_info >= (3, 8):
     class _PPrintDict(TypedDict, total=False):
@@ -39,9 +43,35 @@ else:
         compact: bool
 
 _T_co = TypeVar("_T_co", covariant=True)
+_FT = TypeVar("_FT", bound=Callable[..., Any])
 _SVT = TypeVar("_SVT", bound="SequenceView[Any]")
 
 __all__ = ["SequenceView"]
+
+
+def _set_signature(signature: Signature) -> Callable[[_FT], _FT]:
+    """Set the ``__signature__`` and ``__annotations__`` of the decorated function."""
+    def _decorate(func: _FT) -> _FT:
+        func.__signature__ = signature  # type: ignore[attr-defined]
+        func.__annotations__ = {k: v.annotation for k, v in signature.parameters.items() if
+                                v.annotation is not Signature.empty}
+        if signature.return_annotation is not Signature.empty:
+            func.__annotations__["return"] = signature.return_annotation
+        return func
+    return _decorate
+
+
+_INDEX_SIGNATURE = Signature([
+    Parameter("self", Parameter.POSITIONAL_ONLY),
+    Parameter("value", Parameter.POSITIONAL_ONLY, annotation=Any),
+    Parameter("start", Parameter.POSITIONAL_ONLY, default=0, annotation=SupportsIndex),
+    Parameter("stop", Parameter.POSITIONAL_ONLY, default=sys.maxsize, annotation=SupportsIndex),
+], return_annotation=int)
+
+_COUNT_SIGNATURE = Signature([
+    Parameter("self", Parameter.POSITIONAL_ONLY),
+    Parameter("value", Parameter.POSITIONAL_ONLY, annotation=Any),
+], return_annotation=int)
 
 
 class SequenceView(Sequence[_T_co]):
@@ -122,35 +152,34 @@ class SequenceView(Sequence[_T_co]):
         return self  # `self` is immutable
 
     @overload
-    def __getitem__(self, key: int) -> _T_co:
+    def __getitem__(self, key: SupportsIndex) -> _T_co:
         ...
     @overload  # noqa: E301
     def __getitem__(self: _SVT, key: slice) -> _SVT:
         ...
-    def __getitem__(self: _SVT, key: int | slice) -> _SVT | _T_co:  # noqa: E301
+    def __getitem__(self: _SVT, key: SupportsIndex | slice) -> _SVT | _T_co:  # noqa: E301
         """Implement :meth:`self[key] <object.__getitem__>`."""
         if isinstance(key, slice):
             cls = type(self)
             return cls(self._seq[key])
-        return self._seq[key]  # type: ignore[no-any-return]
+        return self._seq[key]  # type: ignore
 
-    def index(
-        self,
-        value: Any,
-        start: None | int = None,
-        stop: None | int = None,
-    ) -> int:
-        """Return the first index of **value**."""
-        args = []
-        if start is not None:
-            args.append(start)
-        if stop is not None:
-            args.append(stop)
-        return self._seq.index(value, *args)
+    if TYPE_CHECKING:
+        def index(self, __value: Any, __start: SupportsIndex = ..., __stop: SupportsIndex = ...) -> int:  # noqa: D102,E501
+            ...
 
-    def count(self, value: Any) -> int:
-        """Return the number of times **value** occurs in the instance."""
-        return self._seq.count(value)
+        def count(self, __value: Any) -> int:  # noqa: D102
+            ...
+    else:
+        @_set_signature(_INDEX_SIGNATURE)
+        def index(self, *args, **kwargs):
+            """Return the first index of **value**."""
+            return self._seq.index(*args, **kwargs)
+
+        @_set_signature(_COUNT_SIGNATURE)
+        def count(self, *args, **kwargs):
+            """Return the number of times **value** occurs in the instance."""
+            return self._seq.count(*args, **kwargs)
 
     def __len__(self):
         """Implement :func:`len(self) <len>`."""
