@@ -3,7 +3,7 @@
 import os
 from typing import Dict
 
-from setuptools import setup
+from setuptools import setup, Extension
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -96,4 +96,10 @@ setup(
         'test_no_optional': tests_no_optional_require,
         'build': build_requires,
     }
+    ext_modules=[
+        Extension(
+            'nanoutils.seq_view',
+            sources=['nanoutils/src/seq_view.c'],
+        )
+    ]
 )
