@@ -148,8 +148,8 @@ static PyTypeObject PySequenceView_Type = {
     0,                                          /* tp_as_async */
     (reprfunc)PySequenceView_repr,              /* tp_repr */
     0,                                          /* tp_as_number */
-    &PySequenceView_as_sequence,                /* tp_as_sequence */
-    &PySequenceView_as_mapping,                 /* tp_as_mapping */
+    0,                /* tp_as_sequence */
+    0,                 /* tp_as_mapping */
     0,                                          /* tp_hash */
     0,                                          /* tp_call */
     (reprfunc)PySequenceView_repr,              /* tp_str */
@@ -162,9 +162,9 @@ static PyTypeObject PySequenceView_Type = {
     0,                                          /* tp_clear */
     (richcmpfunc)PySequenceView_richcompare,    /* tp_richcompare */
     0,                                          /* tp_weaklistoffset */
-    (getiterfunc)PySequenceView_getiter,        /* tp_iter */
+    0,        /* tp_iter */
     0,                                          /* tp_iternext */
-    PySequenceView_methods,                     /* tp_methods */
+    0,                     /* tp_methods */
     0,                                          /* tp_members */
     0,                                          /* tp_getset */
     0,                                          /* tp_base */
