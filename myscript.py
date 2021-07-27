@@ -1,2 +1,2 @@
-from nanoutils.seq_view import PySequenceView
-PySequenceView()
+from nanoutils.seq_view import SequenceView
+SequenceView([1])
