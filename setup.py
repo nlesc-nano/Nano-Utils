@@ -35,6 +35,7 @@ tests_require = [
     'pyyaml',
     'h5py',
     'numpy',
+    'mypy>=0.900',
     'pytest>=5.4.0',
     'pytest-cov',
     'pytest-flake8>=1.0.5',
