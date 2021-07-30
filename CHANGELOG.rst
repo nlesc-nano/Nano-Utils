@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+1.4.0
+*****
+* Added ``LazyImporter`` and ``MutableLazyImporter``, two classes for lazily importing objects.
+
+
 1.3.1
 *****
 * Allow ``SequenceView.index`` and ``SequenceView.count`` to pass on arbitrary parameters.

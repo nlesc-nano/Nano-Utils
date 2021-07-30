@@ -20,7 +20,7 @@
 
 
 ################
-Nano-Utils 1.3.1
+Nano-Utils 1.4.0
 ################
 Utility functions used throughout the various nlesc-nano repositories.
 
