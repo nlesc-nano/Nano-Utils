@@ -25,7 +25,7 @@ jobs:
                         version: 3.9
         steps:
             -   name: Cancel Previous Runs
-                uses: styfle/cancel-workflow-action@0.9.0
+                uses: styfle/cancel-workflow-action@0.9.1
                 with:
                     access_token: ${{ github.token }}
 
@@ -53,10 +53,10 @@ jobs:
                 run: pip list
 
             -   name: Test with pytest
-                run: pytest
+                run: pytest --flake8 --mypy
 
             -   name: Run codecov
-                uses: codecov/codecov-action@v1
+                uses: codecov/codecov-action@v2
                 with:
                     file: ./coverage.xml
                     name: codecov-umbrella

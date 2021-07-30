@@ -41,6 +41,7 @@ from ._partial import PartialPrepend
 from ._set_attr import SetAttr
 from ._seq_view import SequenceView
 from ._catch_err import CatchErrors
+from ._lazy_import import LazyImporter, MutableLazyImporter
 
 __all__ = [
     'PartialPrepend',
@@ -56,6 +57,8 @@ __all__ = [
     'ignore_if',
     'SequenceView',
     'CatchErrors',
+    'LazyImporter',
+    'MutableLazyImporter',
 ]
 
 _T = TypeVar('_T')
