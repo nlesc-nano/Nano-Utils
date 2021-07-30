@@ -53,7 +53,7 @@ jobs:
                 run: pip list
 
             -   name: Test with pytest
-                run: pytest
+                run: pytest --flake8 --mypy
 
             -   name: Run codecov
                 uses: codecov/codecov-action@v1
