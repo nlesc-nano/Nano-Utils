@@ -14,6 +14,7 @@ API
 
 from __future__ import annotations
 
+import re
 import warnings
 import importlib
 from types import ModuleType
@@ -513,6 +514,9 @@ def ignore_if(exception, warn=True):  # noqa: E302
         raise TypeError(f"{exception.__class__.__name__!r}")
 
 
+_PATTERN = re.compile("([0-9]+).([0-9]+).([0-9]+)")
+
+
 class VersionInfo(NamedTuple):
     """A :func:`~collections.namedtuple` representing the version of a package.
 
@@ -539,11 +543,16 @@ class VersionInfo(NamedTuple):
 
     @property
     def patch(self) -> int:
-        """An alias for :attr:`VersionInfo.micro`."""
+        """:class:`int`: An alias for :attr:`VersionInfo.micro`."""
         return self.micro
 
     @classmethod
-    def from_str(cls, version: str) -> VersionInfo:
+    def from_str(
+        cls,
+        version: str,
+        *,
+        fullmatch: bool = True,
+    ) -> VersionInfo:
         """Construct a :class:`VersionInfo` from a string.
 
         Parameters
@@ -552,6 +561,9 @@ class VersionInfo(NamedTuple):
             A string representation of a version (*e.g.* :code:`version = "0.8.2"`).
             The string should contain three ``"."`` separated integers, respectively,
             representing the major, minor and micro/patch versions.
+        fullmatch : :class:`bool`
+            Whether the version-string must consist exclusivelly of three
+            period-separated integers, or if a substring is also allowed.
 
         Returns
         -------
@@ -559,16 +571,10 @@ class VersionInfo(NamedTuple):
             A new VersionInfo instance.
 
         """
-        if not isinstance(version, str):
-            cls_name = version.__class__.__name__
-            raise TypeError(f"'version' expected a string; observed type: {cls_name!r}")
-
-        try:
-            major, minor, micro = (int(i) for i in version.split('.'))
-        except (ValueError, TypeError) as ex:
-            raise ValueError("'version' expected a string consisting of three '.'-separated "
-                             f"integers (e.g. '0.8.2'); observed value: {version!r}") from ex
-        return cls(major=major, minor=minor, micro=micro)
+        match = _PATTERN.fullmatch(version) if fullmatch else _PATTERN.match(version)
+        if match is None:
+            raise ValueError(f"Failed to parse {version!r}")
+        return cls._make(int(i) for i in match.groups())
 
 
 def _get_directive(

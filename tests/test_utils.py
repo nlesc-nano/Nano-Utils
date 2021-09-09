@@ -53,6 +53,8 @@ def test_version_info() -> None:
 
     assertion.isinstance(version_info, VersionInfo)
 
+    assertion.eq(VersionInfo.from_str('0.1.2a', fullmatch=False), (0, 1, 2))
+
 
 def test_split_dict() -> None:
     """Test :func:`nanoutils.split_dict`."""
