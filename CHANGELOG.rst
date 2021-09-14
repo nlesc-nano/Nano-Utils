@@ -6,6 +6,15 @@ All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+2.0.0
+*****
+* Added the ``fullmatch`` argument to ``VersionInfo.from_str``.
+* The h5py-related ``recursive_keys``, ``recursive_values`` and ``recursive_items``
+  functions now return ``collections.abc.MappingView`` instances, rather than generators.
+  These mappingviews are available via the ``RecursiveKeysView``,
+  ``RecursiveValuesView`` and ``RecursiveItemsView`` classes.
+
+
 1.4.0
 *****
 * Added ``LazyImporter`` and ``MutableLazyImporter``, two classes for lazily importing objects.
