@@ -60,11 +60,6 @@ needs_sphinx = '2.4'
 autodoc_typehints = 'none'
 
 
-# Output is processed with HTML4 writer.
-# Default is False.
-html4_writer = True
-
-
 # Add any Sphinx extension module names here, as strings.
 # They can be extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
