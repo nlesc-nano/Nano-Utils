@@ -23,6 +23,9 @@ jobs:
                     -   os: ubuntu-latest
                         special: '; pre-release'
                         version: 3.9
+                    -   os: ubuntu-latest
+                        special: '; no-optional'
+                        version: 3.9
         steps:
             -   name: Cancel Previous Runs
                 uses: styfle/cancel-workflow-action@0.9.1
@@ -37,12 +40,16 @@ jobs:
                     python-version: ${{ matrix.version }}
 
             -   name: Install dependencies
-                if: matrix.special != '; pre-release'
+                if: matrix.special == ''
                 run: pip install -e .[test]
 
             -   name: Install dependencies (pre-release)
                 if: matrix.special == '; pre-release'
                 run: pip install --pre -e .[test] --upgrade --force-reinstall
+
+            -   name: Install dependencies (no-optional)
+                if: matrix.special == '; no-optional'
+                run: pip install -e .[test_no_optional]
 
             -   name: Python info
                 run: |
@@ -53,6 +60,11 @@ jobs:
                 run: pip list
 
             -   name: Test with pytest
+                if: matrix.special != '; no-optional'
+                run: pytest --flake8 --mypy --doctest-modules
+
+            -   name: Test with pytest (no-optional)
+                if: matrix.special == '; no-optional'
                 run: pytest --flake8 --mypy
 
             -   name: Run codecov

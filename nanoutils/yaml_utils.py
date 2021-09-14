@@ -38,7 +38,8 @@ class UniqueLoader(Loader):
 
     Examples
     --------
-    .. code-block:: python
+    .. doctest:: python
+        :skipif: YAML_EX is not None
 
         >>> import yaml
         >>> from nanoutils import UniqueLoader

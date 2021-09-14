@@ -4,46 +4,141 @@ Index
 -----
 .. currentmodule:: nanoutils
 .. autosummary::
-{autosummary}
+    RecursiveKeysView
+    RecursiveValuesView
+    RecursiveItemsView
 
 API
 ---
-{autofunction}
+.. autoclass:: RecursiveKeysView
+.. autoclass:: RecursiveValuesView
+.. autoclass:: RecursiveItemsView
 
 """
 
 from __future__ import annotations
 
-from typing import Generator, Tuple
+import sys
+import abc
+from collections.abc import Generator, MappingView, Iterator
+from typing import NoReturn
 
-from .utils import raise_if, construct_api_doc
+if sys.version_info >= (3, 9):
+    from collections.abc import KeysView, ValuesView, ItemsView
+else:
+    from typing import KeysView, ValuesView, ItemsView
+
+from .utils import raise_if, construct_api_doc, VersionInfo
 
 try:
     import h5py
+    from h5py import Dataset as H5PyDataset
     H5PY_EX: None | Exception = None
+    H5PY_VERSION = VersionInfo._make(h5py.version.version_tuple[:3])
 except Exception as ex:
     H5PY_EX = ex
+    H5PY_VERSION = VersionInfo(0, 0, 0)
+    H5PyDataset = "h5py.Dataset"
 
-__all__ = ['recursive_keys', 'recursive_values', 'recursive_items']
+__all__ = [
+    'recursive_keys',
+    'recursive_values',
+    'recursive_items',
+    'RecursiveKeysView',
+    'RecursiveValuesView',
+    'RecursiveItemsView',
+]
 
 
-@raise_if(H5PY_EX)
-def recursive_keys(f: h5py.Group) -> Generator[str, None, None]:
-    """Recursively iterate through all dataset :attr:`names<h5py.Dataset.name>` in **f**.
+class _RecursiveMappingView(MappingView, metaclass=abc.ABCMeta):
+    """Base class for recursive group or file views."""
+
+    __slots__ = ("__weakref__",)
+
+    _mapping: h5py.Group
+    __hash__ = None  # type: ignore[assignment]
+
+    @raise_if(H5PY_EX)  # type: ignore[misc]
+    def __init__(self, f: h5py.Group) -> None:
+        if not isinstance(f, h5py.Group):
+            raise TypeError("Expected a h5py Group or File")
+        super().__init__(f)
+
+    @property
+    def mapping(self) -> h5py.Group:
+        """:class:`h5py.Group`: Get the underlying mapping."""
+        return self._mapping
+
+    @classmethod
+    def _iter_dfs(
+        cls,
+        group: h5py.Group,
+        reverse: bool = False,
+    ) -> Generator[tuple[str, h5py.Dataset], None, None]:
+        """Recursively iterate through **group** in depth-first order."""
+        iterable = group.values() if not reverse else reversed(group.values())
+        for v in iterable:
+            if isinstance(v, h5py.Group):
+                yield from cls._iter_dfs(v, reverse)
+            else:
+                yield v.name, v
+
+    def __len__(self) -> int:
+        """Implement :func:`len(self)<len>`."""
+        i = 0
+        for i, _ in enumerate(self, 1):
+            pass
+        return i
+
+    def __contains__(self, key: object) -> bool:
+        """Implement :meth:`key in self<object.__contains__>`."""
+        return any((key == i) for i in self)
+
+    @abc.abstractmethod
+    def __iter__(self) -> Iterator[object]:
+        """Implement :func:`iter(self)<iter>`."""
+        raise NotImplementedError("Trying to call an abstract method")
+
+    if H5PY_VERSION >= (3, 5, 0):
+        @abc.abstractmethod
+        def __reversed__(self) -> Iterator[object]:
+            """Implement :func:`reversed(self)<reversed>`.
+
+            Note
+            ----
+            This feature requires h5py >= 3.5.
+
+            """
+            raise NotImplementedError("Trying to call an abstract method")
+    else:
+        def __reversed__(self) -> NoReturn:
+            """Implement :func:`reversed(self)<reversed>`.
+
+            Warning
+            -------
+            This feature requires h5py >= 3.5.
+
+            """
+            raise TypeError("`reversed` requires h5py >= 3.5.0")
+
+
+class RecursiveKeysView(_RecursiveMappingView, KeysView[str]):
+    """Create a recursive view of all dataset :attr:`names<h5py.Dataset.name>`.
 
     Examples
     --------
     .. testsetup:: python
 
         >>> import os
-        >>> filename = os.path.join('tests', 'test_files', 'test.hdf5')
+        >>> filename = os.path.join('tests', 'test_files', '_test.hdf5')
         >>> if os.path.isfile(filename):
         ...     os.remove(filename)
 
-    .. code-block:: python
+    .. doctest:: python
+        :skipif: HDF5_EX is not None
 
         >>> import h5py
-        >>> from nanoutils import recursive_keys
+        >>> from nanoutils import RecursiveKeysView
 
         >>> filename: str = ...  # doctest: +SKIP
 
@@ -56,7 +151,7 @@ def recursive_keys(f: h5py.Group) -> Generator[str, None, None]:
         ...     dset3 = f['a']['b'].create_dataset('dset3', (10,), dtype=float)
 
         >>> with h5py.File(filename, 'r') as f:
-        ...     for key in recursive_keys(f):
+        ...     for key in RecursiveKeysView(f):
         ...         print(repr(key))
         '/a/b/dset3'
         '/a/dset2'
@@ -73,37 +168,50 @@ def recursive_keys(f: h5py.Group) -> Generator[str, None, None]:
     f : :class:`h5py.Group`
         The to-be iterated h5py group of file.
 
-    Yields
-    ------
-    :class:`str`
-        A dataset name within the passed group or file.
+    Returns
+    -------
+    :class:`KeysView[str]<collections.abc.KeysView>`
+        A recursive view of all dataset names within the passed group or file.
 
     """
-    for k, v in f.items():
-        if isinstance(v, h5py.Dataset):
-            yield v.name
-        else:
-            for _v in recursive_keys(v):
-                yield _v
+
+    __slots__ = ()
+
+    def __iter__(self) -> Generator[str, None, None]:
+        """Implement :func:`iter(self)<iter>`."""
+        for k, _ in self._iter_dfs(self._mapping):
+            yield k
+
+    if H5PY_VERSION >= (3, 5, 0):
+        def __reversed__(self) -> Generator[str, None, None]:
+            """Implement :func:`reversed(self)<reversed>`.
+
+            Note
+            ----
+            This feature requires h5py >= 3.5.
+
+            """
+            for k, _ in self._iter_dfs(self._mapping, reverse=True):
+                yield k
 
 
-@raise_if(H5PY_EX)
-def recursive_values(f: h5py.Group) -> Generator[h5py.Dataset, None, None]:
-    """Recursively iterate through all :attr:`<Datasets>h5py.Dataset` in **f**.
+class RecursiveValuesView(_RecursiveMappingView, ValuesView[H5PyDataset]):
+    """Create a recursive view of all :class:`<Datasets>h5py.Dataset`.
 
     Examples
     --------
     .. testsetup:: python
 
         >>> import os
-        >>> filename = os.path.join('tests', 'test_files', 'test.hdf5')
+        >>> filename = os.path.join('tests', 'test_files', '_test.hdf5')
         >>> if os.path.isfile(filename):
         ...     os.remove(filename)
 
-    .. code-block:: python
+    .. doctest:: python
+        :skipif: HDF5_EX is not None
 
         >>> import h5py
-        >>> from nanoutils import recursive_values
+        >>> from nanoutils import RecursiveValuesView
 
         >>> filename: str = ...  # doctest: +SKIP
 
@@ -116,7 +224,7 @@ def recursive_values(f: h5py.Group) -> Generator[h5py.Dataset, None, None]:
         ...     dset3 = f['a']['b'].create_dataset('dset3', (10,), dtype=float)
 
         >>> with h5py.File(filename, 'r') as f:
-        ...     for value in recursive_values(f):
+        ...     for value in RecursiveValuesView(f):
         ...         print(value)
         <HDF5 dataset "dset3": shape (10,), type "<f8">
         <HDF5 dataset "dset2": shape (10,), type "<f8">
@@ -133,33 +241,57 @@ def recursive_values(f: h5py.Group) -> Generator[h5py.Dataset, None, None]:
     f : :class:`h5py.Group`
         The to-be iterated h5py group of file.
 
-    Yields
-    ------
-    :class:`h5py.Dataset`
-        A dataset within the passed group or file.
+    Returns
+    -------
+    :class:`ValuesView[h5py.Dataset]<collections.abc.ValuesView>`
+        A recursive view of all datasets within the passed group or file.
 
     """
-    for k in recursive_keys(f):
-        yield f[k]
+
+    __slots__ = ()
+
+    def __eq__(self, other: object) -> bool:
+        """Implement :meth:`self == other<object.__eq__>`."""
+        cls = type(self)
+        if not isinstance(other, cls):
+            return NotImplemented
+        return self.mapping is other.mapping
+
+    def __iter__(self) -> Generator[h5py.Dataset, None, None]:
+        """Implement :func:`iter(self)<iter>`."""
+        for _, v in self._iter_dfs(self._mapping):
+            yield v
+
+    if H5PY_VERSION >= (3, 5, 0):
+        def __reversed__(self) -> Generator[h5py.Dataset, None, None]:
+            """Implement :func:`reversed(self)<reversed>`.
+
+            Note
+            ----
+            This feature requires h5py >= 3.5.
+
+            """
+            for _, v in self._iter_dfs(self._mapping, reverse=True):
+                yield v
 
 
-@raise_if(H5PY_EX)
-def recursive_items(f: h5py.Group) -> Generator[Tuple[str, h5py.Dataset], None, None]:
-    """Recursively iterate through all :attr:`~h5py.Dataset.name`/:attr:`~h5py.Dataset` pairs in **f**.
+class RecursiveItemsView(_RecursiveMappingView, ItemsView[str, H5PyDataset]):
+    """Create a recursive view of all :attr:`~h5py.Dataset.name`/:attr:`~h5py.Dataset` pairs.
 
     Examples
     --------
     .. testsetup:: python
 
         >>> import os
-        >>> filename = os.path.join('tests', 'test_files', 'test.hdf5')
+        >>> filename = os.path.join('tests', 'test_files', '_test.hdf5')
         >>> if os.path.isfile(filename):
         ...     os.remove(filename)
 
-    .. code-block:: python
+    .. doctest:: python
+        :skipif: HDF5_EX is not None
 
         >>> import h5py
-        >>> from nanoutils import recursive_items
+        >>> from nanoutils import RecursiveItemsView
 
         >>> filename: str = ...  # doctest: +SKIP
 
@@ -172,7 +304,7 @@ def recursive_items(f: h5py.Group) -> Generator[Tuple[str, h5py.Dataset], None, 
         ...     dset3 = f['a']['b'].create_dataset('dset3', (10,), dtype=float)
 
         >>> with h5py.File(filename, 'r') as f:
-        ...     for items in recursive_items(f):
+        ...     for items in RecursiveItemsView(f):
         ...         print(items)
         ('/a/b/dset3', <HDF5 dataset "dset3": shape (10,), type "<f8">)
         ('/a/dset2', <HDF5 dataset "dset2": shape (10,), type "<f8">)
@@ -189,14 +321,33 @@ def recursive_items(f: h5py.Group) -> Generator[Tuple[str, h5py.Dataset], None, 
     f : :class:`h5py.Group`
         The to-be iterated h5py group of file.
 
-    Yields
-    ------
-    :class:`str` & :class:`h5py.Dataset`
-        A 2-tuple consisting of a datasets' name and the actual dataset itself.
+    Returns
+    -------
+    :class:`ItemsView[str, h5py.Dataset]<collections.abc.ItemsView>`
+        A recursive view of all name/dataset pairs within the passed group or file.
 
-    """  # noqa: E501
-    for k in recursive_keys(f):
-        yield k, f[k]
+    """
 
+    __slots__ = ()
+
+    def __iter__(self) -> Generator[tuple[str, h5py.Dataset], None, None]:
+        """Implement :func:`iter(self)<iter>`."""
+        yield from self._iter_dfs(self._mapping)
+
+    if H5PY_VERSION >= (3, 5, 0):
+        def __reversed__(self) -> Generator[tuple[str, h5py.Dataset], None, None]:
+            """Implement :func:`reversed(self)<reversed>`.
+
+            Note
+            ----
+            This feature requires h5py >= 3.5.
+
+            """
+            yield from self._iter_dfs(self._mapping, reverse=True)
+
+
+recursive_keys = RecursiveKeysView
+recursive_items = RecursiveItemsView
+recursive_values = RecursiveValuesView
 
 __doc__ = construct_api_doc(globals())
