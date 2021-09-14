@@ -134,7 +134,8 @@ class RecursiveKeysView(_RecursiveMappingView, KeysView[str]):
         >>> if os.path.isfile(filename):
         ...     os.remove(filename)
 
-    .. code-block:: python
+    .. doctest:: python
+        :skipif: HDF5_EX is not None
 
         >>> import h5py
         >>> from nanoutils import RecursiveKeysView
@@ -206,7 +207,8 @@ class RecursiveValuesView(_RecursiveMappingView, ValuesView[H5PyDataset]):
         >>> if os.path.isfile(filename):
         ...     os.remove(filename)
 
-    .. code-block:: python
+    .. doctest:: python
+        :skipif: HDF5_EX is not None
 
         >>> import h5py
         >>> from nanoutils import RecursiveValuesView
@@ -285,7 +287,8 @@ class RecursiveItemsView(_RecursiveMappingView, ItemsView[str, H5PyDataset]):
         >>> if os.path.isfile(filename):
         ...     os.remove(filename)
 
-    .. code-block:: python
+    .. doctest:: python
+        :skipif: HDF5_EX is not None
 
         >>> import h5py
         >>> from nanoutils import RecursiveItemsView

@@ -29,12 +29,8 @@ build_requires = [
 ]
 
 # Requirements for running tests
-tests_require = [
+tests_no_optional_require = [
     'assertionlib',
-    'schema',
-    'pyyaml',
-    'h5py',
-    'numpy',
     'mypy>=0.900',
     'pytest>=5.4.0',
     'pytest-cov',
@@ -43,6 +39,12 @@ tests_require = [
     'pytest-pydocstyle>=2.1',
     'pytest-mypy>=0.6.2',
     'types-PyYAML',
+]
+tests_require = tests_no_optional_require + [
+    'schema',
+    'pyyaml',
+    'h5py',
+    'numpy',
 ]
 tests_require += docs_require
 tests_require += build_requires
@@ -92,6 +94,7 @@ setup(
     extras_require={
         'doc': docs_require,
         'test': tests_require,
-        'build': build_requires
+        'test_no_optional': tests_no_optional_require,
+        'build': build_requires,
     }
 )

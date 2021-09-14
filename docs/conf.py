@@ -258,6 +258,8 @@ autodoc_mock_imports = ["h5py", "yaml", "numpy"]
 # You can use this to e.g. import modules you will always need in your doctests.
 doctest_global_setup = """
 from nanoutils.numpy_utils import NUMPY_EX
+from nanoutils.yaml_utils import YAML_EX
+from nanoutils.hdf5_utils import HDF5_EX
 """
 
 # A string of reStructuredText that will be included at the end of every source file that is read.
