@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import sys
 import abc
+from collections import Counter
 from collections.abc import Generator, MappingView, Iterator
 from typing import NoReturn
 
@@ -119,7 +120,7 @@ class _RecursiveMappingView(MappingView, metaclass=abc.ABCMeta):
             This feature requires h5py >= 3.5.
 
             """
-            raise TypeError("`reversed` requires h5py >= 3.5.0")
+            raise TypeError("`reversed` requires h5py >= 3.5.0") from H5PY_EX
 
 
 class RecursiveKeysView(_RecursiveMappingView, KeysView[str]):
@@ -255,7 +256,7 @@ class RecursiveValuesView(_RecursiveMappingView, ValuesView[H5PyDataset]):
         cls = type(self)
         if not isinstance(other, cls):
             return NotImplemented
-        return self.mapping is other.mapping
+        return Counter(self) == Counter(other)
 
     def __iter__(self) -> Generator[h5py.Dataset, None, None]:
         """Implement :func:`iter(self)<iter>`."""

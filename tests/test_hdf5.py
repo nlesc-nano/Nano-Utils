@@ -131,7 +131,12 @@ class TestRecursiveKeys:
 
     def test_mapping(self, view: RecursiveKeysView) -> None:
         assertion.isinstance(view.mapping, h5py.Group)
-        assertion.eq(view, RecursiveKeysView(view.mapping))
+
+    def test_eq(self, view: RecursiveKeysView) -> None:
+        with h5py.File(view.mapping.filename) as f:
+            view2 = RecursiveKeysView(f)
+            assertion.eq(view, view2)
+        assertion.ne(view, None)
 
 
 @pytest.mark.skipif(H5PY_EX is not None, reason=str(H5PY_EX))
@@ -187,7 +192,12 @@ class TestRecursiveValues:
 
     def test_mapping(self, view: RecursiveValuesView) -> None:
         assertion.isinstance(view.mapping, h5py.Group)
-        assertion.eq(view, RecursiveValuesView(view.mapping))
+
+    def test_eq(self, view: RecursiveValuesView) -> None:
+        with h5py.File(view.mapping.filename) as f:
+            view2 = RecursiveValuesView(f)
+            assertion.eq(view, view2)
+        assertion.ne(view, None)
 
 
 @pytest.mark.skipif(H5PY_EX is not None, reason=str(H5PY_EX))
@@ -333,4 +343,9 @@ class TestRecursiveItems:
 
     def test_mapping(self, view: RecursiveItemsView) -> None:
         assertion.isinstance(view.mapping, h5py.Group)
-        assertion.eq(view, RecursiveItemsView(view.mapping))
+
+    def test_eq(self, view: RecursiveItemsView) -> None:
+        with h5py.File(view.mapping.filename) as f:
+            view2 = RecursiveItemsView(f)
+            assertion.eq(view, view2)
+        assertion.ne(view, None)
