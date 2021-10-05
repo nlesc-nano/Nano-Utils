@@ -4,9 +4,11 @@ runs:
     using: composite
     steps:
     -   name: Python info
+        shell: bash
         run: |
             which python
             python --version
 
     -   name: Installed packages
+        shell: bash
         run: pip list
