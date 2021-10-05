@@ -51,13 +51,8 @@ jobs:
                 if: matrix.special == '; no-optional'
                 run: pip install -e .[test_no_optional]
 
-            -   name: Python info
-                run: |
-                    which python
-                    python --version
-
-            -   name: Installed packages
-                run: pip list
+            -   name: test
+                uses: ./.github/actions
 
             -   name: Test with pytest
                 if: matrix.special != '; no-optional'

@@ -1,0 +1,12 @@
+name: Test
+description: "Print stuff"
+runs:
+    using: composite
+    steps:
+    -   name: Python info
+        run: |
+            which python
+            python --version
+
+    -   name: Installed packages
+        run: pip list
