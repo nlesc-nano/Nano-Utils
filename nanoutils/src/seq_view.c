@@ -7,44 +7,44 @@ typedef struct {
 } PySequenceView;
 
 static void
-PySequenceView_dealloc(PySequenceView *pp)
+PySequenceView_dealloc(PySequenceView *self)
 {
-    PyObject_GC_UnTrack(pp);
-    Py_DECREF(pp->sequence);
-    PyObject_GC_Del(pp);
+    PyObject_GC_UnTrack(self);
+    Py_DECREF(self->sequence);
+    PyObject_GC_Del(self);
 }
 
 static PyObject *
-PySequenceView_repr(PySequenceView *pp)
+PySequenceView_repr(PySequenceView *self)
 {
-    return PyUnicode_FromFormat("%s(%R)", Py_TYPE(pp)->tp_name, pp->sequence);
+    return PyUnicode_FromFormat("%s(%R)", Py_TYPE(self)->tp_name, self->sequence);
 }
 
 static int
-PySequenceView_contains(PySequenceView *pp, PyObject *value)
+PySequenceView_contains(PySequenceView *self, PyObject *value)
 {
-    return PySequence_Contains(pp->sequence, value);
+    return PySequence_Contains(self->sequence, value);
 }
 
 static Py_ssize_t
-PySequenceView_len(PySequenceView *pp)
+PySequenceView_len(PySequenceView *self)
 {
-    return PySequence_Length(pp->sequence);
+    return PySequence_Length(self->sequence);
 }
 
 static PyObject *
-PySequenceView_getitem_slice(PySequenceView *pp, PySliceObject *key) {
+PySequenceView_getitem_slice(PySequenceView *self, PySliceObject *key) {
     Py_ssize_t start, stop, step;
     PySequenceView *ret;
     PyObject *sequence;
 
     PySlice_Unpack((PyObject *)key, &start, &stop, &step);
 
-    ret = PyObject_GC_New(PySequenceView, Py_TYPE(pp));
+    ret = PyObject_GC_New(PySequenceView, Py_TYPE(self));
     if (ret == NULL)
         return NULL;
 
-    sequence = PySequence_GetSlice(pp->sequence, start, stop);
+    sequence = PySequence_GetSlice(self->sequence, start, stop);
     Py_INCREF(sequence);
     ret->sequence = sequence;
     PyObject_GC_Track(ret);
@@ -52,7 +52,7 @@ PySequenceView_getitem_slice(PySequenceView *pp, PySliceObject *key) {
 }
 
 static PyObject *
-PySequenceView_getitem(PySequenceView *pp, PyObject *key)
+PySequenceView_getitem(PySequenceView *self, PyObject *key)
 {
     if (PyIndex_Check(key)) {
         Py_ssize_t i;
@@ -61,42 +61,40 @@ PySequenceView_getitem(PySequenceView *pp, PyObject *key)
         if (i == -1 && PyErr_Occurred()) {
             return NULL;
         }
-        return PySequence_GetItem(pp->sequence, i);
+        return PySequence_GetItem(self->sequence, i);
     }
     else if (PySlice_Check(key)) {
-        return PySequenceView_getitem_slice(pp, (PySliceObject *)key);
+        return PySequenceView_getitem_slice(self, (PySliceObject *)key);
     }
     else {
         PyErr_Format(PyExc_TypeError,
-                     "%s indices must be integers or slices, not %.200s",
-                     Py_TYPE(pp)->tp_name,
-                     Py_TYPE(key)->tp_name);
+                "%s indices must be integers or slices, not %.200s",
+                Py_TYPE(self)->tp_name, Py_TYPE(key)->tp_name);
         return NULL;
     }
 }
 
 static int
-PySequenceView_traverse(PyObject *self, visitproc visit, void *arg)
+PySequenceView_traverse(PySequenceView *self, visitproc visit, void *arg)
 {
-    PySequenceView *pp = (PySequenceView *)self;
-    Py_VISIT(pp->sequence);
+    Py_VISIT(self->sequence);
     return 0;
 }
 
 static PyObject *
-PySequenceView_richcompare(PySequenceView *v, PyObject *w, int op)
+PySequenceView_richcompare(PySequenceView *self, PyObject *other, int op)
 {
-    return PyObject_RichCompare(v->sequence, w, op);
+    return PyObject_RichCompare(self->sequence, other, op);
 }
 
 static PyObject *
-PySequenceView_getiter(PySequenceView *pp)
+PySequenceView_getiter(PySequenceView *self)
 {
-    return PyObject_GetIter(pp->sequence);
+    return PyObject_GetIter(self->sequence);
 }
 
 static PyObject *
-PySequenceView_index(PySequenceView *pp, PyObject *args)
+PySequenceView_index(PySequenceView *self, PyObject *args)
 {
     PyObject *value;
     Py_ssize_t ret;
@@ -105,55 +103,45 @@ PySequenceView_index(PySequenceView *pp, PyObject *args)
         return NULL;
     }
 
-    ret = PySequence_Index(pp->sequence, value);
+    ret = PySequence_Index(self->sequence, value);
     if (ret == -1) {
         PyErr_Format(PyExc_ValueError, "%R is not in %s",
-                     value, Py_TYPE(pp)->tp_name);
+                     value, Py_TYPE(self)->tp_name);
         return NULL;
     }
     return PyLong_FromSsize_t(ret);
 }
 
 static PyObject *
-PySequenceView_count(PySequenceView *pp, PyObject *args)
+PySequenceView_count(PySequenceView *self, PyObject *args)
 {
     PyObject *value;
     Py_ssize_t ret;
 
-    if (!PyArg_ParseTuple(args, "O:SequenceView", &value)) {
+    if (!PyArg_ParseTuple(args, "O:count", &value)) {
         return NULL;
     }
 
-    ret = PySequence_Count(pp->sequence, value);
+    ret = PySequence_Count(self->sequence, value);
     return PyLong_FromSsize_t(ret);
 }
 
-static int
-SequenceView_check_sequence(PyTypeObject *type, PyObject *sequence)
-{
-    if (!PySequence_Check(sequence)) {
-        PyErr_Format(PyExc_TypeError, "%s expected a sequence, not %s",
-                     type->tp_name, Py_TYPE(sequence)->tp_name);
-        return -1;
-    }
-    return 0;
-}
-
 static PyObject *
-SequenceView_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+SequenceView_new(PyTypeObject *cls, PyObject *args)
 {
     PySequenceView *self;
     PyObject *sequence;
 
-    static char *kwlist[] = {"", NULL};
-
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O:SequenceView", kwlist, &sequence)) {
+    if (!PyArg_ParseTuple(args, "O:SequenceView", &sequence)) {
         return NULL;
     }
-    if (SequenceView_check_sequence(type, sequence) == -1)
+    if (!PySequence_Check(sequence)) {
+        PyErr_Format(PyExc_TypeError, "%s expected a sequence, not %s",
+                     cls->tp_name, Py_TYPE(sequence)->tp_name);
         return NULL;
+    }
 
-    self = PyObject_GC_New(PySequenceView, type);
+    self = PyObject_GC_New(PySequenceView, cls);
     if (self == NULL)
         return NULL;
 
@@ -164,27 +152,31 @@ SequenceView_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 }
 
 static PyObject *
-PySequenceView_copy(PySequenceView *pp)
+PySequenceView_copy(PySequenceView *self)
 {
-    return (PyObject *)pp;
+    PyObject *ret = (PyObject *)self;
+    Py_INCREF(ret)
+    return ret;
 }
 
 static PyObject *
-PySequenceView_deepcopy(PySequenceView *pp, PyObject *args, PyObject *kwargs)
+PySequenceView_deepcopy(PySequenceView *self, PyObject *args, PyObject *kwargs)
 {
     static char *kwlist[] = {"memo", NULL};
     PyObject *memo;
+    PyObject *ret = (PyObject *)self;
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|O:__deepcopy__", kwlist, &memo)) {
         return NULL;
     }
-    return (PyObject *)pp;
+    Py_INCREF(ret)
+    return ret;
 }
 
 static PyObject *
-PySequenceView_reversed(PySequenceView *pp)
+PySequenceView_reversed(PySequenceView *self)
 {
-    return NULL;
+    return PyObject_CallMethod(self->sequence, "__reversed__", NULL);
 }
 
 static PySequenceMethods PySequenceView_as_sequence = {
@@ -209,11 +201,12 @@ static PyMethodDef PySequenceView_methods[] = {
      METH_VARARGS | METH_KEYWORDS, NULL},
     {"__reversed__", (PyCFunction)PySequenceView_reversed,
      METH_NOARGS, NULL},
+     /* Python >= 3.9 */
 #ifdef Py_GENERICALIASOBJECT_H
     {"__class_getitem__", (PyCFunction)Py_GenericAlias,
      METH_O | METH_CLASS, PyDoc_STR("See PEP 585")},
 #endif
-    {0},
+    {NULL, NULL, 0, NULL},
 };
 
 PyTypeObject PySequenceView_Type = {
