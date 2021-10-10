@@ -59,7 +59,7 @@ class _RecursiveMappingView(MappingView, metaclass=abc.ABCMeta):
     _mapping: h5py.Group
     __hash__ = None  # type: ignore[assignment]
 
-    @raise_if(H5PY_EX)  # type: ignore[misc]
+    @raise_if(H5PY_EX)
     def __init__(self, f: h5py.Group) -> None:
         if not isinstance(f, h5py.Group):
             raise TypeError("Expected a h5py Group or File")

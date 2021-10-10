@@ -30,7 +30,6 @@ from typing import (
     Container,
     Mapping,
     NamedTuple,
-    NoReturn,
     MutableMapping,
     Collection,
     cast,
@@ -367,13 +366,7 @@ def _disgard_keys(
             return set(dct.keys()).intersection(keep_keys)
 
 
-@overload
-def raise_if(exception: None) -> Callable[[_FT], _FT]:
-    ...
-@overload  # noqa: E302
-def raise_if(exception: BaseException) -> Callable[[Callable[..., Any]], Callable[..., NoReturn]]:
-    ...
-def raise_if(exception):  # noqa: E302
+def raise_if(exception: None | BaseException) -> Callable[[_FT], _FT]:
     """A decorator which raises the passed exception whenever calling the decorated function.
 
     If **exception** is :data:`None` then the decorated function will be called as usual.
@@ -422,24 +415,18 @@ def raise_if(exception):  # noqa: E302
         return decorator1
 
     elif isinstance(exception, BaseException):
-        def decorator2(func: Callable[..., Any]) -> Callable[..., NoReturn]:
+        def decorator2(func: _FT) -> _FT:
             @wraps(func)
-            def wrapper(*args: Any, **kwargs: Any) -> NoReturn:
+            def wrapper(*args, **kwargs):
                 raise exception
-            return wrapper
+            return wrapper  # type: ignore[return-value]
         return decorator2
 
     else:
         raise TypeError(f"{exception.__class__.__name__!r}")
 
 
-@overload
-def ignore_if(exception: None, warn: bool = ...) -> Callable[[_FT], _FT]:
-    ...
-@overload  # noqa: E302
-def ignore_if(exception: BaseException, warn: bool = ...) -> Callable[[Callable[..., Any]], Callable[..., None]]:  # noqa: E501
-    ...
-def ignore_if(exception, warn=True):  # noqa: E302
+def ignore_if(exception: None | BaseException, warn: bool = True) -> Callable[[_FT], _FT]:
     """A decorator which, if an exception is passed, ignores calls to the decorated function.
 
     If **exception** is :data:`None` then the decorated function will be called as usual.
@@ -497,7 +484,7 @@ def ignore_if(exception, warn=True):  # noqa: E302
         return decorator1
 
     elif isinstance(exception, BaseException):
-        def decorator2(func: Callable[..., Any]) -> Callable[..., None]:
+        def decorator2(func: _FT) -> _FT:
             msg = f"Skipping call to {get_func_name(func)}()"
 
             @wraps(func)
@@ -507,7 +494,7 @@ def ignore_if(exception, warn=True):  # noqa: E302
                     exc.__cause__ = exception
                     warnings.warn(exc)
                     return None
-            return wrapper
+            return wrapper  # type: ignore[return-value]
         return decorator2
 
     else:

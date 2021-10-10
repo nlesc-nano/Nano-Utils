@@ -62,7 +62,7 @@ class UniqueLoader(Loader):
 
     '''
 
-    @raise_if(YAML_EX)  # type: ignore[misc]
+    @raise_if(YAML_EX)
     def __init__(cls, stream: str | bytes | IO[str] | IO[bytes]) -> None:
         super().__init__(stream)
 
