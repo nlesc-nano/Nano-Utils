@@ -17,6 +17,7 @@ from __future__ import annotations
 import re
 import warnings
 import importlib
+import inspect
 from types import ModuleType
 from functools import wraps
 from typing import (
@@ -59,6 +60,7 @@ __all__ = [
     'CatchErrors',
     'LazyImporter',
     'MutableLazyImporter',
+    'positional_only',
 ]
 
 _T = TypeVar('_T')
@@ -670,4 +672,75 @@ def _null_func(obj: _T) -> _T:
     return obj
 
 
-__doc__ = construct_api_doc(globals(), decorators={'set_docstring', 'raise_if', 'ignore_if'})
+def positional_only(func: _FT) -> _FT:
+    """A decorator for converting mangled parameters to positional-only.
+
+    Sets the ``__signature__`` attribute of the decorated function.
+
+    Examples
+    --------
+    .. code-block:: python
+
+        >>> from nanoutils import positional_only
+        >>> import inspect
+
+        >>> def func1(__a, b=None):
+        ...     pass
+
+        >>> print(inspect.signature(func1))
+        (__a, b=None)
+
+        >>> @positional_only
+        ... def func2(__a, b=None):
+        ...     pass
+
+        >>> print(inspect.signature(func2))
+        (a, /, b=None)
+
+    Parameters
+    ----------
+    func : :class:`~collections.abc.Callable`
+        The to-be decorated function whose ``__signature__`` attribute will be added or updated.
+
+    """
+    # Check if any name mangling has occured
+    cls_name, period, _ = getattr(func, "__qualname__", "").partition(".")
+    prefix = "__" if not period else f"_{cls_name}__"
+    offset = len(prefix)
+
+    # Identify the if `__`-prefixed parameters
+    sgn = inspect.signature(func)
+    pos_only_list = []
+    for j, name in enumerate(sgn.parameters):
+        if name.startswith(prefix):
+            pos_only_list.append(j)
+
+    if not pos_only_list:
+        func.__signature__ = sgn  # type: ignore[attr-defined]
+        return func
+    else:
+        j = pos_only_list[-1]
+
+    # Unmangle parameters and convert them to positional-only
+    prm_list = []
+    for i, (name, prm) in enumerate(sgn.parameters.items()):
+        if i <= j:
+            if name.startswith(prefix):
+                name = name[offset:]
+            prm = prm.replace(name=name, kind=inspect.Parameter.POSITIONAL_ONLY)
+        prm_list.append(prm)
+
+    func.__signature__ = inspect.Signature(   # type: ignore[attr-defined]
+        parameters=prm_list,
+        return_annotation=sgn.return_annotation,
+    )
+    func.__annotations__ = {
+        (k[offset:] if k.startswith(prefix) else k): v for k, v in func.__annotations__.items()
+    }
+    return func
+
+
+__doc__ = construct_api_doc(
+    globals(),
+    decorators={'set_docstring', 'raise_if', 'ignore_if', 'positional_only'},
+)
