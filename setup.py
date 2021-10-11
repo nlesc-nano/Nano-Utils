@@ -30,7 +30,7 @@ build_requires = [
 
 # Requirements for running tests
 tests_no_optional_require = [
-    'assertionlib',
+    'assertionlib>=3.2.1',
     'mypy>=0.900',
     'pytest>=5.4.0',
     'pytest-cov',
