@@ -34,9 +34,6 @@ tests_no_optional_require = [
     'mypy>=0.900',
     'pytest>=5.4.0',
     'pytest-cov',
-    'pytest-flake8>=1.0.5',
-    'pydocstyle>=5.0.0',
-    'pytest-pydocstyle>=2.1',
     'pytest-mypy>=0.6.2',
     'types-PyYAML',
 ]
