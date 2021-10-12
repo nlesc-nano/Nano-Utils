@@ -8,7 +8,7 @@ from typing import TypeVar, TYPE_CHECKING, Any, ClassVar
 
 from .numpy_utils import NUMPY_EX
 from .utils import raise_if, positional_only
-from ._user_dict import _DictLike, _UserMapping, _MutableUserMapping, _SupportsKeysAndGetItem
+from ._user_dict import _DictLike, UserMapping, MutableUserMapping, _SupportsKeysAndGetItem
 
 if TYPE_CHECKING or NUMPY_EX is None:
     import numpy as np
@@ -44,7 +44,7 @@ def _repr_helper(self: DTypeMapping, dtype_repr: Callable[[np.dtype[Any]], str])
     return f"{cls.__name__}(\n{values}\n)"
 
 
-class DTypeMapping(_UserMapping[str, dtype]):
+class DTypeMapping(UserMapping[str, dtype]):
     """A mapping for creating structured dtypes.
 
     Examples
@@ -249,7 +249,7 @@ class DTypeMapping(_UserMapping[str, dtype]):
                 return cls._reconstruct({k: np.dtype(v) for k, v in other.items()} | self._dict)
 
 
-class MutableDTypeMapping(DTypeMapping, _MutableUserMapping[str, dtype]):  # type: ignore[misc]
+class MutableDTypeMapping(DTypeMapping, MutableUserMapping[str, dtype]):  # type: ignore[misc]
     """A mutable mapping for creating structured dtypes.
 
     Examples

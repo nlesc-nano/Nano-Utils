@@ -38,11 +38,6 @@ from typing import (
 )
 
 from .empty import EMPTY_CONTAINER
-from ._partial import PartialPrepend
-from ._set_attr import SetAttr
-from ._seq_view import SequenceView
-from ._catch_err import CatchErrors
-from ._lazy_import import LazyImporter, MutableLazyImporter
 
 __all__ = [
     'PartialPrepend',
@@ -61,6 +56,8 @@ __all__ = [
     'LazyImporter',
     'MutableLazyImporter',
     'positional_only',
+    'UserMapping',
+    'MutableUserMapping',
 ]
 
 _T = TypeVar('_T')
@@ -739,6 +736,14 @@ def positional_only(func: _FT) -> _FT:
     }
     return func
 
+
+# Move to the end to reduce the risk of circular imports
+from ._partial import PartialPrepend
+from ._set_attr import SetAttr
+from ._seq_view import SequenceView
+from ._catch_err import CatchErrors
+from ._lazy_import import LazyImporter, MutableLazyImporter
+from ._user_dict import UserMapping, MutableUserMapping
 
 __doc__ = construct_api_doc(
     globals(),
