@@ -22,7 +22,7 @@
 
 
 ################
-Nano-Utils 2.2.0
+Nano-Utils 2.3.0
 ################
 Utility functions used throughout the various nlesc-nano repositories.
 
