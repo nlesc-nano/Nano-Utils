@@ -44,7 +44,15 @@ try:
 except Exception as ex:
     NUMPY_EX = ex
 
-__all__ = ['as_nd_array', 'array_combinations', 'fill_diagonal_blocks']
+from ._dtype_mapping import DTypeMapping, MutableDTypeMapping
+
+__all__ = [
+    'as_nd_array',
+    'array_combinations',
+    'fill_diagonal_blocks',
+    'DTypeMapping',
+    'MutableDTypeMapping',
+]
 
 
 @raise_if(NUMPY_EX)

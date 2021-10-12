@@ -30,13 +30,10 @@ build_requires = [
 
 # Requirements for running tests
 tests_no_optional_require = [
-    'assertionlib',
+    'assertionlib>=3.2.1',
     'mypy>=0.900',
     'pytest>=5.4.0',
     'pytest-cov',
-    'pytest-flake8>=1.0.5',
-    'pydocstyle>=5.0.0',
-    'pytest-pydocstyle>=2.1',
     'pytest-mypy>=0.6.2',
     'types-PyYAML',
 ]
@@ -82,6 +79,7 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
         'Topic :: Software Development :: Libraries',
         'Typing :: Typed'
     ],

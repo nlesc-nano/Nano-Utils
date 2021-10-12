@@ -26,6 +26,9 @@ jobs:
                     -   os: ubuntu-latest
                         special: '; no-optional'
                         version: 3.9
+                    -   os: ubuntu-latest
+                        special: '; no-optional'
+                        version: '3.10'
         steps:
             -   name: Cancel Previous Runs
                 uses: styfle/cancel-workflow-action@0.9.1
@@ -40,16 +43,17 @@ jobs:
                     python-version: ${{ matrix.version }}
 
             -   name: Install dependencies
-                if: matrix.special == ''
-                run: pip install -e .[test]
-
-            -   name: Install dependencies (pre-release)
-                if: matrix.special == '; pre-release'
-                run: pip install --pre -e .[test] --upgrade --force-reinstall
-
-            -   name: Install dependencies (no-optional)
-                if: matrix.special == '; no-optional'
-                run: pip install -e .[test_no_optional]
+                shell: bash
+                env:
+                    SPECIAL: ${{ matrix.special }}
+                run: |
+                    if [[ $SPECIAL == '; no-optional' ]]; then
+                        pip install -e .[test_no_optional]
+                    elif [[ $SPECIAL == '; pre-release' ]]; then
+                        pip install --pre -e .[test] --upgrade --force-reinstall
+                    else
+                        pip install -e .[test]
+                    fi
 
             -   name: Python info
                 run: |
@@ -60,15 +64,47 @@ jobs:
                 run: pip list
 
             -   name: Test with pytest
-                if: matrix.special != '; no-optional'
-                run: pytest --flake8 --mypy --doctest-modules
-
-            -   name: Test with pytest (no-optional)
-                if: matrix.special == '; no-optional'
-                run: pytest --flake8 --mypy
+                shell: bash
+                env:
+                    SPECIAL: ${{ matrix.special }}
+                run: |
+                    if [[ $SPECIAL == '; no-optional' ]]; then
+                        pytest --mypy
+                    else
+                        pytest --mypy --doctest-modules
+                    fi
 
             -   name: Run codecov
                 uses: codecov/codecov-action@v2
                 with:
                     file: ./coverage.xml
                     name: codecov-umbrella
+
+    Linting:
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v2
+
+            -   name: Set up Python 3.9 on ubuntu-latest
+                uses: actions/setup-python@v2
+                with:
+                    python-version: 3.9
+
+            -   name: Install linters
+                run: pip install flake8 pydocstyle>=5.0.0
+
+            -   name: Python info
+                run: |
+                    which python
+                    python --version
+
+            -   name: Installed packages
+                run: pip list
+
+            -   name: Run flake8
+                run: flake8 nanoutils docs tests
+                continue-on-error: true
+
+            -   name: Run pydocstyle
+                run: pydocstyle nanoutils docs tests
+                continue-on-error: true

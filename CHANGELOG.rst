@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+2.2.0
+*****
+* Add a decorator for constructing positional-only signatures.
+* Add two mappings for creating structured dtypes.
+
+
 2.1.0
 *****
 * Reimplement ``RecursiveValuesView.__eq__`` in terms of ``collections.Counter`` comparisons.
