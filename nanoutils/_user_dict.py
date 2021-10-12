@@ -26,6 +26,12 @@ else:
 from .utils import positional_only
 from .typing_utils import Protocol, runtime_checkable
 
+if TYPE_CHECKING:
+    from IPython.lib.pretty import RepresentationPrinter
+
+    class _ReprFunc(Protocol[_KT, _VT]):
+        def __call__(self, __dct: dict[_KT, _VT], *, width: int) -> str: ...
+
 __all__ = ["UserMapping", "MutableUserMapping", "_DictLike", "_SupportsKeysAndGetItem"]
 
 _SENTINEL = object()
@@ -60,6 +66,17 @@ _DictLike = Union[
     _SupportsKeysAndGetItem[_KT, _VT_co],
     Iterable[Tuple[_KT, _VT_co]],
 ]
+
+
+def _repr_func(self: UserMapping[_KT, _VT], func: _ReprFunc[_KT, _VT]) -> str:
+    """Helper function for :meth:`UserMapping.__repr__`."""
+    cls = type(self)
+    dict_repr = func(self._dict, width=76)
+    if len(dict_repr) <= 76:
+        return f"{cls.__name__}({dict_repr})"
+    else:
+        dict_repr2 = textwrap.indent(dict_repr[1:-1], 3 * " ")
+        return f"{cls.__name__}({{\n {dict_repr2},\n}})"
 
 
 class UserMapping(Mapping[_KT, _VT_co]):
@@ -104,14 +121,17 @@ class UserMapping(Mapping[_KT, _VT_co]):
     @reprlib.recursive_repr(fillvalue='...')
     def __repr__(self) -> str:
         """Implement :func:`repr(self) <repr>`."""
-        cls = type(self)
-        width = 80 - 2 - len(cls.__name__)
-        dct_repr = pformat(self._dict, width=width)
-        if len(dct_repr) <= width:
-            return f"{cls.__name__}({dct_repr})"
-        else:
-            dct_repr2 = textwrap.indent(dct_repr[1:-1], 3 * " ")
-            return f"{cls.__name__}({{\n {dct_repr2},\n}})"
+        return _repr_func(self, func=pformat)
+
+    def _repr_pretty_(self, p: RepresentationPrinter, cycle: bool) -> None:
+        """Entry point for the :mod:`IPython <IPython.lib.pretty>` pretty printer."""
+        if cycle:
+            p.text(f"{type(self).__name__}(...)")
+            return None
+
+        from IPython.lib.pretty import pretty
+        string = _repr_func(self, func=lambda dct, width: pretty(dct, max_width=width))
+        p.text(string)
 
     def _ipython_key_completions_(self) -> KeysView[_KT]:
         """Entry point for the IPython key completioner."""
