@@ -3,7 +3,7 @@ from __future__ import annotations
 import sys
 import textwrap
 from typing import TYPE_CHECKING, no_type_check
-from collections.abc import Iterator
+from collections.abc import Iterator, Callable
 
 import pytest
 from assertionlib import assertion
@@ -17,6 +17,14 @@ if TYPE_CHECKING or NUMPY_EX is None:
 if TYPE_CHECKING:
     import numpy.typing as npt
     import _pytest
+
+try:
+    from IPython.lib.pretty import pretty
+except ModuleNotFoundError:
+    IPYTHON: bool = False
+    pretty = NotImplemented
+else:
+    IPYTHON = True
 
 
 class BasicMapping:
@@ -128,16 +136,21 @@ class TestDTypeMapping:
         )""").strip()
         assertion.str_eq(obj, string1, str_converter=repr)
 
-        string2 = textwrap.dedent(f"""
+        string2 = f"{type(obj).__name__}()"
+        assertion.str_eq(type(obj)(), string2, str_converter=repr)
+
+    @pytest.mark.parametrize("str_func", [
+        str,
+        pytest.param(pretty, marks=pytest.mark.skipif(not IPYTHON, reason="Requires IPython")),
+    ], ids=["str", "pretty"])
+    def test_str(self, obj: DTypeMapping, str_func: Callable[[object], str]) -> None:
+        string = textwrap.dedent(f"""
         {type(obj).__name__}(
             a = int64,
             b = float64,
             c = <U5,
         )""").strip()
-        assertion.str_eq(obj, string2, str_converter=str)
-
-        string3 = f"{type(obj).__name__}()"
-        assertion.str_eq(type(obj)(), string3, str_converter=repr)
+        assertion.str_eq(obj, string, str_converter=str_func)
 
     @pytest.mark.skipif(sys.version_info < (3, 9), reason="Requires python >= 3.9")
     @no_type_check

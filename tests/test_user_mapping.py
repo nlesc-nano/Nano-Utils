@@ -7,7 +7,7 @@ import sys
 import textwrap
 import string
 from typing import TYPE_CHECKING, no_type_check
-from collections.abc import KeysView, ValuesView, ItemsView, Iterator
+from collections.abc import KeysView, ValuesView, ItemsView, Iterator, Callable
 
 import pytest
 from assertionlib import assertion
@@ -16,6 +16,14 @@ from nanoutils._user_dict import _DictLike
 
 if TYPE_CHECKING:
     import _pytest
+
+try:
+    from IPython.lib.pretty import pretty
+except ModuleNotFoundError:
+    IPYTHON: bool = False
+    pretty = NotImplemented
+else:
+    IPYTHON = True
 
 
 class BasicMapping:
@@ -75,9 +83,14 @@ class TestUserMapping:
     def test_getitem(self, obj: UserMapping[str, int], key: str, value: int) -> None:
         assertion.eq(obj[key], value)
 
-    def test_repr(self, obj: UserMapping[str, int]) -> None:
+    @pytest.mark.parametrize("str_func", [
+        str,
+        repr,
+        pytest.param(pretty, marks=pytest.mark.skipif(not IPYTHON, reason="Requires IPython")),
+    ], ids=["str", "repr", "pretty"])
+    def test_repr(self, obj: UserMapping[str, int], str_func: Callable[[object], str]) -> None:
         string1 = f"{type(obj).__name__}({{'a': 0, 'b': 1, 'c': 2}})"
-        assertion.str_eq(obj, string1)
+        assertion.str_eq(obj, string1, str_converter=str_func)
 
         cls = type(obj)
         ref2 = cls(zip(string.ascii_lowercase[:12], range(12)))
@@ -97,7 +110,12 @@ class TestUserMapping:
             'l': 11,
         }})
         """).strip()
-        assertion.str_eq(ref2, string2)
+        assertion.str_eq(ref2, string2, str_converter=str_func)
+
+    @pytest.mark.skipif(not IPYTHON, reason="Rquires IPython")
+    def test_pretty_repr(self, obj: UserMapping[str, int]) -> None:
+        string1 = f"{type(obj).__name__}({{'a': 0, 'b': 1, 'c': 2}})"
+        assertion.str_eq(obj, string1, str_converter=pretty)
 
     def test_hash(self, obj: UserMapping[str, int]) -> None:
         if isinstance(obj, MutableUserMapping):
@@ -133,6 +151,10 @@ class TestUserMapping:
         dct = cls.fromkeys(obj)
         assertion.isinstance(dct, cls)
         assertion.eq(dct.keys(), obj.keys())
+
+    def test_key_completions(self, obj: UserMapping[str, int]) -> None:
+        assertion.isinstance(obj._ipython_key_completions_(), KeysView)
+        assertion.eq(obj._ipython_key_completions_(), obj.keys())
 
     def test_get(self, obj: UserMapping[str, int]) -> None:
         assertion.eq(obj.get("a"), 0)
