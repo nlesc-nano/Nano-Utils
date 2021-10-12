@@ -26,13 +26,13 @@ else:
 from .utils import positional_only
 from .typing_utils import Protocol, runtime_checkable
 
-__all__ = ["_UserMapping", "_MutableUserMapping", "_DictLike", "_SupportsKeysAndGetItem"]
+__all__ = ["UserMapping", "MutableUserMapping", "_DictLike", "_SupportsKeysAndGetItem"]
 
 _SENTINEL = object()
 
 _T = TypeVar("_T")
-_ST1 = TypeVar("_ST1", bound="_UserMapping[Any, Any]")
-_ST2 = TypeVar("_ST2", bound="_MutableUserMapping[Any, Any]")
+_ST1 = TypeVar("_ST1", bound="UserMapping[Any, Any]")
+_ST2 = TypeVar("_ST2", bound="MutableUserMapping[Any, Any]")
 _KT = TypeVar("_KT")
 _VT = TypeVar("_VT")
 _VT_co = TypeVar("_VT_co", covariant=True)
@@ -62,7 +62,7 @@ _DictLike = Union[
 ]
 
 
-class _UserMapping(Mapping[_KT, _VT_co]):
+class UserMapping(Mapping[_KT, _VT_co]):
     """Base class for user-defined immutable mappings."""
 
     __slots__: str | Iterable[str] = ("__weakref__", "_dict", "_hash")
@@ -130,7 +130,7 @@ class _UserMapping(Mapping[_KT, _VT_co]):
 
     def __eq__(self, other: object) -> bool:
         """Implement :meth:`self == other <object.__eq__>`."""
-        if isinstance(other, _UserMapping):
+        if isinstance(other, UserMapping):
             return self._dict == other._dict
         elif isinstance(other, Mapping):
             return self._dict == other
@@ -176,10 +176,10 @@ class _UserMapping(Mapping[_KT, _VT_co]):
 
     @overload
     @classmethod
-    def fromkeys(cls, iterable: Iterable[_T]) -> _UserMapping[_T, None]: ...
+    def fromkeys(cls, iterable: Iterable[_T]) -> UserMapping[_T, None]: ...
     @overload
     @classmethod
-    def fromkeys(cls, iterable: Iterable[_T], value: _VT) -> _UserMapping[_T, _VT]: ...
+    def fromkeys(cls, iterable: Iterable[_T], value: _VT) -> UserMapping[_T, _VT]: ...
 
     @classmethod
     def fromkeys(cls, iterable, value=None):
@@ -198,7 +198,7 @@ class _UserMapping(Mapping[_KT, _VT_co]):
             cls = type(self)
             if not isinstance(other, Mapping):
                 return NotImplemented
-            elif isinstance(other, _UserMapping):
+            elif isinstance(other, UserMapping):
                 return cls._reconstruct(self._dict | other._dict)
             else:
                 return cls._reconstruct(self._dict | other)
@@ -208,7 +208,7 @@ class _UserMapping(Mapping[_KT, _VT_co]):
             cls = type(self)
             if not isinstance(other, Mapping):
                 return NotImplemented
-            elif isinstance(other, _UserMapping):
+            elif isinstance(other, UserMapping):
                 return cls._reconstruct(other._dict | self._dict)
             else:
                 return cls._reconstruct(other | self._dict)
@@ -226,7 +226,7 @@ class _UserMapping(Mapping[_KT, _VT_co]):
                 raise TypeError(f"'|=' is not supported by {cls.__name__!r}; use '|' instead")
 
 
-class _MutableUserMapping(_UserMapping[_KT, _VT], MutableMapping[_KT, _VT]):
+class MutableUserMapping(UserMapping[_KT, _VT], MutableMapping[_KT, _VT]):
     """Base class for user-defined mutable mappings."""
 
     __slots__: str | Iterable[str] = ()
@@ -285,7 +285,7 @@ class _MutableUserMapping(_UserMapping[_KT, _VT], MutableMapping[_KT, _VT]):
             """Implement :meth:`self |= other <object.__ior__>`."""
             if not isinstance(other, Mapping):
                 return NotImplemented
-            elif isinstance(other, _UserMapping):
+            elif isinstance(other, UserMapping):
                 self._dict |= other._dict
             else:
                 self._dict |= other
@@ -294,7 +294,7 @@ class _MutableUserMapping(_UserMapping[_KT, _VT], MutableMapping[_KT, _VT]):
     if TYPE_CHECKING:
         @overload  # type: ignore
         @classmethod
-        def fromkeys(cls, iterable: Iterable[_T]) -> _MutableUserMapping[_T, None | Any]: ...
+        def fromkeys(cls, iterable: Iterable[_T]) -> MutableUserMapping[_T, None | Any]: ...
         @overload
         @classmethod
-        def fromkeys(cls, iterable: Iterable[_T], value: _VT) -> _MutableUserMapping[_T, _VT]: ...
+        def fromkeys(cls, iterable: Iterable[_T], value: _VT) -> MutableUserMapping[_T, _VT]: ...

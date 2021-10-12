@@ -8,8 +8,9 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 2.2.0
 *****
-* Add a decorator for constructing positional-only signatures.
-* Add two mappings for creating structured dtypes.
+* Added a decorator for constructing positional-only signatures.
+* Added two mappings for creating structured dtypes.
+* Added two mapping baseclasses for user defined mappings.
 
 
 2.1.0
