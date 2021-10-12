@@ -113,6 +113,10 @@ class UserMapping(Mapping[_KT, _VT_co]):
             dct_repr2 = textwrap.indent(dct_repr[1:-1], 3 * " ")
             return f"{cls.__name__}({{\n {dct_repr2},\n}})"
 
+    def _ipython_key_completions_(self) -> KeysView[_KT]:
+        """Entry point for the IPython key completioner."""
+        return self.keys()
+
     def __hash__(self) -> int:
         """Implement :func:`hash(self) <hash>`.
 
