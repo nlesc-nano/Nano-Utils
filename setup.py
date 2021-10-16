@@ -42,6 +42,7 @@ tests_require = tests_no_optional_require + [
     'pyyaml',
     'h5py',
     'numpy',
+    'ipython',
 ]
 tests_require += docs_require
 tests_require += build_requires

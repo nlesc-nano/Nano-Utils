@@ -6,6 +6,14 @@ All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+2.3.0
+*****
+* Added ``UserMapping`` entry points for the IPython key completioner
+  and pretty printer.
+* Added a decorator for applying the effect of ``warnings.filterwarnings``
+  to the decorated function.
+
+
 2.2.0
 *****
 * Added a decorator for constructing positional-only signatures.

@@ -44,16 +44,15 @@ jobs:
 
             -   name: Install dependencies
                 shell: bash
-                env:
-                    SPECIAL: ${{ matrix.special }}
                 run: |
-                    if [[ $SPECIAL == '; no-optional' ]]; then
-                        pip install -e .[test_no_optional]
-                    elif [[ $SPECIAL == '; pre-release' ]]; then
-                        pip install --pre -e .[test] --upgrade --force-reinstall
-                    else
-                        pip install -e .[test]
-                    fi
+                    case "${{ matrix.special }}" in
+                        "; no-optional")
+                            pip install -e .[test_no_optional] ;;
+                        "; pre-release")
+                            pip install --pre -e .[test] --upgrade --force-reinstall ;;
+                        *)
+                            pip install -e .[test] ;;
+                    esac
 
             -   name: Python info
                 run: |
@@ -65,14 +64,13 @@ jobs:
 
             -   name: Test with pytest
                 shell: bash
-                env:
-                    SPECIAL: ${{ matrix.special }}
                 run: |
-                    if [[ $SPECIAL == '; no-optional' ]]; then
-                        pytest --mypy
-                    else
-                        pytest --mypy --doctest-modules
-                    fi
+                    case "${{ matrix.special }}" in
+                        "; no-optional")
+                            pytest --mypy ;;
+                        *)
+                            pytest --mypy --doctest-modules ;;
+                    esac
 
             -   name: Run codecov
                 uses: codecov/codecov-action@v2
