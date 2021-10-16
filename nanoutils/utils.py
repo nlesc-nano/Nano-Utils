@@ -18,6 +18,7 @@ import re
 import warnings
 import importlib
 import inspect
+import functools
 from types import ModuleType
 from functools import wraps
 from typing import (
@@ -34,9 +35,10 @@ from typing import (
     MutableMapping,
     Collection,
     cast,
-    overload
+    overload,
 )
 
+from .typing_utils import Literal
 from .empty import EMPTY_CONTAINER
 
 __all__ = [
@@ -58,6 +60,7 @@ __all__ = [
     'positional_only',
     'UserMapping',
     'MutableUserMapping',
+    'warning_filter',
 ]
 
 _T = TypeVar('_T')
@@ -737,6 +740,75 @@ def positional_only(func: _FT) -> _FT:
     return func
 
 
+def warning_filter(
+    action: Literal["default", "error", "ignore", "always", "module", "once"],
+    message: str = "",
+    category: type[Warning] = Warning,
+    module: str = "",
+    lineno: int = 0,
+    append: bool = False,
+) -> Callable[[_FT], _FT]:
+    """A decorator for wrapping function calls with :func:`warnings.filterwarnings`.
+
+    Examples
+    --------
+    .. code-block:: python
+
+        >>> from nanoutils import warning_filter
+        >>> import warnings
+
+        >>> @warning_filter("error", category=UserWarning)
+        ... def func():
+        ...     warnings.warn("test", UserWarning)
+
+        >>> func()
+        Traceback (most recent call last):
+            ...
+        UserWarning: test
+
+    Parameters
+    ----------
+    action : :class:`str`
+        One of the following strings:
+
+        * ``"default"``: Print the first occurrence of matching warnings for each location (module + line number) where the warning is issued
+        * ``"error"``: Turn matching warnings into exceptions
+        * ``"ignore"``: Never print matching warnings
+        * ``"always"``: Always print matching warnings
+        * ``"module"``: Print the first occurrence of matching warnings for each module where the warning is issued (regardless of line number)
+        * ``"once"``: Print only the first occurrence of matching warnings, regardless of location
+
+    message : :class:`str`, optional
+        A string containing a regular expression that the start of the warning message must match.
+        The expression is compiled to always be case-insensitive.
+    category : :class:`type[Warning] <type>`
+        The to-be affected :class:`Warning` (sub-)class.
+    module : :class:`str`, optional
+        A string containing a regular expression that the module name must match.
+        The expression is compiled to be case-sensitive.
+    lineno : :class:`int`
+        An integer that the line number where the warning occurred must match,
+        or 0 to match all line numbers.
+    append : :class:`bool`
+        Whether the warning entry is inserted at the end.
+
+    See Also
+    --------
+    :func:`warnings.filterwarnings` :
+        Insert a simple entry into the list of warnings filters (at the front).
+
+    """
+    def decorator(func: _FT) -> _FT:
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            with warnings.catch_warnings():
+                warnings.filterwarnings(action, message, category, module, lineno, append)
+                ret = func(*args, **kwargs)
+            return ret
+        return cast(_FT, wrapper)
+    return decorator
+
+
 # Move to the end to reduce the risk of circular imports
 from ._partial import PartialPrepend
 from ._set_attr import SetAttr
@@ -747,5 +819,5 @@ from ._user_dict import UserMapping, MutableUserMapping
 
 __doc__ = construct_api_doc(
     globals(),
-    decorators={'set_docstring', 'raise_if', 'ignore_if', 'positional_only'},
+    decorators={'set_docstring', 'raise_if', 'ignore_if', 'positional_only', 'warning_filter'},
 )
