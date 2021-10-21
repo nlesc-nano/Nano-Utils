@@ -63,6 +63,7 @@ __all__ = [
     'UserMapping',
     'MutableUserMapping',
     'warning_filter',
+    'UserFunctionType',
 ]
 
 _T = TypeVar('_T')
@@ -866,6 +867,7 @@ from ._seq_view import SequenceView
 from ._catch_err import CatchErrors
 from ._lazy_import import LazyImporter, MutableLazyImporter
 from ._user_dict import UserMapping, MutableUserMapping
+from ._user_function import UserFunctionType
 
 __doc__ = construct_api_doc(
     globals(),
