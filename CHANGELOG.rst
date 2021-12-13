@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+2.3.1
+*****
+* Allow ``VersionInfo.from_str`` to take any pep 440-compatible version string.
+* Add ``VersionInfo.bug`` and ``VersionInfo.maintenance`` as aliases for ``VersionInfo.micro``.
+
+
 2.3.0
 *****
 * Added ``UserMapping`` entry points for the IPython key completioner

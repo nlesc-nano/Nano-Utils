@@ -16,7 +16,7 @@ __all__: List[str] = []
 
 _T1 = TypeVar('_T1')
 _T2 = TypeVar('_T2')
-_ST = TypeVar('_ST', bound='SetAttr')
+_ST = TypeVar('_ST', bound='SetAttr[Any, Any]')
 
 
 class SetAttr(Generic[_T1, _T2]):

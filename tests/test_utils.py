@@ -46,14 +46,13 @@ def test_version_info() -> None:
     assertion.eq(tup2, (0, 1, 2))
 
     assertion.eq(tup1.micro, tup1.patch)
+    assertion.eq(tup1.micro, tup1.bug)
+    assertion.eq(tup1.micro, tup1.maintenance)
 
     assertion.assert_(VersionInfo.from_str, b'0.1.2', exception=TypeError)
-    assertion.assert_(VersionInfo.from_str, '0.1.2a', exception=ValueError)
-    assertion.assert_(VersionInfo.from_str, '0.1.2.3.4', exception=ValueError)
+    assertion.assert_(VersionInfo.from_str, '0.1.2bob', exception=ValueError)
 
     assertion.isinstance(version_info, VersionInfo)
-
-    assertion.eq(VersionInfo.from_str('0.1.2a', fullmatch=False), (0, 1, 2))
 
 
 def test_split_dict() -> None:

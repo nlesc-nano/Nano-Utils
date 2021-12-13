@@ -26,6 +26,13 @@ else:
 from .utils import positional_only
 from .typing_utils import Protocol, runtime_checkable
 
+_T = TypeVar("_T")
+_ST1 = TypeVar("_ST1", bound="UserMapping[Any, Any]")
+_ST2 = TypeVar("_ST2", bound="MutableUserMapping[Any, Any]")
+_KT = TypeVar("_KT")
+_VT = TypeVar("_VT")
+_VT_co = TypeVar("_VT_co", covariant=True)
+
 if TYPE_CHECKING:
     from IPython.lib.pretty import RepresentationPrinter
 
@@ -35,13 +42,6 @@ if TYPE_CHECKING:
 __all__ = ["UserMapping", "MutableUserMapping", "_DictLike", "_SupportsKeysAndGetItem"]
 
 _SENTINEL = object()
-
-_T = TypeVar("_T")
-_ST1 = TypeVar("_ST1", bound="UserMapping[Any, Any]")
-_ST2 = TypeVar("_ST2", bound="MutableUserMapping[Any, Any]")
-_KT = TypeVar("_KT")
-_VT = TypeVar("_VT")
-_VT_co = TypeVar("_VT_co", covariant=True)
 
 
 @runtime_checkable
