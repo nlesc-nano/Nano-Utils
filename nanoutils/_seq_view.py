@@ -181,7 +181,7 @@ class SequenceView(Sequence[_T_co]):
             """Return the number of times **value** occurs in the instance."""
             return self._seq.count(*args, **kwargs)
 
-    def __len__(self):
+    def __len__(self) -> int:
         """Implement :func:`len(self) <len>`."""
         return len(self._seq)
 

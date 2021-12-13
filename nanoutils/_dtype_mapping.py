@@ -44,7 +44,7 @@ def _repr_helper(self: DTypeMapping, dtype_repr: Callable[[np.dtype[Any]], str])
     return f"{cls.__name__}(\n{values}\n)"
 
 
-class DTypeMapping(UserMapping[str, dtype]):
+class DTypeMapping(UserMapping[str, "dtype[Any]"]):
     """A mapping for creating structured dtypes.
 
     Examples
@@ -249,7 +249,10 @@ class DTypeMapping(UserMapping[str, dtype]):
                 return cls._reconstruct({k: np.dtype(v) for k, v in other.items()} | self._dict)
 
 
-class MutableDTypeMapping(DTypeMapping, MutableUserMapping[str, dtype]):  # type: ignore[misc]
+class MutableDTypeMapping(  # type: ignore[misc]
+    DTypeMapping,
+    MutableUserMapping[str, "dtype[Any]"],
+):
     """A mutable mapping for creating structured dtypes.
 
     Examples
@@ -312,7 +315,11 @@ class MutableDTypeMapping(DTypeMapping, MutableUserMapping[str, dtype]):  # type
             return object.__delattr__(self, name)
 
     @positional_only
-    def update(self, __iterable: None | _DictLike = None, **fields: npt.DTypeLike) -> None:
+    def update(
+        self,
+        __iterable: None | _DictLike[str, npt.DTypeLike] = None,
+        **fields: npt.DTypeLike,
+    ) -> None:
         """Update the mapping from the passed mapping or iterable."""
         if __iterable is None:
             pass

@@ -73,8 +73,8 @@ class _CustomRepr(reprlib.Repr):
         super().__init__()
         self.maxdict = 2
 
-    def repr_mappingproxy(self, x, level):
-        return self.repr_dict(x, level)
+    def repr_mappingproxy(self, x: types.MappingProxyType[Any, Any], level: int) -> str:
+        return self.repr_dict(x, level)  # type: ignore[arg-type]
 
 
 _repr = _CustomRepr().repr

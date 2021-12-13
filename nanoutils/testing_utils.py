@@ -98,7 +98,7 @@ def delete_finally(
 
     def decorator(func: _FT) -> _FT:
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             try:
                 return func(*args, **kwargs)
             finally:

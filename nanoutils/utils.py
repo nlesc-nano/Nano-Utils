@@ -12,6 +12,8 @@ API
 
 """
 
+# flake8: noqa: E402
+
 from __future__ import annotations
 
 import re
@@ -419,8 +421,8 @@ def raise_if(exception: None | BaseException) -> Callable[[_FT], _FT]:
     elif isinstance(exception, BaseException):
         def decorator2(func: _FT) -> _FT:
             @wraps(func)
-            def wrapper(*args, **kwargs):
-                raise exception
+            def wrapper(*args: Any, **kwargs: Any) -> Any:
+                raise exception  # type: ignore[misc]
             return wrapper  # type: ignore[return-value]
         return decorator2
 
@@ -845,10 +847,10 @@ def warning_filter(
     :func:`warnings.filterwarnings` :
         Insert a simple entry into the list of warnings filters (at the front).
 
-    """
+    """  # noqa: E501
     def decorator(func: _FT) -> _FT:
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             with warnings.catch_warnings():
                 warnings.filterwarnings(action, message, category, module, lineno, append)
                 ret = func(*args, **kwargs)
