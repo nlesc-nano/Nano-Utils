@@ -64,9 +64,9 @@ jobs:
                 run: |
                     case "${{ matrix.special }}" in
                         "; no-optional")
-                            pytest --mypy ;;
+                            pytest ;;
                         *)
-                            pytest --mypy --doctest-modules ;;
+                            pytest --doctest-modules ;;
                     esac
 
             -   name: Run codecov
@@ -86,7 +86,9 @@ jobs:
                     python-version: 3.9
 
             -   name: Install linters
-                run: pip install flake8 pydocstyle>=5.0.0
+                run: |
+                    pip install flake8 pydocstyle>=5.0.0
+                    pip install mypy types-PyYAML "assertionlib>=3.2.1" numpy
 
             -   name: Python info
                 run: |
@@ -98,8 +100,9 @@ jobs:
 
             -   name: Run flake8
                 run: flake8 nanoutils docs tests
-                continue-on-error: true
 
             -   name: Run pydocstyle
-                run: pydocstyle nanoutils docs tests
-                continue-on-error: true
+                run: pydocstyle nanoutils
+
+            -   name: Run mypy
+                run: mypy nanoutils

@@ -31,11 +31,8 @@ build_requires = [
 # Requirements for running tests
 tests_no_optional_require = [
     'assertionlib>=3.2.1',
-    'mypy>=0.900',
     'pytest>=5.4.0',
     'pytest-cov',
-    'pytest-mypy>=0.6.2',
-    'types-PyYAML',
 ]
 tests_require = tests_no_optional_require + [
     'schema',
