@@ -503,7 +503,41 @@ def ignore_if(exception: None | BaseException, warn: bool = True) -> Callable[[_
         raise TypeError(f"{exception.__class__.__name__!r}")
 
 
-_PATTERN = re.compile("([0-9]+).([0-9]+).([0-9]+)")
+# See PEP 440 Apendix B
+_PATTERN_STR = r"""
+    v?
+    (?:
+        (?:(?P<epoch>[0-9]+)!)?                           # epoch
+        (?P<release>[0-9]+(?:\.[0-9]+)*)                  # release segment
+        (?P<pre>                                          # pre-release
+            [-_\.]?
+            (?P<pre_l>(a|b|c|rc|alpha|beta|pre|preview))
+            [-_\.]?
+            (?P<pre_n>[0-9]+)?
+        )?
+        (?P<post>                                         # post release
+            (?:-(?P<post_n1>[0-9]+))
+            |
+            (?:
+                [-_\.]?
+                (?P<post_l>post|rev|r)
+                [-_\.]?
+                (?P<post_n2>[0-9]+)?
+            )
+        )?
+        (?P<dev>                                          # dev release
+            [-_\.]?
+            (?P<dev_l>dev)
+            [-_\.]?
+            (?P<dev_n>[0-9]+)?
+        )?
+    )
+    (?:\+(?P<local>[a-z0-9]+(?:[-_\.][a-z0-9]+)*))?       # local version
+"""
+_PATTERN = re.compile(
+    r"^\s*" + _PATTERN_STR + r"\s*$",
+    re.VERBOSE | re.IGNORECASE,
+)
 
 
 class VersionInfo(NamedTuple):
@@ -525,10 +559,10 @@ class VersionInfo(NamedTuple):
     major: int
 
     #: :class:`int`: The semantic_ minor version.
-    minor: int
+    minor: int = 0
 
-    #: :class:`int`: The semantic_ micro version (a.k.a. :attr:`VersionInfo.patch`).
-    micro: int
+    #: :class:`int`: The semantic_ micro version.
+    micro: int = 0
 
     @property
     def patch(self) -> int:
@@ -547,23 +581,27 @@ class VersionInfo(NamedTuple):
         Parameters
         ----------
         version : :class:`str`
-            A string representation of a version (*e.g.* :code:`version = "0.8.2"`).
-            The string should contain three ``"."`` separated integers, respectively,
-            representing the major, minor and micro/patch versions.
+            A PEP 440-compatible version string(*e.g.* :code:`version = "0.8.2"`).
+            Note that version representations are truncated at up to three integers.
         fullmatch : :class:`bool`
-            Whether the version-string must consist exclusivelly of three
-            period-separated integers, or if a substring is also allowed.
+            Whether to perform a full or partial match on the passed string.
 
         Returns
         -------
         :class:`nanoutils.VersionInfo`
             A new VersionInfo instance.
 
+        See Also
+        --------
+        :pep:`440`
+            This PEP describes a scheme for identifying versions of Python software distributions,
+            and declaring dependencies on particular versions.
+
         """
         match = _PATTERN.fullmatch(version) if fullmatch else _PATTERN.match(version)
         if match is None:
             raise ValueError(f"Failed to parse {version!r}")
-        return cls._make(int(i) for i in match.groups())
+        return cls._make(int(i) for i in match["release"].split(".")[:3])
 
 
 def _get_directive(
