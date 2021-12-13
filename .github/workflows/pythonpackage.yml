@@ -17,15 +17,12 @@ jobs:
             fail-fast: false
             matrix:
                 os: [ubuntu-latest, macos-latest, windows-latest]
-                version: [3.7, 3.8, 3.9]
+                version: ['3.7', '3.8', '3.9', '3.10']
                 special: ['']
                 include:
                     -   os: ubuntu-latest
                         special: '; pre-release'
-                        version: 3.9
-                    -   os: ubuntu-latest
-                        special: '; no-optional'
-                        version: 3.9
+                        version: '3.10'
                     -   os: ubuntu-latest
                         special: '; no-optional'
                         version: '3.10'
