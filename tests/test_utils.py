@@ -46,6 +46,8 @@ def test_version_info() -> None:
     assertion.eq(tup2, (0, 1, 2))
 
     assertion.eq(tup1.micro, tup1.patch)
+    assertion.eq(tup1.micro, tup1.bug)
+    assertion.eq(tup1.micro, tup1.maintenance)
 
     assertion.assert_(VersionInfo.from_str, b'0.1.2', exception=TypeError)
     assertion.assert_(VersionInfo.from_str, '0.1.2bob', exception=ValueError)

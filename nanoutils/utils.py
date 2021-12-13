@@ -569,6 +569,16 @@ class VersionInfo(NamedTuple):
         """:class:`int`: An alias for :attr:`VersionInfo.micro`."""
         return self.micro
 
+    @property
+    def maintenance(self) -> int:
+        """:class:`int`: An alias for :attr:`VersionInfo.micro`."""
+        return self.micro
+
+    @property
+    def bug(self) -> int:
+        """:class:`int`: An alias for :attr:`VersionInfo.micro`."""
+        return self.micro
+
     @classmethod
     def from_str(
         cls,
