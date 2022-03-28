@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+2.3.2
+*****
+* Improve the ``repr`` of the various ``h5py.File`` views.
+
+
 2.3.1
 *****
 * Allow ``VersionInfo.from_str`` to take any pep 440-compatible version string.
