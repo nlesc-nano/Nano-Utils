@@ -1,13 +1,22 @@
 # This workflow will install Python dependencies, run tests and lint with a variety of Python versions
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
-name: Build
+name: Tests
 
 on:
     push:
         branches:
             - master
     pull_request:
+    workflow_dispatch:
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+    cancel-in-progress: true
+
+defaults:
+    run:
+        shell: bash
 
 jobs:
     build:
@@ -27,20 +36,14 @@ jobs:
                         special: '; no-optional'
                         version: '3.10'
         steps:
-            -   name: Cancel Previous Runs
-                uses: styfle/cancel-workflow-action@0.9.1
-                with:
-                    access_token: ${{ github.token }}
-
-            -   uses: actions/checkout@v2
+            -   uses: actions/checkout@v3
 
             -   name: Set up Python ${{ matrix.version }} on ${{ matrix.os }}
-                uses: actions/setup-python@v2
+                uses: actions/setup-python@v3
                 with:
                     python-version: ${{ matrix.version }}
 
             -   name: Install dependencies
-                shell: bash
                 run: |
                     case "${{ matrix.special }}" in
                         "; no-optional")
@@ -60,7 +63,6 @@ jobs:
                 run: pip list
 
             -   name: Test with pytest
-                shell: bash
                 run: |
                     case "${{ matrix.special }}" in
                         "; no-optional")
@@ -78,12 +80,12 @@ jobs:
     Linting:
         runs-on: ubuntu-latest
         steps:
-            -   uses: actions/checkout@v2
+            -   uses: actions/checkout@v3
 
-            -   name: Set up Python 3.9 on ubuntu-latest
-                uses: actions/setup-python@v2
+            -   name: Set up Python 3.10 on ubuntu-latest
+                uses: actions/setup-python@v3
                 with:
-                    python-version: 3.9
+                    python-version: "3.10"
 
             -   name: Install linters
                 run: |
