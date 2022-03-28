@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import sys
 import abc
+import io
 from collections import Counter
 from collections.abc import Generator, MappingView, Iterator
 from typing import NoReturn
@@ -83,6 +84,28 @@ class _RecursiveMappingView(MappingView, metaclass=abc.ABCMeta):
                 yield from cls._iter_dfs(v, reverse)
             else:
                 yield v.name, v
+
+    def __repr__(self) -> str:
+        """Implement :func:`repr(self) <repr>`."""
+        cls = type(self)
+        indent = " " * (3 + len(cls.__name__))
+        iterator = iter(self)
+
+        stream = io.StringIO()
+        stream.write(f"<{cls.__name__} [")
+
+        # Print size-1 view on a single line by special casing the first element
+        try:
+            item = next(iterator)
+        except StopIteration:
+            pass
+        else:
+            stream.write(repr(item))
+        for item in iterator:
+            stream.write(f",\n{indent}{item!r}")
+
+        stream.write("]>")
+        return stream.getvalue()
 
     def __len__(self) -> int:
         """Implement :func:`len(self)<len>`."""
@@ -150,14 +173,11 @@ class RecursiveKeysView(_RecursiveMappingView, KeysView[str]):
         ...     dset1 = f.create_dataset('dset1', (10,), dtype=float)
         ...     dset2 = f['a'].create_dataset('dset2', (10,), dtype=float)
         ...     dset3 = f['a']['b'].create_dataset('dset3', (10,), dtype=float)
-
-        >>> with h5py.File(filename, 'r') as f:
-        ...     for key in RecursiveKeysView(f):
-        ...         print(repr(key))
-        '/a/b/dset3'
-        '/a/dset2'
-        '/dset1'
-
+        ...
+        ...     print(RecursiveKeysView(f))
+        <RecursiveKeysView ['/a/b/dset3',
+                            '/a/dset2',
+                            '/dset1']>
 
     .. testcleanup:: python
 
@@ -223,14 +243,11 @@ class RecursiveValuesView(_RecursiveMappingView, ValuesView[H5PyDataset]):
         ...     dset1 = f.create_dataset('dset1', (10,), dtype=float)
         ...     dset2 = f['a'].create_dataset('dset2', (10,), dtype=float)
         ...     dset3 = f['a']['b'].create_dataset('dset3', (10,), dtype=float)
-
-        >>> with h5py.File(filename, 'r') as f:
-        ...     for value in RecursiveValuesView(f):
-        ...         print(value)
-        <HDF5 dataset "dset3": shape (10,), type "<f8">
-        <HDF5 dataset "dset2": shape (10,), type "<f8">
-        <HDF5 dataset "dset1": shape (10,), type "<f8">
-
+        ...
+        ...     print(RecursiveValuesView(f))
+        <RecursiveValuesView [<HDF5 dataset "dset3": shape (10,), type "<f8">,
+                              <HDF5 dataset "dset2": shape (10,), type "<f8">,
+                              <HDF5 dataset "dset1": shape (10,), type "<f8">]>
 
     .. testcleanup:: python
 
@@ -303,14 +320,11 @@ class RecursiveItemsView(_RecursiveMappingView, ItemsView[str, H5PyDataset]):
         ...     dset1 = f.create_dataset('dset1', (10,), dtype=float)
         ...     dset2 = f['a'].create_dataset('dset2', (10,), dtype=float)
         ...     dset3 = f['a']['b'].create_dataset('dset3', (10,), dtype=float)
-
-        >>> with h5py.File(filename, 'r') as f:
-        ...     for items in RecursiveItemsView(f):
-        ...         print(items)
-        ('/a/b/dset3', <HDF5 dataset "dset3": shape (10,), type "<f8">)
-        ('/a/dset2', <HDF5 dataset "dset2": shape (10,), type "<f8">)
-        ('/dset1', <HDF5 dataset "dset1": shape (10,), type "<f8">)
-
+        ...
+        ...     print(RecursiveItemsView(f))
+        <RecursiveItemsView [('/a/b/dset3', <HDF5 dataset "dset3": shape (10,), type "<f8">),
+                             ('/a/dset2', <HDF5 dataset "dset2": shape (10,), type "<f8">),
+                             ('/dset1', <HDF5 dataset "dset1": shape (10,), type "<f8">)]>
 
     .. testcleanup:: python
 
