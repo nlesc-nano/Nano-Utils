@@ -350,7 +350,7 @@ def _keep_keys(
         return [k for k in dct if k not in keep_keys]
     else:
         try:
-            return dct.keys() - keep_keys  # type: ignore
+            return dct.keys() - keep_keys
         except TypeError:
             return set(dct.keys()).difference(keep_keys)
 
@@ -365,7 +365,7 @@ def _disgard_keys(
         return [k for k in dct if k in keep_keys]
     else:
         try:
-            return dct.keys() & keep_keys  # type: ignore
+            return dct.keys() & keep_keys
         except TypeError:
             return set(dct.keys()).intersection(keep_keys)
 

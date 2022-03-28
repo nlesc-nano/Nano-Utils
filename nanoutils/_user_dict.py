@@ -104,7 +104,7 @@ class UserMapping(Mapping[_KT, _VT_co]):
         """Alternative constructor without argument validation."""
         self = cls.__new__(cls)
         self._dict = dct
-        return self  # type: ignore[no-any-return]
+        return self
 
     def __reduce__(self: _ST1) -> tuple[
         Callable[[dict[_KT, _VT_co]], _ST1],
@@ -302,7 +302,7 @@ class MutableUserMapping(UserMapping[_KT, _VT], MutableMapping[_KT, _VT]):
         if __iterable is None:
             self._dict.update(**kwargs)
         else:
-            self._dict.update(__iterable, **kwargs)  # type: ignore[arg-type]
+            self._dict.update(__iterable, **kwargs)
 
     if sys.version_info >= (3, 9):
         def __ior__(self: _ST2, other: Mapping[_KT, _VT]) -> _ST2:
