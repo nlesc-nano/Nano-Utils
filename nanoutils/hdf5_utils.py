@@ -20,10 +20,9 @@ from __future__ import annotations
 
 import sys
 import abc
-import io
 from collections import Counter
 from collections.abc import Generator, MappingView, Iterator
-from typing import NoReturn
+from typing import NoReturn, ClassVar
 
 if sys.version_info >= (3, 9):
     from collections.abc import KeysView, ValuesView, ItemsView
@@ -58,7 +57,7 @@ class _RecursiveMappingView(MappingView, metaclass=abc.ABCMeta):
     __slots__ = ("__weakref__",)
 
     _mapping: h5py.Group
-    __hash__ = None  # type: ignore[assignment]
+    __hash__: ClassVar[None] = None  # type: ignore[assignment]
 
     @raise_if(H5PY_EX)
     def __init__(self, f: h5py.Group) -> None:
@@ -89,23 +88,8 @@ class _RecursiveMappingView(MappingView, metaclass=abc.ABCMeta):
         """Implement :func:`repr(self) <repr>`."""
         cls = type(self)
         indent = " " * (3 + len(cls.__name__))
-        iterator = iter(self)
-
-        stream = io.StringIO()
-        stream.write(f"<{cls.__name__} [")
-
-        # Print size-1 view on a single line by special casing the first element
-        try:
-            item = next(iterator)
-        except StopIteration:
-            pass
-        else:
-            stream.write(repr(item))
-        for item in iterator:
-            stream.write(f",\n{indent}{item!r}")
-
-        stream.write("]>")
-        return stream.getvalue()
+        data = f",\n{indent}".join(repr(i) for i in self)
+        return f"<{cls.__name__} [{data}]>"
 
     def __len__(self) -> int:
         """Implement :func:`len(self)<len>`."""
