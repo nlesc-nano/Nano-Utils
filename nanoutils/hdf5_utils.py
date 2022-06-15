@@ -21,13 +21,14 @@ from __future__ import annotations
 import sys
 import abc
 from collections import Counter
-from collections.abc import Generator, MappingView, Iterator
-from typing import NoReturn, ClassVar
+from collections.abc import Generator, MappingView, Iterator, Iterable, Set as AbstractSet
+from typing import NoReturn, ClassVar, Any, TypeVar, Generic, TYPE_CHECKING
 
 if sys.version_info >= (3, 9):
     from collections.abc import KeysView, ValuesView, ItemsView
+    from builtins import tuple as Tuple
 else:
-    from typing import KeysView, ValuesView, ItemsView
+    from typing import KeysView, ValuesView, ItemsView, Tuple
 
 from .utils import raise_if, construct_api_doc, VersionInfo
 
@@ -41,6 +42,9 @@ except Exception as ex:
     H5PY_VERSION = VersionInfo(0, 0, 0)
     H5PyDataset = "h5py.Dataset"
 
+_T_co = TypeVar("_T_co", covariant=True)
+_T = TypeVar("_T")
+
 __all__ = [
     'recursive_keys',
     'recursive_values',
@@ -49,6 +53,67 @@ __all__ = [
     'RecursiveValuesView',
     'RecursiveItemsView',
 ]
+
+
+class _Mixin(Generic[_T_co]):
+    __slots__ = ()
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, AbstractSet):
+            return NotImplemented
+        return self._from_iterable(self) == self._from_iterable(other)
+
+    def __le__(self, other: AbstractSet[Any]) -> bool:
+        if not isinstance(other, AbstractSet):
+            return NotImplemented
+        return self._from_iterable(self).issubset(other)
+
+    def __ge__(self, other: AbstractSet[Any]) -> bool:
+        if not isinstance(other, AbstractSet):
+            return NotImplemented
+        return self._from_iterable(self).issuperset(other)
+
+    def __or__(self, other: AbstractSet[_T]) -> set[_T_co | _T]:
+        """Implement :code:`self | other`."""
+        if not isinstance(other, AbstractSet):
+            return NotImplemented
+        return self._from_iterable(self).union(other)
+
+    def __xor__(self, other: AbstractSet[_T]) -> set[_T_co | _T]:
+        """Implement :code:`self ^ other`."""
+        if not isinstance(other, AbstractSet):
+            return NotImplemented
+        return self._from_iterable(self).symmetric_difference(other)  # type: ignore
+
+    def __and__(self, other: AbstractSet[Any]) -> set[_T_co]:
+        """Implement :code:`self & other`."""
+        if not isinstance(other, AbstractSet):
+            return NotImplemented
+        return self._from_iterable(self).intersection(other)
+
+    def __sub__(self, other: AbstractSet[Any]) -> set[_T_co]:
+        """Implement :code:`self - other`."""
+        if not isinstance(other, AbstractSet):
+            return NotImplemented
+        return self._from_iterable(self).difference(other)
+
+    if TYPE_CHECKING:
+        @abc.abstractmethod
+        def __iter__(self) -> Iterator[_T_co]: ...
+
+        @classmethod
+        @abc.abstractmethod
+        def _from_iterable(cls, it: Iterable[_T_co]) -> set[_T_co]: ...
+    else:
+        __rand__ = __and__
+        __ror__ = __or__
+        __rxor__ = __xor__
+
+        def __rsub__(self, other: AbstractSet[_T]) -> set[_T]:
+            """Implement :code:`other - self`."""
+            if not isinstance(other, AbstractSet):
+                return NotImplemented
+            return self._from_iterable(other).difference(self)
 
 
 class _RecursiveMappingView(MappingView, metaclass=abc.ABCMeta):
@@ -130,7 +195,7 @@ class _RecursiveMappingView(MappingView, metaclass=abc.ABCMeta):
             raise TypeError("`reversed` requires h5py >= 3.5.0") from H5PY_EX
 
 
-class RecursiveKeysView(_RecursiveMappingView, KeysView[str]):
+class RecursiveKeysView(_Mixin[str], _RecursiveMappingView, KeysView[str]):  # type: ignore[misc]
     """Create a recursive view of all dataset :attr:`names<h5py.Dataset.name>`.
 
     Examples
@@ -200,7 +265,7 @@ class RecursiveKeysView(_RecursiveMappingView, KeysView[str]):
                 yield k
 
 
-class RecursiveValuesView(_RecursiveMappingView, ValuesView[H5PyDataset]):
+class RecursiveValuesView(_Mixin[H5PyDataset], _RecursiveMappingView, ValuesView[H5PyDataset]):
     """Create a recursive view of all :class:`<Datasets>h5py.Dataset`.
 
     Examples
@@ -277,7 +342,11 @@ class RecursiveValuesView(_RecursiveMappingView, ValuesView[H5PyDataset]):
                 yield v
 
 
-class RecursiveItemsView(_RecursiveMappingView, ItemsView[str, H5PyDataset]):
+class RecursiveItemsView(  # type: ignore[misc]
+    _Mixin[Tuple[str, H5PyDataset]],
+    _RecursiveMappingView,
+    ItemsView[str, H5PyDataset],
+):
     """Create a recursive view of all :attr:`~h5py.Dataset.name`/:attr:`~h5py.Dataset` pairs.
 
     Examples
