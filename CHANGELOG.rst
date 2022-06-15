@@ -8,7 +8,7 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 2.3.3
 *****
-* *Placeholder*.
+* Avoid double-loops in `_RecursiveMappingView`.
 
 
 2.3.2

@@ -1,2 +1,2 @@
-include LICENSE.md
-include README.rst
+include nanoutils/py.typed
+include nanoutils/*.pyi
