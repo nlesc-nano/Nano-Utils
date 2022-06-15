@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+2.3.4
+*****
+* *placeholder*.
+
+
 2.3.3
 *****
 * Avoid double-loops in `_RecursiveMappingView`.
