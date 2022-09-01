@@ -67,8 +67,10 @@ else:
 
 if TYPE_CHECKING:
     # Requires numpy >= 1.20
-    from numpy.typing import ArrayLike, DTypeLike, _ShapeLike as ShapeLike
+    from numpy.typing import ArrayLike, DTypeLike
     from numpy.typing import DTypeLike as DtypeLike
+    from typing import Sequence
+    ShapeLike = Union[SupportsIndex, Sequence[SupportsIndex]]
 
 else:
     ArrayLike = 'numpy.typing.ArrayLike'
