@@ -21,9 +21,9 @@
     :target: https://docs.python.org/3.10/
 
 
-################
-Nano-Utils 2.3.4
-################
+##########
+Nano-Utils
+##########
 Utility functions used throughout the various nlesc-nano repositories.
 
 
