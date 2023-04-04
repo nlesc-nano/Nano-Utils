@@ -64,6 +64,8 @@ setup(
         'python-3-7',
         'python-3-8',
         'python-3-9',
+        'python-3-10',
+        'python-3-11',
         'libraries'
     ],
     classifiers=[
@@ -78,6 +80,7 @@ setup(
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
         'Topic :: Software Development :: Libraries',
         'Typing :: Typed'
     ],

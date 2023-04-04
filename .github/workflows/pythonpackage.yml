@@ -26,15 +26,15 @@ jobs:
             fail-fast: false
             matrix:
                 os: [ubuntu-latest, macos-latest, windows-latest]
-                version: ['3.7', '3.8', '3.9', '3.10']
+                version: ['3.7', '3.8', '3.9', '3.10', '3.11']
                 special: ['']
                 include:
                     -   os: ubuntu-latest
                         special: '; pre-release'
-                        version: '3.10'
+                        version: '3.11'
                     -   os: ubuntu-latest
                         special: '; no-optional'
-                        version: '3.10'
+                        version: '3.11'
         steps:
             -   uses: actions/checkout@v3
 
@@ -72,7 +72,7 @@ jobs:
                     esac
 
             -   name: Run codecov
-                uses: codecov/codecov-action@v2
+                uses: codecov/codecov-action@v3
                 with:
                     file: ./coverage.xml
                     name: codecov-umbrella
@@ -90,7 +90,7 @@ jobs:
             -   name: Install linters
                 run: |
                     pip install flake8 pydocstyle>=5.0.0
-                    pip install mypy types-PyYAML "assertionlib>=3.2.1" numpy
+                    pip install mypy types-PyYAML "assertionlib>=3.2.1" "numpy>=1.21"
 
             -   name: Python info
                 run: |
