@@ -24,10 +24,10 @@ try:
     try:
         from yaml import CLoader as Loader
     except ImportError:
-        from yaml import Loader  # type: ignore[misc]
+        from yaml import Loader  # type: ignore[assignment]
     YAML_EX: None | Exception = None
 except Exception as ex:
-    from builtins import object as Loader  # type: ignore[misc]
+    from builtins import object as Loader  # type: ignore[assignment]
     YAML_EX = ex
 
 __all__ = ['UniqueLoader']

@@ -259,7 +259,7 @@ class Formatter(str):
             return repr(obj)
 
     @property
-    def __mod__(self) -> Callable[[object], str]:  # type: ignore[override]
+    def __mod__(self) -> Callable[[object], str]:
         """Get :meth:`Formatter.format`."""
         return self.format
 
