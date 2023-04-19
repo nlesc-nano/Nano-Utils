@@ -8,7 +8,8 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 2.3.4
 *****
-* *placeholder*.
+* Add formal Python 3.11 support
+* Misc CI updates
 
 
 2.3.3
