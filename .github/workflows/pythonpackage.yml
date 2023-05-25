@@ -88,9 +88,7 @@ jobs:
                     python-version: '3.x'
 
             -   name: Install linters
-                run: |
-                    pip install flake8 pydocstyle>=5.0.0
-                    pip install mypy types-PyYAML "assertionlib>=3.2.1" "numpy>=1.21"
+                run: pip install -r linting_requirements.txt
 
             -   name: Python info
                 run: |
