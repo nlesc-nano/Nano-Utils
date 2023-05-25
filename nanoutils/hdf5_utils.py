@@ -23,6 +23,7 @@ import abc
 from collections import Counter
 from collections.abc import Generator, MappingView, Iterator, Iterable, Set as AbstractSet
 from typing import NoReturn, ClassVar, Any, TypeVar, Generic, TYPE_CHECKING
+from packaging.version import Version
 
 if sys.version_info >= (3, 9):
     from collections.abc import KeysView, ValuesView, ItemsView
@@ -30,17 +31,18 @@ if sys.version_info >= (3, 9):
 else:
     from typing import KeysView, ValuesView, ItemsView, Tuple
 
-from .utils import raise_if, construct_api_doc, VersionInfo
+from .utils import raise_if, construct_api_doc
 
 try:
     import h5py
     from h5py import Dataset as H5PyDataset
     H5PY_EX: None | Exception = None
-    H5PY_VERSION = VersionInfo._make(h5py.version.version_tuple[:3])
+    H5PY_VERSION = Version(h5py.__version__)
 except Exception as ex:
-    H5PY_EX = ex
-    H5PY_VERSION = VersionInfo(0, 0, 0)
-    H5PyDataset = "h5py.Dataset"
+    if not TYPE_CHECKING:
+        H5PY_EX = ex
+        H5PY_VERSION = Version("0.0.0")
+        H5PyDataset = "h5py.Dataset"
 
 _T_co = TypeVar("_T_co", covariant=True)
 _T = TypeVar("_T")
@@ -102,7 +104,6 @@ class _Mixin(Generic[_T_co]):
         def __iter__(self) -> Iterator[_T_co]: ...
 
         @classmethod
-        @abc.abstractmethod
         def _from_iterable(cls, it: Iterable[_T_co]) -> set[_T_co]: ...
     else:
         __rand__ = __and__
@@ -252,7 +253,7 @@ class RecursiveKeysView(_Mixin[str], _RecursiveMappingView, KeysView[str]):  # t
         for k, _ in self._iter_dfs(self._mapping):
             yield k
 
-    if H5PY_VERSION >= (3, 5, 0):
+    if TYPE_CHECKING or H5PY_VERSION >= Version("3.5.0"):
         def __reversed__(self) -> Generator[str, None, None]:
             """Implement :func:`reversed(self)<reversed>`.
 
@@ -329,7 +330,7 @@ class RecursiveValuesView(_Mixin[H5PyDataset], _RecursiveMappingView, ValuesView
         for _, v in self._iter_dfs(self._mapping):
             yield v
 
-    if H5PY_VERSION >= (3, 5, 0):
+    if TYPE_CHECKING or H5PY_VERSION >= Version("3.5.0"):
         def __reversed__(self) -> Generator[h5py.Dataset, None, None]:
             """Implement :func:`reversed(self)<reversed>`.
 
@@ -402,7 +403,7 @@ class RecursiveItemsView(  # type: ignore[misc]
         """Implement :func:`iter(self)<iter>`."""
         yield from self._iter_dfs(self._mapping)
 
-    if H5PY_VERSION >= (3, 5, 0):
+    if TYPE_CHECKING or H5PY_VERSION >= Version("3.5.0"):
         def __reversed__(self) -> Generator[tuple[str, h5py.Dataset], None, None]:
             """Implement :func:`reversed(self)<reversed>`.
 
