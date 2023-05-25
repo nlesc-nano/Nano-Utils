@@ -22,12 +22,6 @@ docs_require = [
     'sphinx_rtd_theme',
 ]
 
-# Requirements for building wheels
-build_requires = [
-    'twine',
-    'wheel'
-]
-
 # Requirements for running tests
 tests_no_optional_require = [
     'assertionlib>=3.2.1',
@@ -41,8 +35,6 @@ tests_require = tests_no_optional_require + [
     'numpy',
     'ipython>=5.0.0',
 ]
-tests_require += docs_require
-tests_require += build_requires
 
 setup(
     name='Nano-Utils',
@@ -94,6 +86,5 @@ setup(
         'doc': docs_require,
         'test': tests_require,
         'test_no_optional': tests_no_optional_require,
-        'build': build_requires,
     }
 )
