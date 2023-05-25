@@ -38,9 +38,10 @@ try:
     H5PY_EX: None | Exception = None
     H5PY_VERSION = VersionInfo._make(h5py.version.version_tuple[:3])
 except Exception as ex:
-    H5PY_EX = ex
-    H5PY_VERSION = VersionInfo(0, 0, 0)
-    H5PyDataset = "h5py.Dataset"
+    if not TYPE_CHECKING:
+        H5PY_EX = ex
+        H5PY_VERSION = VersionInfo(0, 0, 0)
+        H5PyDataset = "h5py.Dataset"
 
 _T_co = TypeVar("_T_co", covariant=True)
 _T = TypeVar("_T")
@@ -102,7 +103,6 @@ class _Mixin(Generic[_T_co]):
         def __iter__(self) -> Iterator[_T_co]: ...
 
         @classmethod
-        @abc.abstractmethod
         def _from_iterable(cls, it: Iterable[_T_co]) -> set[_T_co]: ...
     else:
         __rand__ = __and__
