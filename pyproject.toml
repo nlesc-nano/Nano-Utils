@@ -11,3 +11,19 @@ module = [
     "h5py.*",
 ]
 ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = "nanoutils docs tests"
+addopts = "--tb=short --doctest-glob=*.py --doctest-glob=*.rst --cache-clear --cov=nanoutils --cov-report xml --cov-report term --cov-report html --pdbcls=IPython.terminal.debugger:TerminalPdb"
+
+[tool.coverage.run]
+branch = true
+source = ["nanoutils"]
+
+[tool.flake8]
+max-line-length = 100
+
+[tool.pydocstyle]
+convention = "numpy"
+add_ignore = ["D401"]
+ignore_decorators = "overload"

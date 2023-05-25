@@ -31,15 +31,15 @@ build_requires = [
 # Requirements for running tests
 tests_no_optional_require = [
     'assertionlib>=3.2.1',
-    'pytest>=5.4.0',
+    'pytest>=6.0.0',
     'pytest-cov',
 ]
 tests_require = tests_no_optional_require + [
-    'schema',
-    'pyyaml',
+    'schema>=0.7.1,!=0.7.5',
+    'pyyaml>=5.1',
     'h5py',
     'numpy',
-    'ipython',
+    'ipython>=5.0.0',
 ]
 tests_require += docs_require
 tests_require += build_requires
