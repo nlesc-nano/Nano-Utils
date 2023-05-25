@@ -45,6 +45,7 @@ jobs:
 
             -   name: Install dependencies
                 run: |
+                    pip install --upgrade pip
                     case "${{ matrix.special }}" in
                         "; no-optional")
                             pip install -e .[test_no_optional] ;;
