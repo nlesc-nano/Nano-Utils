@@ -2,8 +2,8 @@
     :target: https://Nano-Utils.readthedocs.io/en/latest/includeme.html
 .. image:: https://badge.fury.io/py/Nano-Utils.svg
     :target: https://badge.fury.io/py/Nano-Utils
-.. image:: https://github.com/nlesc-nano/Nano-Utils/workflows/Build/badge.svg
-    :target: https://github.com/nlesc-nano/Nano-Utils/actions?query=workflow%3ABuild
+.. image:: https://github.com/nlesc-nano/Nano-Utils/workflows/Tests/badge.svg
+    :target: https://github.com/nlesc-nano/Nano-Utils/actions?query=workflow%3ATests
 .. image:: https://codecov.io/gh/nlesc-nano/Nano-Utils/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/nlesc-nano/Nano-Utils
 .. image:: https://zenodo.org/badge/268804056.svg
