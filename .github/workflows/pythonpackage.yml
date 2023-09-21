@@ -36,7 +36,9 @@ jobs:
                         special: '; no-optional'
                         version: '3.11'
         steps:
-            -   uses: actions/checkout@v3
+            -   uses: actions/checkout@v4
+                with:
+                    fetch-depth: 0
 
             -   name: Set up Python ${{ matrix.version }} on ${{ matrix.os }}
                 uses: actions/setup-python@v4
@@ -47,7 +49,7 @@ jobs:
                 run: |
                     case "${{ matrix.special }}" in
                         "; no-optional")
-                            pip install -e .[test_no_optional] ;;
+                            pip install -e .[test-no-optional] ;;
                         "; pre-release")
                             pip install --pre -e .[test] --upgrade --force-reinstall ;;
                         *)
@@ -80,7 +82,9 @@ jobs:
     Linting:
         runs-on: ubuntu-latest
         steps:
-            -   uses: actions/checkout@v3
+            -   uses: actions/checkout@v4
+                with:
+                    fetch-depth: 0
 
             -   name: Set up Python on ubuntu-latest
                 uses: actions/setup-python@v4
@@ -88,7 +92,7 @@ jobs:
                     python-version: '3.x'
 
             -   name: Install linters
-                run: pip install -r linting_requirements.txt
+                run: pip install -e .[lint]
 
             -   name: Python info
                 run: |

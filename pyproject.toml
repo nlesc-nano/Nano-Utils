@@ -1,4 +1,104 @@
-[mypy]
+[build-system]
+requires = [
+    "setuptools>=61.0",
+    "setuptools_scm[toml]>=6.2",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "Nano-Utils"
+dynamic = [
+    "version",
+    "readme",
+]
+description = "Utility functions used throughout the various nlesc-nano repositories."
+license = { file = "LICENSE" }
+authors = [
+    { name = "Bas van Beek", email = "b.f.van.beek@vu.nl" },
+]
+keywords = [
+    "python-3",
+    "python-3-7",
+    "python-3-8",
+    "python-3-9",
+    "python-3-10",
+    "python-3-11",
+    "libraries",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Software Development :: Libraries",
+    "Typing :: Typed",
+]
+requires-python = ">=3.7"
+dependencies = [
+    "typing_extensions>=3.10.0; python_version<'3.8'",
+    "packaging>=1.16.8",
+]
+
+[project.urls]
+Homepage = "https://github.com/nlesc-nano/Nano-Utils"
+"Bug Tracker" = "https://github.com/nlesc-nano/Nano-Utils/issues"
+Documentation = "https://nano-utils.readthedocs.io/en/latest/includeme.html"
+
+[project.optional-dependencies]
+doc = [
+    "sphinx>=2.4",
+    "sphinx_rtd_theme",
+]
+test = [
+    "nano-utils[test-no-optional]",
+    "schema>=0.7.1,!=0.7.5",
+    "pyyaml>=5.1",
+    "h5py",
+    "numpy",
+    "ipython>=5.0.0",
+]
+test-no-optional = [
+    "assertionlib>=3.2.1",
+    "pytest>=6.0.0",
+    "pytest-cov",
+]
+lint = [
+    "flake8",
+    "pydocstyle[toml]>=6.1",
+    "Flake8-pyproject>=1.0.1",
+    "mypy",
+    "types-PyYAML",
+    "numpy>=1.21",
+    "ipython",
+]
+
+[tool.setuptools]
+license-files = ["LICENSE.md"]
+
+[tool.setuptools.packages.find]
+include = ["nanoutils*"]
+
+[tool.setuptools.package-data]
+nanoutils = [
+    "py.typed",
+    "**/*.pyi",
+]
+
+[tool.setuptools.dynamic]
+readme = { file = ["README.rst"], content-type = "text/x-rst" }
+
+[tool.setuptools_scm]
+write_to = "nanoutils/_version.py"
+
+[tool.mypy]
 plugins = "numpy.typing.mypy_plugin"
 warn_unused_ignores = true
 warn_redundant_casts = true

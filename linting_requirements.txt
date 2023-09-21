@@ -1,9 +1,0 @@
-flake8
-pydocstyle[toml]>=6.1
-Flake8-pyproject>=1.0.1
-
-# mypy
-mypy
-types-PyYAML
-assertionlib>=3.2.1
-numpy>=1.21

@@ -5,7 +5,7 @@ from inspect import isclass
 from functools import partial
 
 from assertionlib import assertion
-from nanoutils import set_docstring, get_importable, VersionInfo, version_info, split_dict
+from nanoutils import set_docstring, get_importable, VersionInfo, split_dict
 
 
 def test_set_docstring() -> None:
@@ -51,8 +51,6 @@ def test_version_info() -> None:
 
     assertion.assert_(VersionInfo.from_str, b'0.1.2', exception=TypeError)
     assertion.assert_(VersionInfo.from_str, '0.1.2bob', exception=ValueError)
-
-    assertion.isinstance(version_info, VersionInfo)
 
 
 def test_split_dict() -> None:
