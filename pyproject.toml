@@ -54,7 +54,7 @@ Documentation = "https://nano-utils.readthedocs.io/en/latest/includeme.html"
 
 [project.optional-dependencies]
 doc = [
-    "sphinx>=2.4",
+    "sphinx>=2.4,<7",
     "sphinx_rtd_theme",
 ]
 test = [
