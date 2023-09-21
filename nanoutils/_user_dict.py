@@ -26,9 +26,10 @@ else:
 from .utils import positional_only
 from .typing_utils import Protocol, runtime_checkable
 
+if TYPE_CHECKING:
+    from typing_extensions import Self
+
 _T = TypeVar("_T")
-_ST1 = TypeVar("_ST1", bound="UserMapping[Any, Any]")
-_ST2 = TypeVar("_ST2", bound="MutableUserMapping[Any, Any]")
 _KT = TypeVar("_KT")
 _VT = TypeVar("_VT")
 _VT_co = TypeVar("_VT_co", covariant=True)
@@ -100,21 +101,21 @@ class UserMapping(Mapping[_KT, _VT_co]):
             self._dict = dict(__iterable, **kwargs)
 
     @classmethod
-    def _reconstruct(cls: type[_ST1], dct: dict[_KT, _VT_co]) -> _ST1:
+    def _reconstruct(cls, dct: dict[_KT, _VT_co]) -> Self:
         """Alternative constructor without argument validation."""
         self = cls.__new__(cls)
         self._dict = dct
         return self
 
-    def __reduce__(self: _ST1) -> tuple[
-        Callable[[dict[_KT, _VT_co]], _ST1],
+    def __reduce__(self) -> tuple[
+        Callable[[dict[_KT, _VT_co]], Self],
         tuple[dict[_KT, _VT_co]],
     ]:
         """Helper for :mod:`pickle`."""
         cls = type(self)
         return cls._reconstruct, (self._dict,)
 
-    def copy(self: _ST1) -> _ST1:
+    def copy(self) -> Self:
         """Return a deep copy of this instance."""
         return copy.deepcopy(self)
 
@@ -194,7 +195,7 @@ class UserMapping(Mapping[_KT, _VT_co]):
     @overload
     def get(self, key: _KT, default: _T) -> _VT_co | _T: ...
 
-    def get(self, key, default=None):
+    def get(self, key: _KT, default: None | _T = None) -> _VT_co | _T | None:
         """Return the value for key if the key is present, else default."""
         return self._dict.get(key, default)
 
@@ -206,10 +207,13 @@ class UserMapping(Mapping[_KT, _VT_co]):
     def fromkeys(cls, iterable: Iterable[_T], value: _VT) -> UserMapping[_T, _VT]: ...
 
     @classmethod
-    def fromkeys(cls, iterable, value=None):
+    def fromkeys(
+        cls,
+        iterable: Iterable[_T], value: None | _VT = None,
+    ) -> UserMapping[_T, None | _VT]:
         """Create a new dictionary with keys from iterable and values set to default."""
         dct = dict.fromkeys(iterable, value)
-        return cls._reconstruct(dct)
+        return cls._reconstruct(dct)  # type: ignore
 
     if sys.version_info >= (3, 8):
         def __reversed__(self) -> Iterator[_KT]:
@@ -217,7 +221,7 @@ class UserMapping(Mapping[_KT, _VT_co]):
             return reversed(self._dict)
 
     if sys.version_info >= (3, 9):
-        def __or__(self: _ST1, other: Mapping[_KT, _VT_co]) -> _ST1:
+        def __or__(self, other: Mapping[_KT, _VT_co]) -> Self:
             """Implement :meth:`self | other <object.__or__>`."""
             cls = type(self)
             if not isinstance(other, Mapping):
@@ -227,7 +231,7 @@ class UserMapping(Mapping[_KT, _VT_co]):
             else:
                 return cls._reconstruct(self._dict | other)
 
-        def __ror__(self: _ST1, other: Mapping[_KT, _VT_co]) -> _ST1:
+        def __ror__(self, other: Mapping[_KT, _VT_co]) -> Self:
             """Implement :meth:`other | self <object.__ror__>`."""
             cls = type(self)
             if not isinstance(other, Mapping):
@@ -256,7 +260,7 @@ class MutableUserMapping(UserMapping[_KT, _VT], MutableMapping[_KT, _VT]):
     __slots__: str | Iterable[str] = ()
     __hash__ = None  # type: ignore[assignment]
 
-    def __copy__(self: _ST2) -> _ST2:
+    def __copy__(self) -> Self:
         """Implement :func:`copy.copy(self) <copy.copy>`."""
         return copy.deepcopy(self)
 
@@ -305,7 +309,7 @@ class MutableUserMapping(UserMapping[_KT, _VT], MutableMapping[_KT, _VT]):
             self._dict.update(__iterable, **kwargs)
 
     if sys.version_info >= (3, 9):
-        def __ior__(self: _ST2, other: Mapping[_KT, _VT]) -> _ST2:
+        def __ior__(self, other: Mapping[_KT, _VT]) -> Self:
             """Implement :meth:`self |= other <object.__ior__>`."""
             if not isinstance(other, Mapping):
                 return NotImplemented

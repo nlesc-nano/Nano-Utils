@@ -173,7 +173,7 @@ class _RecursiveMappingView(MappingView, metaclass=abc.ABCMeta):
         """Implement :func:`iter(self)<iter>`."""
         raise NotImplementedError("Trying to call an abstract method")
 
-    if H5PY_VERSION >= (3, 5, 0):
+    if TYPE_CHECKING or H5PY_VERSION >= Version("3.5.0"):
         @abc.abstractmethod
         def __reversed__(self) -> Iterator[object]:
             """Implement :func:`reversed(self)<reversed>`.

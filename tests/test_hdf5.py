@@ -11,6 +11,7 @@ import pytest
 from assertionlib import assertion
 from nanoutils import RecursiveKeysView, RecursiveValuesView, RecursiveItemsView
 from nanoutils.hdf5_utils import H5PY_VERSION
+from packaging.version import Version
 
 try:
     import h5py
@@ -53,12 +54,12 @@ class TestRecursiveKeys:
         assertion.eq(view, set(ref))
         assertion.eq(list(view), ref[1:], invert=True)
 
-    @pytest.mark.skipif(H5PY_VERSION < (3, 5, 0), reason="Requires h5py >= 3.5.0")
+    @pytest.mark.skipif(H5PY_VERSION < Version("3.5.0"), reason="Requires h5py >= 3.5.0")
     def test_reversed(self, view: RecursiveKeysView) -> None:
         ref = ["/dset1", "/a/dset2", "/a/b/dset3"]
         assertion.eq(list(reversed(view)), ref)
 
-    @pytest.mark.skipif(H5PY_VERSION >= (3, 5, 0), reason="Requires h5py < 3.5.0")
+    @pytest.mark.skipif(H5PY_VERSION >= Version("3.5.0"), reason="Requires h5py < 3.5.0")
     def test_reversed_raise(self, view: RecursiveKeysView) -> None:
         with pytest.raises(TypeError):
             reversed(view)
@@ -163,13 +164,13 @@ class TestRecursiveValues:
         assertion.eq(list(view), ref)
         assertion.eq(list(view), ref[1:], invert=True)
 
-    @pytest.mark.skipif(H5PY_VERSION < (3, 5, 0), reason="Requires h5py >= 3.5.0")
+    @pytest.mark.skipif(H5PY_VERSION < Version("3.5.0"), reason="Requires h5py >= 3.5.0")
     def test_reversed(self, view: RecursiveValuesView) -> None:
         f = view.mapping
         ref = [f["/dset1"], f["/a/dset2"], f["/a/b/dset3"]]
         assertion.eq(list(reversed(view)), ref)
 
-    @pytest.mark.skipif(H5PY_VERSION >= (3, 5, 0), reason="Requires h5py < 3.5.0")
+    @pytest.mark.skipif(H5PY_VERSION >= Version("3.5.0"), reason="Requires h5py < 3.5.0")
     def test_reversed_raise(self, view: RecursiveValuesView) -> None:
         with pytest.raises(TypeError):
             reversed(view)
@@ -230,7 +231,7 @@ class TestRecursiveItems:
         assertion.eq(view, set(ref))
         assertion.eq(list(view), ref[1:], invert=True)
 
-    @pytest.mark.skipif(H5PY_VERSION < (3, 5, 0), reason="Requires h5py >= 3.5.0")
+    @pytest.mark.skipif(H5PY_VERSION < Version("3.5.0"), reason="Requires h5py >= 3.5.0")
     def test_reversed(self, view: RecursiveItemsView) -> None:
         f = view.mapping
         ref = [
@@ -240,7 +241,7 @@ class TestRecursiveItems:
         ]
         assertion.eq(list(reversed(view)), ref)
 
-    @pytest.mark.skipif(H5PY_VERSION >= (3, 5, 0), reason="Requires h5py < 3.5.0")
+    @pytest.mark.skipif(H5PY_VERSION >= Version("3.5.0"), reason="Requires h5py < 3.5.0")
     def test_reversed_raise(self, view: RecursiveItemsView) -> None:
         with pytest.raises(TypeError):
             reversed(view)

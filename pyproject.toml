@@ -104,13 +104,8 @@ warn_unused_ignores = true
 warn_redundant_casts = true
 warn_return_any = true
 show_error_codes = true
-
-[[tool.mypy.overrides]]
-module = [
-    "IPython.*",
-    "h5py.*",
-]
-ignore_missing_imports = true
+mypy_path = "types"
+files = ["nanoutils", "types"]
 
 [tool.pytest.ini_options]
 testpaths = "nanoutils docs tests"

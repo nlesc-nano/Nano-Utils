@@ -24,20 +24,19 @@ import functools
 from types import ModuleType
 from functools import wraps
 from typing import (
-    List,
     Any,
-    Tuple,
-    Callable,
     TypeVar,
-    Iterable,
-    Dict,
-    Container,
-    Mapping,
     NamedTuple,
-    MutableMapping,
-    Collection,
     cast,
     overload,
+)
+from collections.abc import (
+    Callable,
+    Iterable,
+    Container,
+    Mapping,
+    MutableMapping,
+    Collection,
 )
 
 from .typing_utils import Literal
@@ -68,7 +67,7 @@ __all__ = [
 _T = TypeVar('_T')
 _KT = TypeVar('_KT')
 _VT = TypeVar('_VT')
-_FT = TypeVar('_FT', bound=Callable[..., Any])
+_FT = TypeVar('_FT', bound="Callable[..., Any]")
 
 
 def get_func_name(
@@ -153,7 +152,7 @@ def get_func_name(
     return name
 
 
-def group_by_values(iterable: Iterable[Tuple[_VT, _KT]]) -> Dict[_KT, List[_VT]]:
+def group_by_values(iterable: Iterable[tuple[_VT, _KT]]) -> dict[_KT, list[_VT]]:
     """Take an iterable, yielding 2-tuples, and group all first elements by the second.
 
     Examples
@@ -169,7 +168,7 @@ def group_by_values(iterable: Iterable[Tuple[_VT, _KT]]) -> Dict[_KT, List[_VT]]
 
     Parameters
     ----------
-    iterable : :class:`Iterable[Tuple[VT, KT]]<typing.Iterable>`
+    iterable : :class:`Iterable[tuple[VT, KT]]<typing.Iterable>`
         An iterable yielding 2 elements upon iteration
         (*e.g.* :meth:`dict.items` or :func:`enumerate`).
         The second element must be :class:`Hashable<collections.abc.Hashable>` and will be used
@@ -177,12 +176,12 @@ def group_by_values(iterable: Iterable[Tuple[_VT, _KT]]) -> Dict[_KT, List[_VT]]
 
     Returns
     -------
-    :class:`Dict[KT, List[VT]]<typing.Dict>`
+    :class:`dict[KT, list[VT]]<typing.dict>`
         A grouped dictionary.
 
     """
     ret = {}
-    list_append: Dict[_KT, Callable[[_VT], None]] = {}
+    list_append: dict[_KT, Callable[[_VT], None]] = {}
     for value, key in iterable:
         try:
             list_append[key](value)
@@ -275,7 +274,8 @@ def split_dict(
     preserve_order: bool = ...,
     *,
     keep_keys: Iterable[_KT],
-) -> Dict[_KT, _VT]:
+    disgard_keys: None = ...,
+) -> dict[_KT, _VT]:
     ...
 @overload  # noqa: E302
 def split_dict(
@@ -283,9 +283,16 @@ def split_dict(
     preserve_order: bool = ...,
     *,
     disgard_keys: Iterable[_KT],
-) -> Dict[_KT, _VT]:
+    keep_keys: None = ...,
+) -> dict[_KT, _VT]:
     ...
-def split_dict(dct, preserve_order=False, *, keep_keys=None, disgard_keys=None):  # noqa: E302,E501
+def split_dict(
+    dct: MutableMapping[_KT, _VT],
+    preserve_order: bool = False,
+    *,
+    keep_keys: None | Iterable[_KT] = None,
+    disgard_keys: None | Iterable[_KT] = None,
+) -> dict[_KT, _VT]:  # noqa: E302,E501
     r"""Pop all items from **dct** which are in not in **keep_keys** and use them to construct a new dictionary.
 
     Note that, by popping its keys, the passed **dct** will also be modified inplace.
@@ -324,14 +331,14 @@ def split_dict(dct, preserve_order=False, *, keep_keys=None, disgard_keys=None):
 
     Returns
     -------
-    :class:`Dict[KT, VT]<typing.Dict>`
+    :class:`dict[KT, VT]<typing.dict>`
         A new dictionaries with all key/value pairs from **dct** not specified in **keep_keys**.
 
     """  # noqa: E501
-    if keep_keys is disgard_keys is None:
+    if keep_keys is None and disgard_keys is None:
         raise TypeError("'keep_keys' and 'disgard_keys' cannot both be unspecified")
     elif keep_keys is None:
-        iterable = _disgard_keys(dct, disgard_keys, preserve_order)
+        iterable = _disgard_keys(dct, disgard_keys, preserve_order)  # type: ignore
     elif disgard_keys is None:
         iterable = _keep_keys(dct, keep_keys, preserve_order)
     else:
@@ -422,7 +429,7 @@ def raise_if(exception: None | BaseException) -> Callable[[_FT], _FT]:
         def decorator2(func: _FT) -> _FT:
             @wraps(func)
             def wrapper(*args: Any, **kwargs: Any) -> Any:
-                raise exception  # type: ignore[misc]
+                raise exception
             return wrapper  # type: ignore[return-value]
         return decorator2
 
@@ -709,7 +716,7 @@ def construct_api_doc(
 
     '''
     __doc__ = cast(str, glob_dict['__doc__'])
-    __all__ = cast(List[str], glob_dict['__all__'])
+    __all__ = cast("list[str]", glob_dict['__all__'])
 
     return __doc__.format(
         autosummary='\n'.join(f'    {i}' for i in __all__),
