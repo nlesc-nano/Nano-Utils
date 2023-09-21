@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+2.3.5
+*****
+* Switch from setup.py and setup.cfg to pyproject.toml
+* Remove `nanoutils.version_info` in favor of `.__version__` and `.__version_tuple__`.
+* Fix the `_from_iterable` abstract method of the h5py views
+
 2.3.4
 *****
 * Add formal Python 3.11 support
