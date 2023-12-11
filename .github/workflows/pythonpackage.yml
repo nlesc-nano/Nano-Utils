@@ -41,7 +41,7 @@ jobs:
                     fetch-depth: 0
 
             -   name: Set up Python ${{ matrix.version }} on ${{ matrix.os }}
-                uses: actions/setup-python@v4
+                uses: actions/setup-python@v5
                 with:
                     python-version: ${{ matrix.version }}
 
@@ -87,7 +87,7 @@ jobs:
                     fetch-depth: 0
 
             -   name: Set up Python on ubuntu-latest
-                uses: actions/setup-python@v4
+                uses: actions/setup-python@v5
                 with:
                     python-version: '3.x'
 
